@@ -31,28 +31,34 @@ struct TorrentDetailView: View {
                 }
                 
                 Section(header: Text("Pagina Indexer")) {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 12) {
                         Text(result.id)
                             .font(.system(.caption, design: .monospaced))
                             .lineLimit(3)
                         
-                        HStack {
-                            Button(action: {
-                                UIPasteboard.general.string = result.id
-                                showingCopiedAlert = true
-                            }) {
-                                Label("Copia Link", systemImage: "doc.on.doc")
-                            }
-                            .buttonStyle(.bordered)
-                            
-                            Button(action: {
-                                if let url = URL(string: result.id) {
-                                    UIApplication.shared.open(url)
+                        VStack(spacing: 10) {
+                            HStack(spacing: 12) {
+                                Button(action: {
+                                    UIPasteboard.general.string = result.id
+                                    showingCopiedAlert = true
+                                }) {
+                                    Label("Copia Link", systemImage: "doc.on.doc")
+                                        .frame(maxWidth: .infinity)
                                 }
-                            }) {
-                                Label("Apri nel Browser", systemImage: "safari")
+                                .buttonStyle(.bordered)
+                                .tint(.blue)
+                                
+                                Button(action: {
+                                    if let url = URL(string: result.id) {
+                                        UIApplication.shared.open(url)
+                                    }
+                                }) {
+                                    Label("Apri nel Browser", systemImage: "safari")
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(.bordered)
+                                .tint(.blue)
                             }
-                            .buttonStyle(.bordered)
                             
                             if !settings.qbittorrentUrl.isEmpty {
                                 if let downloadUrl = result.downloadUrl {
@@ -62,6 +68,7 @@ struct TorrentDetailView: View {
                                         }
                                     }) {
                                         Label("Aggiungi a qBittorrent", systemImage: "arrow.down.circle")
+                                            .frame(maxWidth: .infinity)
                                     }
                                     .buttonStyle(.borderedProminent)
                                     .disabled(isDownloading)
@@ -70,10 +77,15 @@ struct TorrentDetailView: View {
                         }
                         
                         if isDownloading {
-                            ProgressView()
-                                .padding(.top)
+                            HStack {
+                                Spacer()
+                                ProgressView()
+                                Spacer()
+                            }
+                            .padding(.top, 8)
                         }
                     }
+                    .padding(.vertical, 8)
                 }
             }
             .navigationTitle("Dettagli Torrent")
