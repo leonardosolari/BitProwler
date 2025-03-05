@@ -18,7 +18,7 @@ class SearchViewModel: ObservableObject {
         }
         
         guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "\(settings.serverUrl)api/v1/search?query=\(encodedQuery)") else {
+              let url = URL(string: "\(settings.serverUrl)api/v1/search?query=\(encodedQuery)&redirect=true") else {
             await MainActor.run {
                 self.errorMessage = "URL non valido"
                 self.showError = true

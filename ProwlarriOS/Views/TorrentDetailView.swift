@@ -30,23 +30,32 @@ struct TorrentDetailView: View {
                     }
                 }
                 
-                if let downloadUrl = result.downloadUrl {
-                    Section(header: Text("Download")) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(downloadUrl)
-                                .font(.system(.caption, design: .monospaced))
-                                .lineLimit(3)
+                Section(header: Text("Pagina Indexer")) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(result.id)
+                            .font(.system(.caption, design: .monospaced))
+                            .lineLimit(3)
+                        
+                        HStack {
+                            Button(action: {
+                                UIPasteboard.general.string = result.id
+                                showingCopiedAlert = true
+                            }) {
+                                Label("Copia Link", systemImage: "doc.on.doc")
+                            }
+                            .buttonStyle(.bordered)
                             
-                            HStack {
-                                Button(action: {
-                                    UIPasteboard.general.string = downloadUrl
-                                    showingCopiedAlert = true
-                                }) {
-                                    Label("Copia Link", systemImage: "doc.on.doc")
+                            Button(action: {
+                                if let url = URL(string: result.id) {
+                                    UIApplication.shared.open(url)
                                 }
-                                .buttonStyle(.bordered)
-                                
-                                if !settings.qbittorrentUrl.isEmpty {
+                            }) {
+                                Label("Apri nel Browser", systemImage: "safari")
+                            }
+                            .buttonStyle(.bordered)
+                            
+                            if !settings.qbittorrentUrl.isEmpty {
+                                if let downloadUrl = result.downloadUrl {
                                     Button(action: {
                                         Task {
                                             await downloadTorrent(url: downloadUrl)
@@ -58,11 +67,11 @@ struct TorrentDetailView: View {
                                     .disabled(isDownloading)
                                 }
                             }
-                            
-                            if isDownloading {
-                                ProgressView()
-                                    .padding(.top)
-                            }
+                        }
+                        
+                        if isDownloading {
+                            ProgressView()
+                                .padding(.top)
                         }
                     }
                 }
