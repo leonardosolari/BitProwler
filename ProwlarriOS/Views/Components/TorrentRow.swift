@@ -19,7 +19,7 @@ struct TorrentRow: View {
             // Barra di progresso
             VStack(alignment: .leading, spacing: 4) {
                 ProgressView(value: torrent.progress)
-                    .tint(progressColor(for: torrent.state))
+                    .tint(StatusBadge.getBackgroundColor(for: torrent.state))
                 Text("\(Int(torrent.progress * 100))%")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -81,17 +81,6 @@ struct TorrentRow: View {
         formatter.countStyle = .file
         return "\(formatter.string(fromByteCount: speed))/s"
     }
-    
-    private func progressColor(for state: String) -> Color {
-        switch state.lowercased() {
-        case "downloading": return .blue
-        case "uploading", "seeding": return .green
-        case let s where s.contains("paused"): return .gray
-        case let s where s.contains("stalled"): return .orange
-        case "error": return .red
-        default: return .gray
-        }
-    }
 }
 
 struct StatusBadge: View {
@@ -102,33 +91,26 @@ struct StatusBadge: View {
             .font(.caption)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(backgroundColor)
+            .background(Self.getBackgroundColor(for: state))
             .foregroundColor(.white)
             .clipShape(Capsule())
     }
     
     private var stateText: String {
-        switch state.lowercased() {
-        case "downloading": return "Download"
-        case "uploading", "seeding": return "Upload"
-        case let s where s.contains("pauseddl"): return "In Pausa (DL)"
-        case let s where s.contains("pausedup"): return "In Pausa (UP)"
-        case let s where s.contains("stalleddl"): return "Stalled (DL)"
-        case let s where s.contains("stalledup"): return "Stalled (UP)"
-        case "error": return "Errore"
-        case "missingfiles": return "File Mancanti"
-        default: return state.capitalized
-        }
+        let torrentState = TorrentState(from: state)
+        return torrentState.displayName
     }
     
-    private var backgroundColor: Color {
-        switch state.lowercased() {
-        case "downloading": return .blue
-        case "uploading", "seeding": return .green
-        case let s where s.contains("paused"): return .gray
-        case let s where s.contains("stalled"): return .orange
-        case "error", "missingfiles": return .red
-        default: return .gray
+    static func getBackgroundColor(for state: String) -> Color {
+        let torrentState = TorrentState(from: state)
+        switch torrentState {
+        case .downloading: return .blue
+        case .uploading: return .green
+        case .pausedDL, .pausedUP: return .gray
+        case .stalledDL, .stalledUP: return .orange
+        case .stoppedDL, .stoppedUP: return .purple
+        case .error, .missingFiles: return .red
+        case .unknown: return .gray
         }
     }
 } 
