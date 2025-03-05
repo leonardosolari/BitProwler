@@ -5,6 +5,7 @@ struct SearchView: View {
     @State private var searchText = ""
     @State private var isEditing = false
     @EnvironmentObject var settings: ProwlarrSettings
+    @FocusState private var isSearchFieldFocused: Bool
     
     var body: some View {
         NavigationView {
@@ -14,12 +15,16 @@ struct SearchView: View {
                     HStack {
                         TextField("Cerca...", text: $searchText)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .focused($isSearchFieldFocused)
                             .onSubmit {
                                 executeSearch()
                             }
                             .submitLabel(.search)
                         
-                        Button(action: executeSearch) {
+                        Button(action: {
+                            isSearchFieldFocused = false
+                            executeSearch()
+                        }) {
                             Image(systemName: "magnifyingglass")
                                 .foregroundColor(.white)
                                 .padding(8)
