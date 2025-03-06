@@ -36,7 +36,7 @@ struct SearchView: View {
                     .padding(.horizontal)
                     
                     // Contenuto principale
-                    if settings.serverUrl.isEmpty || settings.apiKey.isEmpty {
+                    if settings.activeServer == nil {
                         ContentUnavailableView(
                             "Configurazione Necessaria",
                             systemImage: "gear",

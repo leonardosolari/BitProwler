@@ -35,7 +35,7 @@ class TorrentsViewModel: ObservableObject {
     }
     
     func fetchTorrents(settings: ProwlarrSettings, silent: Bool = false) async {
-        guard !settings.qbittorrentUrl.isEmpty else {
+        guard let qbittorrentServer = settings.activeQBittorrentServer else {
             await MainActor.run {
                 self.error = "Server qBittorrent non configurato"
                 self.isLoading = false
@@ -43,7 +43,7 @@ class TorrentsViewModel: ObservableObject {
             return
         }
         
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/torrents/info") else {
+        guard let url = URL(string: "\(qbittorrentServer.url)api/v2/torrents/info") else {
             await MainActor.run {
                 self.error = "URL non valido"
                 self.isLoading = false
@@ -87,7 +87,8 @@ class TorrentsViewModel: ObservableObject {
     }
     
     private func login(with settings: ProwlarrSettings) async -> Bool? {
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/auth/login") else {
+        guard let server = settings.activeQBittorrentServer,
+              let url = URL(string: "\(server.url)api/v2/auth/login") else {
             return nil
         }
         
@@ -95,7 +96,7 @@ class TorrentsViewModel: ObservableObject {
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
-        let credentials = "username=\(settings.qbittorrentUsername)&password=\(settings.qbittorrentPassword)"
+        let credentials = "username=\(server.username)&password=\(server.password)"
         request.httpBody = credentials.data(using: .utf8)
         
         do {

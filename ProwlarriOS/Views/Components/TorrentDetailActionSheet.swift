@@ -103,10 +103,29 @@ struct TorrentDetailActionSheet: View {
     }
     
     private func deleteTorrent(withData: Bool) async {
+        guard let server = settings.activeQBittorrentServer else {
+            errorMessage = "Nessun server qBittorrent configurato"
+            showError = true
+            return
+        }
+        
         isLoading = true
         defer { isLoading = false }
         
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/torrents/delete") else {
+        // Prima effettuiamo il login
+        guard let loginSuccess = await login(server: server) else {
+            errorMessage = "Errore di connessione al server"
+            showError = true
+            return
+        }
+        
+        if !loginSuccess {
+            errorMessage = "Login fallito"
+            showError = true
+            return
+        }
+        
+        guard let url = URL(string: "\(server.url)api/v2/torrents/delete") else {
             errorMessage = "URL non valido"
             showError = true
             return
@@ -146,10 +165,17 @@ struct TorrentDetailActionSheet: View {
     }
     
     private func togglePauseResume() async {
+        guard let server = settings.activeQBittorrentServer else {
+            errorMessage = "Nessun server qBittorrent configurato"
+            showError = true
+            return
+        }
+        
         isLoading = true
         defer { isLoading = false }
         
-        guard let loginSuccess = await login() else {
+        // Prima effettuiamo il login
+        guard let loginSuccess = await login(server: server) else {
             errorMessage = "Errore di connessione al server"
             showError = true
             return
@@ -161,9 +187,9 @@ struct TorrentDetailActionSheet: View {
             return
         }
         
-        let endpoint = isPaused ? "start" : "stop"
+        let endpoint = isPaused ? "resume" : "pause"
         
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/torrents/\(endpoint)") else {
+        guard let url = URL(string: "\(server.url)api/v2/torrents/\(endpoint)") else {
             errorMessage = "URL non valido"
             showError = true
             return
@@ -181,7 +207,8 @@ struct TorrentDetailActionSheet: View {
             
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
-                    try await Task.sleep(nanoseconds: 500_000_000)
+                    // Attendiamo un breve momento per permettere a qBittorrent di aggiornare lo stato
+                    try await Task.sleep(nanoseconds: 500_000_000) // 0.5 secondi
                     dismiss()
                 } else {
                     throw NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Errore nel cambio stato del torrent (Status: \(httpResponse.statusCode))"])
@@ -195,8 +222,8 @@ struct TorrentDetailActionSheet: View {
         }
     }
     
-    private func login() async -> Bool? {
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/auth/login") else {
+    private func login(server: QBittorrentServer) async -> Bool? {
+        guard let url = URL(string: "\(server.url)api/v2/auth/login") else {
             return nil
         }
         
@@ -204,7 +231,7 @@ struct TorrentDetailActionSheet: View {
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
-        let credentials = "username=\(settings.qbittorrentUsername)&password=\(settings.qbittorrentPassword)"
+        let credentials = "username=\(server.username)&password=\(server.password)"
         request.httpBody = credentials.data(using: .utf8)
         
         do {
@@ -276,10 +303,29 @@ struct LocationPickerView: View {
     }
     
     private func moveLocation() async {
+        guard let server = settings.activeQBittorrentServer else {
+            errorMessage = "Nessun server qBittorrent configurato"
+            showError = true
+            return
+        }
+        
         isLoading = true
         defer { isLoading = false }
         
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/torrents/setLocation") else {
+        // Prima effettuiamo il login
+        guard let loginSuccess = await login(server: server) else {
+            errorMessage = "Errore di connessione al server"
+            showError = true
+            return
+        }
+        
+        if !loginSuccess {
+            errorMessage = "Login fallito"
+            showError = true
+            return
+        }
+        
+        guard let url = URL(string: "\(server.url)api/v2/torrents/setLocation") else {
             errorMessage = "URL non valido"
             showError = true
             return
@@ -303,6 +349,26 @@ struct LocationPickerView: View {
         } catch {
             errorMessage = error.localizedDescription
             showError = true
+        }
+    }
+    
+    private func login(server: QBittorrentServer) async -> Bool? {
+        guard let url = URL(string: "\(server.url)api/v2/auth/login") else {
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        
+        let credentials = "username=\(server.username)&password=\(server.password)"
+        request.httpBody = credentials.data(using: .utf8)
+        
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            return (response as? HTTPURLResponse)?.statusCode == 200
+        } catch {
+            return false
         }
     }
 }

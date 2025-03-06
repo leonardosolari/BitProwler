@@ -8,6 +8,15 @@ class SearchViewModel: ObservableObject {
     @Published var hasSearched = false
     
     func search(query: String, settings: ProwlarrSettings) async {
+        guard let prowlarrServer = settings.activeServer else {
+            await MainActor.run {
+                self.errorMessage = "Nessun server Prowlarr configurato"
+                self.showError = true
+                self.isLoading = false
+            }
+            return
+        }
+        
         guard !query.isEmpty else {
             await MainActor.run {
                 self.searchResults = []
@@ -18,7 +27,7 @@ class SearchViewModel: ObservableObject {
         }
         
         guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "\(settings.serverUrl)api/v1/search?query=\(encodedQuery)&redirect=true") else {
+              let url = URL(string: "\(prowlarrServer.url)api/v1/search?query=\(encodedQuery)") else {
             await MainActor.run {
                 self.errorMessage = "URL non valido"
                 self.showError = true
@@ -32,7 +41,7 @@ class SearchViewModel: ObservableObject {
         }
         
         var request = URLRequest(url: url)
-        request.setValue(settings.apiKey, forHTTPHeaderField: "X-Api-Key")
+        request.setValue(prowlarrServer.apiKey, forHTTPHeaderField: "X-Api-Key")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
         do {

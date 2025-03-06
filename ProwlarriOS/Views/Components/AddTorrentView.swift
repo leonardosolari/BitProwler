@@ -119,6 +119,8 @@ struct AddTorrentView: View {
     }
     
     private var canAddTorrent: Bool {
+        guard settings.activeQBittorrentServer != nil else { return false }
+        
         if isMagnetLink {
             return !magnetUrl.isEmpty
         } else {
@@ -127,11 +129,17 @@ struct AddTorrentView: View {
     }
     
     private func addTorrent() async {
+        guard let qbittorrentServer = settings.activeQBittorrentServer else {
+            errorMessage = "Nessun server qBittorrent configurato"
+            showError = true
+            return
+        }
+        
         isLoading = true
         defer { isLoading = false }
         
         // Prima effettuiamo il login
-        guard let loginSuccess = await login() else {
+        guard let loginSuccess = await login(server: qbittorrentServer) else {
             errorMessage = "Errore di connessione al server"
             showError = true
             return
@@ -143,7 +151,7 @@ struct AddTorrentView: View {
             return
         }
         
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/torrents/add") else {
+        guard let url = URL(string: "\(qbittorrentServer.url)api/v2/torrents/add") else {
             errorMessage = "URL non valido"
             showError = true
             return
@@ -197,8 +205,8 @@ struct AddTorrentView: View {
         }
     }
     
-    private func login() async -> Bool? {
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/auth/login") else {
+    private func login(server: QBittorrentServer) async -> Bool? {
+        guard let url = URL(string: "\(server.url)api/v2/auth/login") else {
             return nil
         }
         
@@ -206,7 +214,7 @@ struct AddTorrentView: View {
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
-        let credentials = "username=\(settings.qbittorrentUsername)&password=\(settings.qbittorrentPassword)"
+        let credentials = "username=\(server.username)&password=\(server.password)"
         request.httpBody = credentials.data(using: .utf8)
         
         do {

@@ -12,80 +12,24 @@ struct TorrentDetailView: View {
     var body: some View {
         NavigationView {
             List {
-                Section(header: Text("Informazioni")) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(result.title)
-                            .font(.headline)
-                        Text("Dimensione: \(formatSize(result.size))")
-                        Text("Indexer: \(result.indexer)")
-                        Text("Data: \(formatDate(result.publishDate))")
-                        HStack {
-                            Image(systemName: "arrow.up.circle")
-                                .foregroundColor(.green)
-                            Text("\(result.seeders)")
-                            Image(systemName: "arrow.down.circle")
-                                .foregroundColor(.red)
-                            Text("\(result.leechers)")
-                        }
-                    }
-                }
+                // Sezione Informazioni
+                TorrentInfoSection(result: result)
                 
-                Section(header: Text("Pagina Indexer")) {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(result.id)
-                            .font(.system(.caption, design: .monospaced))
-                            .lineLimit(3)
-                        
-                        VStack(spacing: 10) {
-                            HStack(spacing: 12) {
-                                Button(action: {
-                                    UIPasteboard.general.string = result.id
-                                    showingCopiedAlert = true
-                                }) {
-                                    Label("Copia Link", systemImage: "doc.on.doc")
-                                        .frame(maxWidth: .infinity)
-                                }
-                                .buttonStyle(.bordered)
-                                .tint(.blue)
-                                
-                                Button(action: {
-                                    if let url = URL(string: result.id) {
-                                        UIApplication.shared.open(url)
-                                    }
-                                }) {
-                                    Label("Apri nel Browser", systemImage: "safari")
-                                        .frame(maxWidth: .infinity)
-                                }
-                                .buttonStyle(.bordered)
-                                .tint(.blue)
-                            }
-                            
-                            if !settings.qbittorrentUrl.isEmpty {
+                // Sezione Link Indexer
+                IndexerLinkSection(
+                    id: result.id,
+                    showingCopiedAlert: $showingCopiedAlert
+                )
+                
+                // Sezione Download (se disponibile)
                                 if let downloadUrl = result.downloadUrl {
-                                    Button(action: {
-                                        Task {
-                                            await downloadTorrent(url: downloadUrl)
-                                        }
-                                    }) {
-                                        Label("Aggiungi a qBittorrent", systemImage: "arrow.down.circle")
-                                            .frame(maxWidth: .infinity)
-                                    }
-                                    .buttonStyle(.borderedProminent)
-                                    .disabled(isDownloading)
-                                }
-                            }
-                        }
-                        
-                        if isDownloading {
-                            HStack {
-                                Spacer()
-                                ProgressView()
-                                Spacer()
-                            }
-                            .padding(.top, 8)
-                        }
-                    }
-                    .padding(.vertical, 8)
+                    DownloadSection(
+                        downloadUrl: downloadUrl,
+                        isDownloading: $isDownloading,
+                        showingCopiedAlert: $showingCopiedAlert,
+                        onDownload: { await downloadTorrent(url: downloadUrl) },
+                        showQBittorrentButton: settings.activeQBittorrentServer != nil
+                    )
                 }
             }
             .navigationTitle("Dettagli Torrent")
@@ -109,10 +53,15 @@ struct TorrentDetailView: View {
     }
     
     private func downloadTorrent(url: String) async {
+        guard let qbittorrentServer = settings.activeQBittorrentServer else {
+            handleDownloadError("Nessun server qBittorrent configurato")
+            return
+        }
+        
         isDownloading = true
         
         // Prima effettua il login
-        guard let loginSuccess = await login() else {
+        guard let loginSuccess = await login(server: qbittorrentServer) else {
             handleDownloadError("Errore di connessione al server")
             return
         }
@@ -123,7 +72,7 @@ struct TorrentDetailView: View {
         }
         
         // Poi aggiunge il torrent
-        guard let downloadUrl = URL(string: "\(settings.qbittorrentUrl)/api/v2/torrents/add") else {
+        guard let downloadUrl = URL(string: "\(qbittorrentServer.url)api/v2/torrents/add") else {
             handleDownloadError("URL non valido")
             return
         }
@@ -159,8 +108,8 @@ struct TorrentDetailView: View {
         }
     }
     
-    private func login() async -> Bool? {
-        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/auth/login") else {
+    private func login(server: QBittorrentServer) async -> Bool? {
+        guard let url = URL(string: "\(server.url)api/v2/auth/login") else {
             return nil
         }
         
@@ -168,7 +117,7 @@ struct TorrentDetailView: View {
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
-        let credentials = "username=\(settings.qbittorrentUsername)&password=\(settings.qbittorrentPassword)"
+        let credentials = "username=\(server.username)&password=\(server.password)"
         request.httpBody = credentials.data(using: .utf8)
         
         do {
@@ -184,6 +133,32 @@ struct TorrentDetailView: View {
             downloadError = message
             showingDownloadAlert = true
             isDownloading = false
+        }
+    }
+}
+
+// MARK: - Componenti Ausiliari
+
+private struct TorrentInfoSection: View {
+    let result: TorrentResult
+    
+    var body: some View {
+        Section(header: Text("Informazioni")) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(result.title)
+                    .font(.headline)
+                Text("Dimensione: \(formatSize(result.size))")
+                Text("Indexer: \(result.indexer)")
+                Text("Data: \(formatDate(result.publishDate))")
+                HStack {
+                    Image(systemName: "arrow.up.circle")
+                        .foregroundColor(.green)
+                    Text("\(result.seeders)")
+                    Image(systemName: "arrow.down.circle")
+                        .foregroundColor(.red)
+                    Text("\(result.leechers)")
+                }
+            }
         }
     }
     
@@ -205,5 +180,84 @@ struct TorrentDetailView: View {
             return formatter.string(from: date)
         }
         return dateString
+    }
+}
+
+private struct IndexerLinkSection: View {
+    let id: String
+    @Binding var showingCopiedAlert: Bool
+    
+    var body: some View {
+        Section(header: Text("Pagina Indexer")) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(id)
+                    .font(.system(.caption, design: .monospaced))
+                    .lineLimit(3)
+                
+                HStack {
+                    Button(action: {
+                        UIPasteboard.general.string = id
+                        showingCopiedAlert = true
+                    }) {
+                        Label("Copia Link", systemImage: "doc.on.doc")
+                    }
+                    .buttonStyle(.bordered)
+                    
+                    Button(action: {
+                        if let url = URL(string: id) {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        Label("Apri nel Browser", systemImage: "safari")
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+        }
+    }
+}
+
+private struct DownloadSection: View {
+    let downloadUrl: String
+    @Binding var isDownloading: Bool
+    @Binding var showingCopiedAlert: Bool
+    let onDownload: () async -> Void
+    let showQBittorrentButton: Bool
+    
+    var body: some View {
+        Section(header: Text("Download")) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(downloadUrl)
+                    .font(.system(.caption, design: .monospaced))
+                    .lineLimit(3)
+                
+                HStack {
+                    Button(action: {
+                        UIPasteboard.general.string = downloadUrl
+                        showingCopiedAlert = true
+                    }) {
+                        Label("Copia Link", systemImage: "doc.on.doc")
+                    }
+                    .buttonStyle(.bordered)
+                    
+                    if showQBittorrentButton {
+                        Button(action: {
+                            Task {
+                                await onDownload()
+                            }
+                        }) {
+                            Label("Aggiungi a qBittorrent", systemImage: "arrow.down.circle")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(isDownloading)
+                    }
+                }
+                
+                if isDownloading {
+                    ProgressView()
+                        .padding(.top)
+                }
+            }
+        }
     }
 }
