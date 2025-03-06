@@ -109,8 +109,13 @@ struct StatusBadge: View {
         case .pausedDL, .pausedUP: return .gray
         case .stalledDL, .stalledUP: return .orange
         case .stoppedUP: return .purple
-        case .stoppedDL: return .orange
+        case .stoppedDL: return .yellow
         case .error, .missingFiles: return .red
+        case .queuedDL, .queuedUP: return .indigo
+        case .checkingUP, .checkingDL: return .teal
+        case .metaDL: return .cyan
+        case .forcedUP, .forcedDL: return .pink
+        case .moving: return .mint
         case .unknown: return .gray
         }
     }

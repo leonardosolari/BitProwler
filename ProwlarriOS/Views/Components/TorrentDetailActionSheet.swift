@@ -16,7 +16,7 @@ struct TorrentDetailActionSheet: View {
             List {
                 Section(header: Text("Informazioni")) {
                     LabeledContent("Nome", value: torrent.name)
-                    LabeledContent("Stato", value: torrent.state.capitalized)
+                    LabeledContent("Stato", value: TorrentState(from: torrent.state).displayName)
                     LabeledContent("Dimensione", value: formatSize(torrent.size))
                     LabeledContent("Progresso", value: "\(Int(torrent.progress * 100))%")
                     LabeledContent("Ratio", value: String(format: "%.2f", torrent.ratio))

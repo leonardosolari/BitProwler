@@ -11,6 +11,14 @@ enum TorrentState: String {
     case stoppedUP = "stoppedup"
     case error = "error"
     case missingFiles = "missingfiles"
+    case queuedDL = "queueddl"
+    case queuedUP = "queuedup"
+    case moving = "moving"
+    case checkingUP = "checkingup"
+    case checkingDL = "checkingdl"
+    case metaDL = "metadl"
+    case forcedUP = "forcedup"
+    case forcedDL = "forceddl"
     case unknown = "unknown"
     
     init(from string: String) {
@@ -33,6 +41,14 @@ enum TorrentState: String {
         case .stoppedUP: return "Completato"
         case .error: return "Errore"
         case .missingFiles: return "File Mancanti"
+        case .queuedDL: return "In Coda (DL)"
+        case .queuedUP: return "In Coda (UP)"
+        case .moving: return "Spostamento"
+        case .checkingUP: return "Checking (UP)"
+        case .checkingDL: return "Checking (DL)"
+        case .metaDL: return "Download Metadati"
+        case .forcedUP: return "Forzato (UP)"
+        case .forcedDL: return "Forzato (DL)"
         case .unknown: return "Sconosciuto"
         }
     }
