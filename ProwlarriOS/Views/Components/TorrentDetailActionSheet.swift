@@ -187,7 +187,7 @@ struct TorrentDetailActionSheet: View {
             return
         }
         
-        let endpoint = isPaused ? "resume" : "pause"
+        let endpoint = isPaused ? "start" : "stop"
         
         guard let url = URL(string: "\(server.url)api/v2/torrents/\(endpoint)") else {
             errorMessage = "URL non valido"

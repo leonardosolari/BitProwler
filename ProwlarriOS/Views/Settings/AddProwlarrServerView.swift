@@ -61,8 +61,45 @@ struct AddProwlarrServerView: View {
     }
     
     private func testConnection() {
-        // Implementa il test della connessione
-        // Simile a quello che già hai nel codice esistente
+        var finalUrl = url.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !finalUrl.hasSuffix("/") {
+            finalUrl += "/"
+        }
+        
+        guard let testUrl = URL(string: "\(finalUrl)api/v1/system/status") else {
+            testMessage = "URL non valido"
+            testSuccess = false
+            showingTestResult = true
+            return
+        }
+        
+        var request = URLRequest(url: testUrl)
+        request.setValue(apiKey.trimmingCharacters(in: .whitespacesAndNewlines), forHTTPHeaderField: "X-Api-Key")
+        
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    testMessage = "Errore di connessione: \(error.localizedDescription)"
+                    testSuccess = false
+                } else if let httpResponse = response as? HTTPURLResponse {
+                    switch httpResponse.statusCode {
+                    case 200:
+                        testMessage = "Connessione stabilita con successo!"
+                        testSuccess = true
+                    case 401:
+                        testMessage = "API Key non valida"
+                        testSuccess = false
+                    case 404:
+                        testMessage = "Server non trovato"
+                        testSuccess = false
+                    default:
+                        testMessage = "Errore: Status code \(httpResponse.statusCode)"
+                        testSuccess = false
+                    }
+                }
+                showingTestResult = true
+            }
+        }.resume()
     }
     
     private func saveServer() {

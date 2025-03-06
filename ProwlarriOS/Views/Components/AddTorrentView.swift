@@ -89,13 +89,14 @@ struct AddTorrentView: View {
             }
             .fileImporter(
                 isPresented: $showFileImporter,
-                allowedContentTypes: [.torrent]
+                allowedContentTypes: [.torrent],
+                allowsMultipleSelection: false
             ) { result in
                 switch result {
-                case .success(let url):
+                case .success(let urls):
                     do {
-                        torrentFile = try Data(contentsOf: url)
-                        selectedFileName = url.lastPathComponent
+                        torrentFile = try Data(contentsOf: urls.first!)
+                        selectedFileName = urls.first?.lastPathComponent
                     } catch {
                         errorMessage = "Errore nel caricamento del file: \(error.localizedDescription)"
                         showError = true
@@ -228,6 +229,19 @@ struct AddTorrentView: View {
 
 extension UTType {
     static var torrent: UTType {
-        UTType(importedAs: "org.bittorrent.torrent")
+        // Prova prima con l'identificatore MIME
+        if let type = UTType("application/x-bittorrent") {
+            return type
+        }
+        
+        // Se fallisce, prova con l'estensione
+        if let type = UTType(tag: "torrent",
+                            tagClass: .filenameExtension,
+                            conformingTo: .data) {
+            return type
+        }
+        
+        // Se entrambi falliscono, usa un tipo generico
+        return .data
     }
 } 
