@@ -141,14 +141,27 @@ struct TorrentDetailActionSheet: View {
     }
     
     private var isPaused: Bool {
-        torrent.state.lowercased().contains("paused")
+        let state = torrent.state.lowercased()
+        return state.contains("paused") || state.contains("stopped") || state.contains("stalled")
     }
     
     private func togglePauseResume() async {
         isLoading = true
         defer { isLoading = false }
         
-        let endpoint = isPaused ? "resume" : "pause"
+        guard let loginSuccess = await login() else {
+            errorMessage = "Errore di connessione al server"
+            showError = true
+            return
+        }
+        
+        if !loginSuccess {
+            errorMessage = "Login fallito"
+            showError = true
+            return
+        }
+        
+        let endpoint = isPaused ? "start" : "stop"
         
         guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/torrents/\(endpoint)") else {
             errorMessage = "URL non valido"
@@ -166,14 +179,39 @@ struct TorrentDetailActionSheet: View {
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                dismiss()
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 200 {
+                    try await Task.sleep(nanoseconds: 500_000_000)
+                    dismiss()
+                } else {
+                    throw NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Errore nel cambio stato del torrent (Status: \(httpResponse.statusCode))"])
+                }
             } else {
-                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Errore nel cambio stato del torrent"])
+                throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Risposta non valida dal server"])
             }
         } catch {
             errorMessage = error.localizedDescription
             showError = true
+        }
+    }
+    
+    private func login() async -> Bool? {
+        guard let url = URL(string: "\(settings.qbittorrentUrl)/api/v2/auth/login") else {
+            return nil
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        
+        let credentials = "username=\(settings.qbittorrentUsername)&password=\(settings.qbittorrentPassword)"
+        request.httpBody = credentials.data(using: .utf8)
+        
+        do {
+            let (_, response) = try await URLSession.shared.data(for: request)
+            return (response as? HTTPURLResponse)?.statusCode == 200
+        } catch {
+            return false
         }
     }
 }

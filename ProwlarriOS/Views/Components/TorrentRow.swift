@@ -108,7 +108,8 @@ struct StatusBadge: View {
         case .uploading: return .green
         case .pausedDL, .pausedUP: return .gray
         case .stalledDL, .stalledUP: return .orange
-        case .stoppedDL, .stoppedUP: return .purple
+        case .stoppedUP: return .purple
+        case .stoppedDL: return .orange
         case .error, .missingFiles: return .red
         case .unknown: return .gray
         }
