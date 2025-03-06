@@ -15,7 +15,16 @@ struct TorrentResultRow: View {
                     .foregroundColor(.green)
                 Label("\(result.leechers)", systemImage: "arrow.down.circle")
                     .foregroundColor(.red)
+                
                 Spacer()
+                
+                Text(result.indexer)
+                    .font(.caption)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.blue.opacity(0.1))
+                    .cornerRadius(8)
+                
                 Text(formatSize(result.size))
                     .font(.caption)
                     .foregroundColor(.secondary)
