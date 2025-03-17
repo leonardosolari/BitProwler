@@ -14,6 +14,7 @@ struct AddTorrentView: View {
     @State private var showError = false
     @State private var showFileImporter = false
     @State private var selectedFileName: String?
+    @State private var showingRecentPaths = false
     
     var body: some View {
         NavigationView {
@@ -56,6 +57,12 @@ struct AddTorrentView: View {
                         .autocapitalization(.none)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                    
+                    if !settings.recentPaths.paths.isEmpty {
+                        Button(action: { showingRecentPaths = true }) {
+                            Label("Percorsi Recenti", systemImage: "clock")
+                        }
+                    }
                 }
                 
                 Section {
@@ -114,6 +121,31 @@ struct AddTorrentView: View {
                         .padding()
                         .background(Color.systemBackground)
                         .cornerRadius(10)
+                }
+            }
+            .sheet(isPresented: $showingRecentPaths) {
+                NavigationView {
+                    List(settings.recentPaths.paths) { recentPath in
+                        Button(action: {
+                            downloadPath = recentPath.path
+                            showingRecentPaths = false
+                        }) {
+                            VStack(alignment: .leading) {
+                                Text(recentPath.path)
+                                Text(recentPath.lastUsed.formatted())
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .navigationTitle("Percorsi Recenti")
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Chiudi") {
+                                showingRecentPaths = false
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -193,6 +225,8 @@ struct AddTorrentView: View {
             
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
+                    // Aggiungi il percorso ai recenti quando il download ha successo
+                    settings.recentPaths.addPath(downloadPath)
                     dismiss()
                 } else {
                     throw NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Errore nell'aggiunta del torrent (Status: \(httpResponse.statusCode))"])
@@ -244,4 +278,4 @@ extension UTType {
         // Se entrambi falliscono, usa un tipo generico
         return .data
     }
-} 
+}

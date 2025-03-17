@@ -29,6 +29,8 @@ class ProwlarrSettings: ObservableObject {
         }
     }
     
+    @Published var recentPaths: RecentPathsManager
+    
     var activeServer: ProwlarrServer? {
         prowlarrServers.first { $0.id == activeProwlarrServerId }
     }
@@ -66,6 +68,8 @@ class ProwlarrSettings: ObservableObject {
         } else {
             self.activeQBittorrentServerId = nil
         }
+        
+        self.recentPaths = RecentPathsManager()
     }
     
     // Metodi di utilità per la gestione dei server
