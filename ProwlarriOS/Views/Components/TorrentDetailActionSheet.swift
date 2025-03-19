@@ -1,5 +1,24 @@
 import SwiftUI
 
+struct CircularProgressView: View {
+    let progress: Double
+    
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.gray.opacity(0.2), lineWidth: 4)
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(progress >= 1.0 ? Color.green : Color.blue, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            Text("\(Int(progress * 100))%")
+                .font(.caption2)
+                .bold()
+        }
+        .frame(width: 40, height: 40)
+    }
+}
+
 struct TorrentDetailActionSheet: View {
     let torrent: QBittorrentTorrent
     @Environment(\.dismiss) var dismiss
@@ -14,11 +33,21 @@ struct TorrentDetailActionSheet: View {
     var body: some View {
         NavigationView {
             List {
+                // Header with name and progress
+                Section {
+                    HStack(spacing: 12) {
+                        CircularProgressView(progress: torrent.progress)
+                        
+                        Text(torrent.name)
+                            .font(.headline)
+                            .lineLimit(2)
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+                }
+                
                 Section(header: Text("Informazioni")) {
-                    LabeledContent("Nome", value: torrent.name)
                     LabeledContent("Stato", value: TorrentState(from: torrent.state).displayName)
                     LabeledContent("Dimensione", value: formatSize(torrent.size))
-                    LabeledContent("Progresso", value: "\(Int(torrent.progress * 100))%")
                     LabeledContent("Ratio", value: String(format: "%.2f", torrent.ratio))
                 }
                 
