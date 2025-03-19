@@ -29,6 +29,9 @@ struct TorrentDetailActionSheet: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showError = false
+    // Add these properties
+    @State private var files: [TorrentFile] = []
+    @State private var isLoadingFiles = false
     
     var body: some View {
         NavigationView {
@@ -80,9 +83,39 @@ struct TorrentDetailActionSheet: View {
                         Label("Sposta", systemImage: "folder")
                     }
                 }
+                
+                // Add this section after the Information section
+                Section(header: Text("File")) {
+                    if isLoadingFiles {
+                        ProgressView()
+                            .frame(maxWidth: .infinity)
+                            .listRowInsets(EdgeInsets())
+                    } else if files.isEmpty {
+                        Text("Nessun file disponibile")
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(files) { file in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(file.name)
+                                    .lineLimit(1)
+                                HStack {
+                                    ProgressView(value: file.progress)
+                                        .tint(.blue)
+                                    Text(formatSize(file.size))
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            .padding(.vertical, 4)
+                        }
+                    }
+                }
             }
             .navigationTitle("Gestione Torrent")
             .navigationBarTitleDisplayMode(.inline)
+            .task {
+                await fetchFiles()
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Chiudi") {
@@ -268,6 +301,39 @@ struct TorrentDetailActionSheet: View {
             return (response as? HTTPURLResponse)?.statusCode == 200
         } catch {
             return false
+        }
+    }
+    
+    // Move fetchFiles() inside the TorrentDetailActionSheet struct
+    private func fetchFiles() async {
+        guard let server = settings.activeQBittorrentServer else {
+            return
+        }
+        
+        isLoadingFiles = true
+        defer { isLoadingFiles = false }
+        
+        guard let loginSuccess = await login(server: server) else {
+            return
+        }
+        
+        if !loginSuccess {
+            return
+        }
+        
+        guard let url = URL(string: "\(server.url)api/v2/torrents/files?hash=\(torrent.hash)") else {
+            return
+        }
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let jsonArray = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
+                await MainActor.run {
+                    self.files = jsonArray.map { TorrentFile(from: $0) }
+                }
+            }
+        } catch {
+            print("Error fetching files: \(error)")
         }
     }
 }
