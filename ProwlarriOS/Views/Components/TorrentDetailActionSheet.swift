@@ -32,6 +32,10 @@ struct TorrentDetailActionSheet: View {
     // Add these properties
     @State private var files: [TorrentFile] = []
     @State private var isLoadingFiles = false
+    // Add this state variable
+    @State private var showingFileList = false
+    
+    // Remove files and isLoadingFiles state variables
     
     var body: some View {
         NavigationView {
@@ -82,39 +86,21 @@ struct TorrentDetailActionSheet: View {
                     } label: {
                         Label("Sposta", systemImage: "folder")
                     }
-                }
-                
-                // Add this section after the Information section
-                Section(header: Text("File")) {
-                    if isLoadingFiles {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                            .listRowInsets(EdgeInsets())
-                    } else if files.isEmpty {
-                        Text("Nessun file disponibile")
-                            .foregroundColor(.secondary)
-                    } else {
-                        ForEach(files) { file in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(file.name)
-                                    .lineLimit(1)
-                                HStack {
-                                    ProgressView(value: file.progress)
-                                        .tint(.blue)
-                                    Text(formatSize(file.size))
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            .padding(.vertical, 4)
-                        }
+                    
+                    Button {
+                        showingFileList = true
+                    } label: {
+                        Label("Mostra File", systemImage: "doc.text")
                     }
                 }
+                // Remove the Files section
             }
             .navigationTitle("Gestione Torrent")
             .navigationBarTitleDisplayMode(.inline)
-            .task {
-                await fetchFiles()
+            // Remove the .task modifier
+            // Add the sheet for files
+            .sheet(isPresented: $showingFileList) {
+                TorrentFilesView(torrent: torrent)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
