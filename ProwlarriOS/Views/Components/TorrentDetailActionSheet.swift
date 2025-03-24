@@ -334,6 +334,15 @@ struct LocationPickerView: View {
     @State private var showError = false
     // Add RecentPathsManager
     @StateObject private var recentPaths = RecentPathsManager()
+    @State private var showSuggestions = false
+    @FocusState private var isTextFieldFocused: Bool
+    
+    var filteredPaths: [RecentPath] {
+        if newLocation.isEmpty {
+            return []
+        }
+        return recentPaths.paths.filter { $0.path.localizedCaseInsensitiveContains(newLocation) }
+    }
     
     var body: some View {
         NavigationView {
@@ -343,25 +352,30 @@ struct LocationPickerView: View {
                         .autocapitalization(.none)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
+                        .focused($isTextFieldFocused)
+                        .onChange(of: newLocation) { _ in
+                            showSuggestions = !newLocation.isEmpty && isTextFieldFocused
+                        }
+                    
+                    if showSuggestions && !filteredPaths.isEmpty {
+                        ForEach(filteredPaths) { path in
+                            Button(action: {
+                                newLocation = path.path
+                                showSuggestions = false
+                                isTextFieldFocused = false
+                            }) {
+                                Text(path.path)
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                    }
                     
                     Text("Inserisci il percorso completo della nuova posizione")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 
-                // Add Recent Paths Section
-                if !recentPaths.paths.isEmpty {
-                    Section(header: Text("Percorsi Recenti")) {
-                        ForEach(recentPaths.paths) { recentPath in
-                            Button(action: {
-                                newLocation = recentPath.path
-                            }) {
-                                Text(recentPath.path)
-                                    .foregroundColor(.primary)
-                            }
-                        }
-                    }
-                }
+                // Remove the Recent Paths section since we now have the dropdown
                 
                 Section {
                     Button("Sposta") {
