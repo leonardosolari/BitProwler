@@ -332,6 +332,8 @@ struct LocationPickerView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showError = false
+    // Add RecentPathsManager
+    @StateObject private var recentPaths = RecentPathsManager()
     
     var body: some View {
         NavigationView {
@@ -345,6 +347,20 @@ struct LocationPickerView: View {
                     Text("Inserisci il percorso completo della nuova posizione")
                         .font(.caption)
                         .foregroundColor(.secondary)
+                }
+                
+                // Add Recent Paths Section
+                if !recentPaths.paths.isEmpty {
+                    Section(header: Text("Percorsi Recenti")) {
+                        ForEach(recentPaths.paths) { recentPath in
+                            Button(action: {
+                                newLocation = recentPath.path
+                            }) {
+                                Text(recentPath.path)
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                    }
                 }
                 
                 Section {
@@ -423,6 +439,8 @@ struct LocationPickerView: View {
             let (_, response) = try await URLSession.shared.data(for: request)
             
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                // Add the path to recent paths when move is successful
+                recentPaths.addPath(newLocation)
                 dismiss()
             } else {
                 throw NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Errore nello spostamento del torrent"])
