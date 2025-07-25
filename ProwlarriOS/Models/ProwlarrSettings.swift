@@ -1,6 +1,9 @@
 import Foundation
+import KeychainAccess
 
 class ProwlarrSettings: ObservableObject {
+    private let keychainService = KeychainService()
+    
     @Published var prowlarrServers: [ProwlarrServer] {
         didSet {
             if let encoded = try? JSONEncoder().encode(prowlarrServers) {
@@ -40,23 +43,35 @@ class ProwlarrSettings: ObservableObject {
     }
     
     init() {
-        // Carica i server Prowlarr
+        // Carica i server Prowlarr da UserDefaults
         if let data = UserDefaults.standard.data(forKey: "prowlarrServers"),
-           let servers = try? JSONDecoder().decode([ProwlarrServer].self, from: data) {
+        var servers = try? JSONDecoder().decode([ProwlarrServer].self, from: data) {
+            // Ora, per ogni server, carica la sua API key dal Keychain
+            for i in 0..<servers.count {
+                if let apiKey = keychainService.get(key: servers[i].id.uuidString) {
+                    servers[i].apiKey = apiKey
+                }
+            }
             self.prowlarrServers = servers
         } else {
             self.prowlarrServers = []
         }
         
-        // Carica i server qBittorrent
+        // Carica i server qBittorrent da UserDefaults
         if let data = UserDefaults.standard.data(forKey: "qbittorrentServers"),
-           let servers = try? JSONDecoder().decode([QBittorrentServer].self, from: data) {
+        var servers = try? JSONDecoder().decode([QBittorrentServer].self, from: data) {
+            // Ora, per ogni server, carica la sua password dal Keychain
+            for i in 0..<servers.count {
+                if let password = keychainService.get(key: servers[i].id.uuidString) {
+                    servers[i].password = password
+                }
+            }
             self.qbittorrentServers = servers
         } else {
             self.qbittorrentServers = []
         }
         
-        // Carica gli ID dei server attivi
+        // Il resto rimane invariato
         if let idString = UserDefaults.standard.string(forKey: "activeProwlarrServerId") {
             self.activeProwlarrServerId = UUID(uuidString: idString)
         } else {
@@ -74,30 +89,55 @@ class ProwlarrSettings: ObservableObject {
     
     // Metodi di utilità per la gestione dei server
     func addProwlarrServer(_ server: ProwlarrServer) {
-        prowlarrServers.append(server)
-        if prowlarrServers.count == 1 {
-            activeProwlarrServerId = server.id
+        do {
+            // Salva l'API key nel Keychain prima di aggiungere il server all'array
+            try keychainService.save(key: server.id.uuidString, value: server.apiKey)
+            prowlarrServers.append(server)
+            if prowlarrServers.count == 1 {
+                activeProwlarrServerId = server.id
+            }
+        } catch {
+            print("Errore nel salvataggio della API key nel Keychain: \(error)")
+            // Qui potresti voler gestire l'errore, magari mostrando un alert all'utente
         }
     }
     
     func addQBittorrentServer(_ server: QBittorrentServer) {
-        qbittorrentServers.append(server)
-        if qbittorrentServers.count == 1 {
-            activeQBittorrentServerId = server.id
+        do {
+            // Salva la password nel Keychain prima di aggiungere il server all'array
+            try keychainService.save(key: server.id.uuidString, value: server.password)
+            qbittorrentServers.append(server)
+            if qbittorrentServers.count == 1 {
+                activeQBittorrentServerId = server.id
+            }
+        } catch {
+            print("Errore nel salvataggio della password nel Keychain: \(error)")
         }
     }
     
     func deleteProwlarrServer(_ server: ProwlarrServer) {
-        prowlarrServers.removeAll { $0.id == server.id }
-        if activeProwlarrServerId == server.id {
-            activeProwlarrServerId = prowlarrServers.first?.id
+        do {
+            // Elimina l'API key dal Keychain prima di rimuovere il server
+            try keychainService.delete(key: server.id.uuidString)
+            prowlarrServers.removeAll { $0.id == server.id }
+            if activeProwlarrServerId == server.id {
+                activeProwlarrServerId = prowlarrServers.first?.id
+            }
+        } catch {
+            print("Errore nell'eliminazione della API key dal Keychain: \(error)")
         }
     }
     
     func deleteQBittorrentServer(_ server: QBittorrentServer) {
-        qbittorrentServers.removeAll { $0.id == server.id }
-        if activeQBittorrentServerId == server.id {
-            activeQBittorrentServerId = qbittorrentServers.first?.id
+        do {
+            // Elimina la password dal Keychain prima di rimuovere il server
+            try keychainService.delete(key: server.id.uuidString)
+            qbittorrentServers.removeAll { $0.id == server.id }
+            if activeQBittorrentServerId == server.id {
+                activeQBittorrentServerId = qbittorrentServers.first?.id
+            }
+        } catch {
+            print("Errore nell'eliminazione della password dal Keychain: \(error)")
         }
     }
 }

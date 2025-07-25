@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		5980806A2E33BBE0006945D9 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 598080692E33BBE0006945D9 /* KeychainAccess */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		594AA9B12CF6622300A8451F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5980806A2E33BBE0006945D9 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = ProwlarriOS;
 			packageProductDependencies = (
+				598080692E33BBE0006945D9 /* KeychainAccess */,
 			);
 			productName = ProwlarriOS;
 			productReference = 594AA9A02CF6621F00A8451F /* ProwlarriOS.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 594AA9972CF6621F00A8451F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				598080682E33BAE2006945D9 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 594AA9A12CF6621F00A8451F /* Products */;
 			projectDirPath = "";
@@ -556,6 +565,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		598080682E33BAE2006945D9 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		598080692E33BBE0006945D9 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 598080682E33BAE2006945D9 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 594AA9982CF6621F00A8451F /* Project object */;
 }
