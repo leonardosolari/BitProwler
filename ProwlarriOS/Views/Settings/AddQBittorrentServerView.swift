@@ -10,31 +10,38 @@ struct AddQBittorrentServerView: View {
     @State private var password = ""
     @State private var isTesting = false
     
+    // Usiamo la struct di errore che conforma a Error
+    @State private var testResult: Result<String, TestConnectionError>?
+    @State private var isShowingTestResult = false
+    
     private let apiService: QBittorrentAPIService = NetworkManager()
     
     var body: some View {
         NavigationView {
             Form {
-                // ... il tuo Form rimane identico ...
                 Section(header: Text("Informazioni Server")) {
                     TextField("Nome", text: $name)
                     TextField("URL Server", text: $url)
                         .autocapitalization(.none)
-                        .textInputAutocapitalization(.never)
+                        .keyboardType(.URL)
+                        .textContentType(.URL)
                         .autocorrectionDisabled()
                     TextField("Username", text: $username)
                         .autocapitalization(.none)
-                        .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     SecureField("Password", text: $password)
                 }
                 
                 Section {
                     Button(action: testConnection) {
-                        if isTesting {
-                            ProgressView()
-                        } else {
-                            Text("Testa Connessione")
+                        HStack {
+                            Spacer()
+                            if isTesting {
+                                ProgressView()
+                            } else {
+                                Text("Testa Connessione")
+                            }
+                            Spacer()
                         }
                     }
                     .disabled(!canTest || isTesting)
@@ -50,6 +57,16 @@ struct AddQBittorrentServerView: View {
                     Button("Annulla") { dismiss() }
                 }
             }
+            .alert(isPresented: $isShowingTestResult) {
+                switch testResult {
+                case .success(let message):
+                    return Alert(title: Text("Successo"), message: Text(message), dismissButton: .default(Text("OK")))
+                case .failure(let error):
+                    return Alert(title: Text("Errore"), message: Text(error.localizedDescription), dismissButton: .default(Text("OK")))
+                case .none:
+                    return Alert(title: Text("Errore Sconosciuto"))
+                }
+            }
         }
     }
     
@@ -62,8 +79,12 @@ struct AddQBittorrentServerView: View {
         
         Task {
             let success = await apiService.testConnection(to: serverToTest)
-            // Qui dovresti mostrare un alert o un feedback
-            print("Test connessione qBittorrent: \(success ? "Successo" : "Fallito")")
+            if success {
+                testResult = .success("Connessione al server qBittorrent riuscita!")
+            } else {
+                testResult = .failure(TestConnectionError(errorDescription: "Impossibile connettersi al server. Controlla URL e credenziali."))
+            }
+            isShowingTestResult = true
             isTesting = false
         }
     }

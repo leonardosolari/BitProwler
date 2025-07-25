@@ -1,5 +1,10 @@
 import SwiftUI
 
+// Definiamo un tipo di errore semplice per il risultato del test
+struct TestConnectionError: Error, LocalizedError {
+    var errorDescription: String?
+}
+
 struct AddProwlarrServerView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var prowlarrManager: ProwlarrServerManager
@@ -9,27 +14,35 @@ struct AddProwlarrServerView: View {
     @State private var apiKey = ""
     @State private var isTesting = false
     
+    // Usiamo la nostra nuova struct di errore
+    @State private var testResult: Result<String, TestConnectionError>?
+    @State private var isShowingTestResult = false
+    
     private let apiService: ProwlarrAPIService = NetworkManager()
     
     var body: some View {
         NavigationView {
             Form {
-                // ... il tuo Form rimane identico ...
                 Section(header: Text("Informazioni Server")) {
                     TextField("Nome", text: $name)
                     TextField("URL Server", text: $url)
                         .autocapitalization(.none)
-                        .textInputAutocapitalization(.never)
+                        .keyboardType(.URL)
+                        .textContentType(.URL)
                         .autocorrectionDisabled()
                     SecureField("API Key", text: $apiKey)
                 }
                 
                 Section {
                     Button(action: testConnection) {
-                        if isTesting {
-                            ProgressView()
-                        } else {
-                            Text("Testa Connessione")
+                        HStack {
+                            Spacer()
+                            if isTesting {
+                                ProgressView()
+                            } else {
+                                Text("Testa Connessione")
+                            }
+                            Spacer()
                         }
                     }
                     .disabled(!canTest || isTesting)
@@ -45,6 +58,16 @@ struct AddProwlarrServerView: View {
                     Button("Annulla") { dismiss() }
                 }
             }
+            .alert(isPresented: $isShowingTestResult) {
+                switch testResult {
+                case .success(let message):
+                    return Alert(title: Text("Successo"), message: Text(message), dismissButton: .default(Text("OK")))
+                case .failure(let error):
+                    return Alert(title: Text("Errore"), message: Text(error.localizedDescription), dismissButton: .default(Text("OK")))
+                case .none:
+                    return Alert(title: Text("Errore Sconosciuto"))
+                }
+            }
         }
     }
     
@@ -57,8 +80,13 @@ struct AddProwlarrServerView: View {
         
         Task {
             let success = await apiService.testConnection(to: serverToTest)
-            // Qui dovresti mostrare un alert o un feedback
-            print("Test connessione Prowlarr: \(success ? "Successo" : "Fallito")")
+            if success {
+                testResult = .success("Connessione al server Prowlarr riuscita!")
+            } else {
+                // Creiamo un'istanza del nostro errore personalizzato
+                testResult = .failure(TestConnectionError(errorDescription: "Impossibile connettersi al server. Controlla l'URL e la chiave API."))
+            }
+            isShowingTestResult = true
             isTesting = false
         }
     }

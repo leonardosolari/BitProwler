@@ -110,11 +110,22 @@ struct SearchView: View {
     @ViewBuilder
     private var mainContent: some View {
         if prowlarrManager.activeServer == nil {
-            ContentUnavailableView(
-                "Configurazione Necessaria",
-                systemImage: "gear",
-                description: Text("Vai nelle impostazioni per configurare il server Prowlarr")
-            )
+            ContentUnavailableView {
+                Label("Configurazione Necessaria", systemImage: "gear")
+            } description: {
+                Text("Vai nelle impostazioni per configurare il server Prowlarr.")
+            }
+        } else if viewModel.showError { // Usiamo showError per lo stato di errore
+            ContentUnavailableView {
+                Label("Errore di Ricerca", systemImage: "exclamationmark.triangle")
+            } description: {
+                Text(viewModel.errorMessage ?? "Si è verificato un errore sconosciuto.")
+            } actions: {
+                Button("Riprova") {
+                    executeSearch()
+                }
+                .buttonStyle(.borderedProminent)
+            }
         } else if filteredResults.isEmpty && viewModel.hasSearched {
             ContentUnavailableView(
                 "Nessun Risultato",
