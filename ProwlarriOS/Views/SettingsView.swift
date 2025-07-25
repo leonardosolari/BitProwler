@@ -30,6 +30,21 @@ struct SettingsView: View {
                         }
                     }
                 }
+                
+                Section {
+                    // Puoi lasciare questa sezione vuota se vuoi solo il footer
+                } footer: {
+                    HStack {
+                        Spacer()
+                        Text(AppInfo.displayVersion)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
+                    .padding(.top, 20) // Aggiungi un po' di spazio sopra
+                }
+                // Rimuove il separatore sopra il footer per un look più pulito
+                .listRowInsets(EdgeInsets()) 
             }
             .navigationTitle("Impostazioni")
         }
