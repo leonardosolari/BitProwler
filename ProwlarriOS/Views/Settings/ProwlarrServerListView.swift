@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ProwlarrServerListView: View {
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
     @State private var showingAddServer = false
     @Environment(\.dismiss) var dismiss
     
@@ -13,17 +13,17 @@ struct ProwlarrServerListView: View {
                 }
             }
             
-            if !settings.prowlarrServers.isEmpty {
+            if !prowlarrManager.prowlarrServers.isEmpty {
                 Section("Server Configurati") {
-                    ForEach(settings.prowlarrServers) { server in
+                    ForEach(prowlarrManager.prowlarrServers) { server in
                         ServerRow(
                             name: server.name,
-                            isActive: settings.activeProwlarrServerId == server.id,
-                            onSelect: { settings.activeProwlarrServerId = server.id }
+                            isActive: prowlarrManager.activeProwlarrServerId == server.id,
+                            onSelect: { prowlarrManager.activeProwlarrServerId = server.id }
                         )
                         .swipeActions {
                             Button(role: .destructive) {
-                                settings.deleteProwlarrServer(server)
+                                prowlarrManager.deleteProwlarrServer(server)
                             } label: {
                                 Label("Elimina", systemImage: "trash")
                             }

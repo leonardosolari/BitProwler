@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager 
     
     var body: some View {
         NavigationView {
@@ -11,7 +12,7 @@ struct SettingsView: View {
                         HStack {
                             Label("Server Prowlarr", systemImage: "server.rack")
                             Spacer()
-                            if let activeServer = settings.activeServer {
+                            if let activeServer = prowlarrManager.activeServer {
                                 Text(activeServer.name)
                                     .foregroundColor(.secondary)
                             }
@@ -22,7 +23,7 @@ struct SettingsView: View {
                         HStack {
                             Label("Server qBittorrent", systemImage: "arrow.down.circle")
                             Spacer()
-                            if let activeServer = settings.activeQBittorrentServer {
+                            if let activeServer = qbittorrentManager.activeQBittorrentServer {
                                 Text(activeServer.name)
                                     .foregroundColor(.secondary)
                             }
@@ -37,5 +38,6 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environmentObject(ProwlarrSettings())
+        .environmentObject(ProwlarrServerManager())
+        .environmentObject(QBittorrentServerManager())
 }

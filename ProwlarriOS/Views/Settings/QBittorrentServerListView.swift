@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct QBittorrentServerListView: View {
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
     @State private var showingAddServer = false
     @Environment(\.dismiss) var dismiss
     
@@ -13,17 +13,17 @@ struct QBittorrentServerListView: View {
                 }
             }
             
-            if !settings.qbittorrentServers.isEmpty {
+            if !qbittorrentManager.qbittorrentServers.isEmpty {
                 Section("Server Configurati") {
-                    ForEach(settings.qbittorrentServers) { server in
+                    ForEach(qbittorrentManager.qbittorrentServers) { server in
                         ServerRow(
                             name: server.name,
-                            isActive: settings.activeQBittorrentServerId == server.id,
-                            onSelect: { settings.activeQBittorrentServerId = server.id }
+                            isActive: qbittorrentManager.activeQBittorrentServerId == server.id,
+                            onSelect: { qbittorrentManager.activeQBittorrentServerId = server.id }
                         )
                         .swipeActions {
                             Button(role: .destructive) {
-                                settings.deleteQBittorrentServer(server)
+                                qbittorrentManager.deleteQBittorrentServer(server)
                             } label: {
                                 Label("Elimina", systemImage: "trash")
                             }

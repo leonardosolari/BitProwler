@@ -2,7 +2,8 @@ import SwiftUI
 
 struct AddQBittorrentServerView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+
     
     @State private var name = ""
     @State private var url = ""
@@ -124,7 +125,7 @@ struct AddQBittorrentServerView: View {
             password: password
         )
         
-        settings.addQBittorrentServer(server)
+        qbittorrentManager.addQBittorrentServer(server)
         dismiss()
     }
 } 

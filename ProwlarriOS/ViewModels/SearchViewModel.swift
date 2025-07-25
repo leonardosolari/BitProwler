@@ -7,8 +7,8 @@ class SearchViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var hasSearched = false
     
-    func search(query: String, settings: ProwlarrSettings) async {
-        guard let prowlarrServer = settings.activeServer else {
+    func search(query: String, prowlarrManager: ProwlarrServerManager) async {
+        guard let prowlarrServer = prowlarrManager.activeServer else {
             await MainActor.run {
                 self.errorMessage = "Nessun server Prowlarr configurato"
                 self.showError = true

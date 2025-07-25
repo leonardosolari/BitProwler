@@ -1,14 +1,11 @@
-//
-//  ContentView.swift
-//  ProwlarriOS
-//
-//  Created by Leonardo Solari on 26/11/24.
-//
-
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var settings = ProwlarrSettings()
+    // Inizializziamo i nostri nuovi manager qui.
+    // Saranno la "source of truth" per l'intera app.
+    @StateObject private var prowlarrManager = ProwlarrServerManager()
+    @StateObject private var qbittorrentManager = QBittorrentServerManager()
+    @StateObject private var recentPathsManager = RecentPathsManager()
     
     var body: some View {
         TabView {
@@ -16,20 +13,21 @@ struct ContentView: View {
                 .tabItem {
                     Label("Cerca", systemImage: "magnifyingglass")
                 }
-                .environmentObject(settings)
             
             TorrentsView()
                 .tabItem {
                     Label("Torrent", systemImage: "arrow.down.circle")
                 }
-                .environmentObject(settings)
             
             SettingsView()
                 .tabItem {
                     Label("Impostazioni", systemImage: "gear")
                 }
-                .environmentObject(settings)
         }
+        // Inseriamo tutti i manager necessari nell'ambiente di SwiftUI.
+        .environmentObject(prowlarrManager)
+        .environmentObject(qbittorrentManager)
+        .environmentObject(recentPathsManager)
     }
 }
 

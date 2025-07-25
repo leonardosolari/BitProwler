@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TorrentsView: View {
     @StateObject private var viewModel = TorrentsViewModel()
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager 
     @State private var showingAddTorrent = false
     
     var body: some View {
@@ -24,11 +24,11 @@ struct TorrentsView: View {
                             description: Text("Non ci sono torrent attivi")
                         )
                     } else {
-                        List(viewModel.torrents) { torrent in
+                        List(viewModel.torrents, id: \.hash) { torrent in
                             TorrentRow(torrent: torrent)
                         }
                         .refreshable {
-                            await viewModel.fetchTorrents(settings: settings)
+                            await viewModel.fetchTorrents()
                         }
                     }
                 }
@@ -58,7 +58,7 @@ struct TorrentsView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         Task {
-                            await viewModel.fetchTorrents(settings: settings)
+                            await viewModel.fetchTorrents()
                         }
                     }) {
                         Image(systemName: "arrow.clockwise")
@@ -70,10 +70,10 @@ struct TorrentsView: View {
             }
         }
         .task {
-            await viewModel.fetchTorrents(settings: settings)
+            await viewModel.fetchTorrents()
         }
         .onAppear {
-            viewModel.setupTimer(with: settings)
+            viewModel.setupTimer(with: qbittorrentManager)
         }
         .onDisappear {
             viewModel.stopTimer()

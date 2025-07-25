@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AddProwlarrServerView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
     
     @State private var name = ""
     @State private var url = ""
@@ -114,7 +114,7 @@ struct AddProwlarrServerView: View {
             apiKey: apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         
-        settings.addProwlarrServer(server)
+        prowlarrManager.addProwlarrServer(server)
         dismiss()
     }
 } 

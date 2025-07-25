@@ -3,7 +3,9 @@ import UniformTypeIdentifiers
 
 struct AddTorrentView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settings: ProwlarrSettings
+    // Aggiorna le dipendenze con i nuovi manager
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    @EnvironmentObject var recentPathsManager: RecentPathsManager
     
     @State private var isMagnetLink = true
     @State private var magnetUrl = ""
@@ -18,141 +20,172 @@ struct AddTorrentView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section {
-                    Picker("Metodo", selection: $isMagnetLink) {
-                        Text("Link Magnet").tag(true)
-                        Text("File Torrent").tag(false)
-                    }
-                    .pickerStyle(.segmented)
-                }
-                
-                if isMagnetLink {
-                    Section(header: Text("Link Magnet")) {
-                        TextField("Inserisci il link magnet", text: $magnetUrl)
-                            .autocapitalization(.none)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                    }
-                } else {
-                    Section(header: Text("File Torrent")) {
-                        if let fileName = selectedFileName {
-                            HStack {
-                                Text(fileName)
-                                Spacer()
-                                Button("Cambia") {
-                                    showFileImporter = true
-                                }
-                            }
-                        } else {
-                            Button("Seleziona File") {
-                                showFileImporter = true
-                            }
+            // Applichiamo i modificatori al form estratto
+            formContent
+                .navigationTitle("Aggiungi Torrent")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Chiudi") {
+                            dismiss()
                         }
                     }
                 }
-                
-                Section(header: Text("Percorso Download")) {
-                    TextField("Percorso", text: $downloadPath)
+                .alert("Errore", isPresented: $showError) {
+                    Button("OK", role: .cancel) { }
+                } message: {
+                    Text(errorMessage ?? "Si è verificato un errore")
+                }
+                .fileImporter(
+                    isPresented: $showFileImporter,
+                    allowedContentTypes: [.torrent],
+                    allowsMultipleSelection: false
+                ) { result in
+                    handleFileImport(result)
+                }
+                .overlay {
+                    if isLoading {
+                        loadingView
+                    }
+                }
+                .sheet(isPresented: $showingRecentPaths) {
+                    recentPathsSheet
+                }
+        }
+    }
+    
+    // 1. Estraiamo il Form in una proprietà calcolata
+    private var formContent: some View {
+        Form {
+            Section {
+                Picker("Metodo", selection: $isMagnetLink) {
+                    Text("Link Magnet").tag(true)
+                    Text("File Torrent").tag(false)
+                }
+                .pickerStyle(.segmented)
+            }
+            
+            if isMagnetLink {
+                Section(header: Text("Link Magnet")) {
+                    TextField("Inserisci il link magnet", text: $magnetUrl)
                         .autocapitalization(.none)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
-                    
-                    if !settings.recentPaths.paths.isEmpty {
-                        Button(action: { showingRecentPaths = true }) {
-                            Label("Percorsi Recenti", systemImage: "clock")
-                        }
-                    }
                 }
-                
-                Section {
-                    Button(action: {
-                        Task {
-                            await addTorrent()
-                        }
-                    }) {
+            } else {
+                Section(header: Text("File Torrent")) {
+                    if let fileName = selectedFileName {
                         HStack {
+                            Text(fileName)
                             Spacer()
-                            Text("Aggiungi Torrent")
-                            Spacer()
+                            Button("Cambia") {
+                                showFileImporter = true
+                            }
+                        }
+                    } else {
+                        Button("Seleziona File") {
+                            showFileImporter = true
                         }
                     }
-                    .disabled(!canAddTorrent)
                 }
             }
-            .navigationTitle("Aggiungi Torrent")
-            .navigationBarTitleDisplayMode(.inline)
+            
+            Section(header: Text("Percorso Download")) {
+                TextField("Percorso", text: $downloadPath)
+                    .autocapitalization(.none)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+                
+                if !recentPathsManager.paths.isEmpty {
+                    Button(action: { showingRecentPaths = true }) {
+                        Label("Percorsi Recenti", systemImage: "clock")
+                    }
+                }
+            }
+            
+            Section {
+                Button(action: {
+                    Task {
+                        await addTorrent()
+                    }
+                }) {
+                    HStack {
+                        Spacer()
+                        Text("Aggiungi Torrent")
+                        Spacer()
+                    }
+                }
+                .disabled(!canAddTorrent)
+            }
+        }
+    }
+    
+    // 2. (Opzionale ma consigliato) Estraiamo anche altre viste complesse
+    private var loadingView: some View {
+        Color.black.opacity(0.2)
+            .ignoresSafeArea()
+            .overlay(
+                ProgressView()
+                    .padding()
+                    .background(Color.systemBackground)
+                    .cornerRadius(10)
+            )
+    }
+    
+    private var recentPathsSheet: some View {
+        NavigationView {
+            List(recentPathsManager.paths) { recentPath in
+                Button(action: {
+                    downloadPath = recentPath.path
+                    showingRecentPaths = false
+                }) {
+                    VStack(alignment: .leading) {
+                        Text(recentPath.path)
+                        Text(recentPath.lastUsed.formatted())
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .navigationTitle("Percorsi Recenti")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Chiudi") {
-                        dismiss()
-                    }
-                }
-            }
-            .alert("Errore", isPresented: $showError) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(errorMessage ?? "Si è verificato un errore")
-            }
-            .fileImporter(
-                isPresented: $showFileImporter,
-                allowedContentTypes: [.torrent],
-                allowsMultipleSelection: false
-            ) { result in
-                switch result {
-                case .success(let urls):
-                    do {
-                        torrentFile = try Data(contentsOf: urls.first!)
-                        selectedFileName = urls.first?.lastPathComponent
-                    } catch {
-                        errorMessage = "Errore nel caricamento del file: \(error.localizedDescription)"
-                        showError = true
-                    }
-                case .failure(let error):
-                    errorMessage = "Errore nella selezione del file: \(error.localizedDescription)"
-                    showError = true
-                }
-            }
-            .overlay {
-                if isLoading {
-                    Color.black.opacity(0.2)
-                        .ignoresSafeArea()
-                    ProgressView()
-                        .padding()
-                        .background(Color.systemBackground)
-                        .cornerRadius(10)
-                }
-            }
-            .sheet(isPresented: $showingRecentPaths) {
-                NavigationView {
-                    List(settings.recentPaths.paths) { recentPath in
-                        Button(action: {
-                            downloadPath = recentPath.path
-                            showingRecentPaths = false
-                        }) {
-                            VStack(alignment: .leading) {
-                                Text(recentPath.path)
-                                Text(recentPath.lastUsed.formatted())
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                    }
-                    .navigationTitle("Percorsi Recenti")
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Chiudi") {
-                                showingRecentPaths = false
-                            }
-                        }
+                        showingRecentPaths = false
                     }
                 }
             }
         }
     }
     
+    // 3. (Opzionale ma consigliato) Estraiamo la logica di gestione in un metodo
+    private func handleFileImport(_ result: Result<[URL], Error>) {
+        switch result {
+        case .success(let urls):
+            guard let url = urls.first else { return }
+            do {
+                // Assicurati che l'URL sia accessibile
+                guard url.startAccessingSecurityScopedResource() else {
+                    errorMessage = "Impossibile accedere al file selezionato."
+                    showError = true
+                    return
+                }
+                torrentFile = try Data(contentsOf: url)
+                selectedFileName = url.lastPathComponent
+                // Rilascia la risorsa quando hai finito
+                url.stopAccessingSecurityScopedResource()
+            } catch {
+                errorMessage = "Errore nel caricamento del file: \(error.localizedDescription)"
+                showError = true
+            }
+        case .failure(let error):
+            errorMessage = "Errore nella selezione del file: \(error.localizedDescription)"
+            showError = true
+        }
+    }
+    
     private var canAddTorrent: Bool {
-        guard settings.activeQBittorrentServer != nil else { return false }
+        guard qbittorrentManager.activeQBittorrentServer != nil else { return false }
         
         if isMagnetLink {
             return !magnetUrl.isEmpty
@@ -162,7 +195,8 @@ struct AddTorrentView: View {
     }
     
     private func addTorrent() async {
-        guard let qbittorrentServer = settings.activeQBittorrentServer else {
+        // Sostituisci `settings.activeQBittorrentServer` con `qbittorrentManager.activeQBittorrentServer`
+        guard let qbittorrentServer = qbittorrentManager.activeQBittorrentServer else {
             errorMessage = "Nessun server qBittorrent configurato"
             showError = true
             return
@@ -171,13 +205,8 @@ struct AddTorrentView: View {
         isLoading = true
         defer { isLoading = false }
         
-        // Prima effettuiamo il login
-        guard let loginSuccess = await login(server: qbittorrentServer) else {
-            errorMessage = "Errore di connessione al server"
-            showError = true
-            return
-        }
-        
+        // La logica di login è ora in un metodo separato per pulizia
+        let loginSuccess = await login(to: qbittorrentServer)
         if !loginSuccess {
             errorMessage = "Login fallito"
             showError = true
@@ -225,8 +254,8 @@ struct AddTorrentView: View {
             
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode == 200 {
-                    // Aggiungi il percorso ai recenti quando il download ha successo
-                    settings.recentPaths.addPath(downloadPath)
+                    // Sostituisci `settings.recentPaths` con `recentPathsManager`
+                    recentPathsManager.addPath(downloadPath)
                     dismiss()
                 } else {
                     throw NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Errore nell'aggiunta del torrent (Status: \(httpResponse.statusCode))"])
@@ -240,9 +269,10 @@ struct AddTorrentView: View {
         }
     }
     
-    private func login(server: QBittorrentServer) async -> Bool? {
+    // Ho estratto anche la logica di login per coerenza con gli altri ViewModel
+    private func login(to server: QBittorrentServer) async -> Bool {
         guard let url = URL(string: "\(server.url)api/v2/auth/login") else {
-            return nil
+            return false
         }
         
         var request = URLRequest(url: url)
@@ -261,21 +291,17 @@ struct AddTorrentView: View {
     }
 }
 
+// Il resto del file (UTType extension) rimane invariato.
 extension UTType {
     static var torrent: UTType {
-        // Prova prima con l'identificatore MIME
         if let type = UTType("application/x-bittorrent") {
             return type
         }
-        
-        // Se fallisce, prova con l'estensione
         if let type = UTType(tag: "torrent",
                             tagClass: .filenameExtension,
                             conformingTo: .data) {
             return type
         }
-        
-        // Se entrambi falliscono, usa un tipo generico
         return .data
     }
 }

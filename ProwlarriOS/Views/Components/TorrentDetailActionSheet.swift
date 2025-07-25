@@ -22,7 +22,7 @@ struct CircularProgressView: View {
 struct TorrentDetailActionSheet: View {
     let torrent: QBittorrentTorrent
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
     @State private var showingDeleteAlert = false
     @State private var showingDeleteWithDataAlert = false
     @State private var showingLocationPicker = false
@@ -151,7 +151,7 @@ struct TorrentDetailActionSheet: View {
     }
     
     private func deleteTorrent(withData: Bool) async {
-        guard let server = settings.activeQBittorrentServer else {
+        guard let server = qbittorrentManager.activeQBittorrentServer else {
             errorMessage = "Nessun server qBittorrent configurato"
             showError = true
             return
@@ -213,7 +213,7 @@ struct TorrentDetailActionSheet: View {
     }
     
     private func togglePauseResume() async {
-        guard let server = settings.activeQBittorrentServer else {
+        guard let server = qbittorrentManager.activeQBittorrentServer else {
             errorMessage = "Nessun server qBittorrent configurato"
             showError = true
             return
@@ -292,7 +292,7 @@ struct TorrentDetailActionSheet: View {
     
     // Move fetchFiles() inside the TorrentDetailActionSheet struct
     private func fetchFiles() async {
-        guard let server = settings.activeQBittorrentServer else {
+        guard let server = qbittorrentManager.activeQBittorrentServer else {
             return
         }
         
@@ -327,7 +327,7 @@ struct TorrentDetailActionSheet: View {
 struct LocationPickerView: View {
     let torrent: QBittorrentTorrent
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
     @State private var newLocation = ""
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -400,7 +400,7 @@ struct LocationPickerView: View {
     }
     
     private func moveLocation() async {
-        guard let server = settings.activeQBittorrentServer else {
+        guard let server = qbittorrentManager.activeQBittorrentServer else {
             errorMessage = "Nessun server qBittorrent configurato"
             showError = true
             return

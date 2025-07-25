@@ -8,7 +8,7 @@ class TorrentsViewModel: ObservableObject {
     
     private var timer: Timer?
     private let updateInterval: TimeInterval = 2.0 // Aggiornamento ogni 2 secondi
-    private var settings: ProwlarrSettings?
+    private var qbittorrentManager: QBittorrentServerManager?
     
     init() {
         // L'inizializzazione del timer avverrà quando verranno fornite le impostazioni
@@ -18,13 +18,13 @@ class TorrentsViewModel: ObservableObject {
         stopTimer()
     }
     
-    func setupTimer(with settings: ProwlarrSettings) {
-        self.settings = settings
+    func setupTimer(with manager: QBittorrentServerManager) {
+        self.qbittorrentManager = manager
         stopTimer() // Ferma il timer esistente se presente
         timer = Timer.scheduledTimer(withTimeInterval: updateInterval, repeats: true) { [weak self] _ in
-            guard let self = self, let settings = self.settings else { return }
+            guard let self = self, let manager = self.qbittorrentManager else { return }
             Task {
-                await self.fetchTorrents(settings: settings, silent: true)
+                await self.fetchTorrents(silent: true)
             }
         }
     }
@@ -34,8 +34,9 @@ class TorrentsViewModel: ObservableObject {
         timer = nil
     }
     
-    func fetchTorrents(settings: ProwlarrSettings, silent: Bool = false) async {
-        guard let qbittorrentServer = settings.activeQBittorrentServer else {
+    func fetchTorrents(silent: Bool = false) async {
+        guard let qbittorrentManager = self.qbittorrentManager,
+          let qbittorrentServer = qbittorrentManager.activeQBittorrentServer else {
             await MainActor.run {
                 self.error = "Server qBittorrent non configurato"
                 self.isLoading = false
@@ -62,7 +63,7 @@ class TorrentsViewModel: ObservableObject {
             request.httpMethod = "GET"
             
             // Prima effettua il login
-            if let success = await login(with: settings) {
+            if let success = await login(to: qbittorrentServer) {
                 if !success {
                     throw NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "Login fallito"])
                 }
@@ -86,9 +87,8 @@ class TorrentsViewModel: ObservableObject {
         }
     }
     
-    private func login(with settings: ProwlarrSettings) async -> Bool? {
-        guard let server = settings.activeQBittorrentServer,
-              let url = URL(string: "\(server.url)api/v2/auth/login") else {
+    private func login(to server: QBittorrentServer) async -> Bool? {
+        guard let url = URL(string: "\(server.url)api/v2/auth/login") else {
             return nil
         }
         

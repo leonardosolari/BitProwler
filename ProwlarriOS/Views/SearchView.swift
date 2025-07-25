@@ -5,7 +5,7 @@ struct SearchView: View {
     @StateObject private var filterViewModel = FilterViewModel()
     @State private var searchText = ""
     @State private var showingFilters = false
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
     @FocusState private var isSearchFieldFocused: Bool
     
     var filteredResults: [TorrentResult] {
@@ -78,7 +78,7 @@ struct SearchView: View {
                     }
                     
                     // Contenuto principale
-                    if settings.activeServer == nil {
+                    if prowlarrManager.activeServer == nil {
                         ContentUnavailableView(
                             "Configurazione Necessaria",
                             systemImage: "gear",
@@ -129,7 +129,7 @@ struct SearchView: View {
     private func executeSearch() {
         guard !searchText.isEmpty else { return }
         Task {
-            await viewModel.search(query: searchText, settings: settings)
+            await viewModel.search(query: searchText, prowlarrManager: prowlarrManager)
         }
     }
 }
@@ -156,5 +156,5 @@ extension Color {
 
 #Preview {
     SearchView()
-        .environmentObject(ProwlarrSettings())
+        .environmentObject(ProwlarrServerManager())
 }

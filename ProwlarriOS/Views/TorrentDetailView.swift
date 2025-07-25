@@ -3,7 +3,7 @@ import SwiftUI
 struct TorrentDetailView: View {
     let result: TorrentResult
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
     @State private var showingCopiedAlert = false
     @State private var showingDownloadAlert = false
     @State private var downloadError: String?
@@ -28,7 +28,7 @@ struct TorrentDetailView: View {
                         isDownloading: $isDownloading,
                         showingCopiedAlert: $showingCopiedAlert,
                         onDownload: { await downloadTorrent(url: downloadUrl) },
-                        showQBittorrentButton: settings.activeQBittorrentServer != nil
+                        showQBittorrentButton: qbittorrentManager.activeQBittorrentServer != nil
                     )
                 }
             }
@@ -53,7 +53,7 @@ struct TorrentDetailView: View {
     }
     
     private func downloadTorrent(url: String) async {
-        guard let qbittorrentServer = settings.activeQBittorrentServer else {
+        guard let qbittorrentServer = qbittorrentManager.activeQBittorrentServer else {
             handleDownloadError("Nessun server qBittorrent configurato")
             return
         }

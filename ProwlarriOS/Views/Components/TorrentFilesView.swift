@@ -3,7 +3,7 @@ import SwiftUI
 struct TorrentFilesView: View {
     let torrent: QBittorrentTorrent
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var settings: ProwlarrSettings
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
     @State private var files: [TorrentFile] = []
     @State private var isLoading = false
     
@@ -57,7 +57,7 @@ struct TorrentFilesView: View {
     }
     
     private func fetchFiles() async {
-        guard let server = settings.activeQBittorrentServer else {
+        guard let server = qbittorrentManager.activeQBittorrentServer else {
             return
         }
         
