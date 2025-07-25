@@ -1,5 +1,6 @@
 import Foundation
 
+@MainActor
 class SearchViewModel: ObservableObject {
     @Published var searchResults: [TorrentResult] = []
     @Published var isLoading = false
@@ -7,85 +8,40 @@ class SearchViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var hasSearched = false
     
+    private let apiService: ProwlarrAPIService
+    
+    init(apiService: ProwlarrAPIService = NetworkManager()) {
+        self.apiService = apiService
+    }
+    
     func search(query: String, prowlarrManager: ProwlarrServerManager) async {
         guard let prowlarrServer = prowlarrManager.activeServer else {
-            await MainActor.run {
-                self.errorMessage = "Nessun server Prowlarr configurato"
-                self.showError = true
-                self.isLoading = false
-            }
+            handleError(AppError.serverNotConfigured)
             return
         }
         
         guard !query.isEmpty else {
-            await MainActor.run {
-                self.searchResults = []
-                self.isLoading = false
-                self.hasSearched = false
-            }
+            self.searchResults = []
+            self.hasSearched = false
             return
         }
         
-        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "\(prowlarrServer.url)api/v1/search?query=\(encodedQuery)") else {
-            await MainActor.run {
-                self.errorMessage = "URL non valido"
-                self.showError = true
-                self.isLoading = false
-            }
-            return
-        }
-        
-        await MainActor.run {
-            self.isLoading = true
-        }
-        
-        var request = URLRequest(url: url)
-        request.setValue(prowlarrServer.apiKey, forHTTPHeaderField: "X-Api-Key")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        isLoading = true
+        hasSearched = true
         
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
-            
-            if let httpResponse = response as? HTTPURLResponse {
-                switch httpResponse.statusCode {
-                case 401:
-                    throw NSError(domain: "", code: 401, userInfo: [NSLocalizedDescriptionKey: "API Key non valida"])
-                case 404:
-                    throw NSError(domain: "", code: 404, userInfo: [NSLocalizedDescriptionKey: "Server non trovato"])
-                case 200: break
-                default:
-                    throw NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Errore del server (\(httpResponse.statusCode))"])
-                }
-            }
-            
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("Risposta JSON ricevuta:", jsonString)
-            }
-            
-            let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .useDefaultKeys
-            
-            do {
-                let results = try decoder.decode([TorrentResult].self, from: data)
-                await MainActor.run {
-                    self.searchResults = results
-                    self.isLoading = false
-                    self.hasSearched = true
-                }
-            } catch {
-                print("Errore di decodifica:", error)
-                throw error
-            }
-            
+            let results = try await apiService.search(query: query, on: prowlarrServer)
+            self.searchResults = results
+            self.isLoading = false
         } catch {
-            await MainActor.run {
-                self.searchResults = []
-                self.errorMessage = "Errore: \(error.localizedDescription)"
-                self.showError = true
-                self.isLoading = false
-                self.hasSearched = true
-            }
+            handleError(error)
         }
+    }
+    
+    private func handleError(_ error: Error) {
+        self.searchResults = []
+        self.errorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        self.showError = true
+        self.isLoading = false
     }
 }

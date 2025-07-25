@@ -69,11 +69,8 @@ struct TorrentsView: View {
                 AddTorrentView()
             }
         }
-        .task {
-            await viewModel.fetchTorrents()
-        }
         .onAppear {
-            viewModel.setupTimer(with: qbittorrentManager)
+            viewModel.setup(with: qbittorrentManager)
         }
         .onDisappear {
             viewModel.stopTimer()

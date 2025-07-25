@@ -2,32 +2,37 @@ import SwiftUI
 
 struct TorrentDetailView: View {
     let result: TorrentResult
+    
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    
     @State private var showingCopiedAlert = false
     @State private var showingDownloadAlert = false
     @State private var downloadError: String?
     @State private var isDownloading = false
     
+    // Inietta un'istanza del servizio di rete.
+    // Per ora usiamo l'implementazione di default, ma questo rende la vista testabile.
+    private let apiService: QBittorrentAPIService = NetworkManager()
+    
     var body: some View {
         NavigationView {
             List {
-                // Sezione Informazioni
                 TorrentInfoSection(result: result)
                 
-                // Sezione Link Indexer
                 IndexerLinkSection(
                     id: result.id,
                     showingCopiedAlert: $showingCopiedAlert
                 )
                 
-                // Sezione Download (se disponibile)
-                                if let downloadUrl = result.downloadUrl {
+                if let downloadUrl = result.downloadUrl {
                     DownloadSection(
                         downloadUrl: downloadUrl,
                         isDownloading: $isDownloading,
                         showingCopiedAlert: $showingCopiedAlert,
-                        onDownload: { await downloadTorrent(url: downloadUrl) },
+                        onDownload: {
+                            await downloadTorrent(url: downloadUrl)
+                        },
                         showQBittorrentButton: qbittorrentManager.activeQBittorrentServer != nil
                     )
                 }
@@ -35,109 +40,52 @@ struct TorrentDetailView: View {
             .navigationTitle("Dettagli Torrent")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .cancellationAction) {
                     Button("Chiudi") {
                         dismiss()
                     }
                 }
             }
             .alert("Link Copiato!", isPresented: $showingCopiedAlert) {
-                Button("OK", role: .cancel) { }
+                Button("OK", role: .cancel) {}
             }
             .alert(downloadError == nil ? "Download Avviato" : "Errore", isPresented: $showingDownloadAlert) {
-                Button("OK", role: .cancel) { }
+                Button("OK", role: .cancel) {}
             } message: {
-                Text(downloadError ?? "Il torrent è stato aggiunto con successo a qBittorrent")
+                Text(downloadError ?? "Il torrent è stato aggiunto con successo a qBittorrent.")
             }
         }
     }
     
     private func downloadTorrent(url: String) async {
-        guard let qbittorrentServer = qbittorrentManager.activeQBittorrentServer else {
-            handleDownloadError("Nessun server qBittorrent configurato")
+        guard let server = qbittorrentManager.activeQBittorrentServer else {
+            handleDownloadError(AppError.serverNotConfigured)
             return
         }
         
         isDownloading = true
-        
-        // Prima effettua il login
-        guard let loginSuccess = await login(server: qbittorrentServer) else {
-            handleDownloadError("Errore di connessione al server")
-            return
-        }
-        
-        if !loginSuccess {
-            handleDownloadError("Login fallito")
-            return
-        }
-        
-        // Poi aggiunge il torrent
-        guard let downloadUrl = URL(string: "\(qbittorrentServer.url)api/v2/torrents/add") else {
-            handleDownloadError("URL non valido")
-            return
-        }
-        
-        var request = URLRequest(url: downloadUrl)
-        request.httpMethod = "POST"
-        
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"urls\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(url)\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        
-        request.httpBody = body
+        defer { isDownloading = false }
         
         do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            
-            await MainActor.run {
-                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                    downloadError = nil
-                } else {
-                    downloadError = "Errore nell'aggiunta del torrent"
-                }
-                showingDownloadAlert = true
-                isDownloading = false
-            }
+            try await apiService.addTorrent(url: url, on: server)
+            handleDownloadSuccess()
         } catch {
-            handleDownloadError(error.localizedDescription)
+            handleDownloadError(error)
         }
     }
     
-    private func login(server: QBittorrentServer) async -> Bool? {
-        guard let url = URL(string: "\(server.url)api/v2/auth/login") else {
-            return nil
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        
-        let credentials = "username=\(server.username)&password=\(server.password)"
-        request.httpBody = credentials.data(using: .utf8)
-        
-        do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            return (response as? HTTPURLResponse)?.statusCode == 200
-        } catch {
-            return false
-        }
+    private func handleDownloadSuccess() {
+        self.downloadError = nil
+        self.showingDownloadAlert = true
     }
     
-    private func handleDownloadError(_ message: String) {
-        Task { @MainActor in
-            downloadError = message
-            showingDownloadAlert = true
-            isDownloading = false
-        }
+    private func handleDownloadError(_ error: Error) {
+        self.downloadError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        self.showingDownloadAlert = true
     }
 }
 
-// MARK: - Componenti Ausiliari
+// MARK: - Componenti Ausiliari (invariati)
 
 private struct TorrentInfoSection: View {
     let result: TorrentResult
@@ -174,10 +122,10 @@ private struct TorrentInfoSection: View {
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         
         if let date = formatter.date(from: dateString) {
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .short
-            formatter.locale = Locale(identifier: "it_IT")
-            return formatter.string(from: date)
+            let outputFormatter = DateFormatter()
+            outputFormatter.dateStyle = .medium
+            outputFormatter.timeStyle = .short
+            return outputFormatter.string(from: date)
         }
         return dateString
     }
@@ -203,14 +151,14 @@ private struct IndexerLinkSection: View {
                     }
                     .buttonStyle(.bordered)
                     
-                    Button(action: {
-                        if let url = URL(string: id) {
+                    if let url = URL(string: id), UIApplication.shared.canOpenURL(url) {
+                        Button(action: {
                             UIApplication.shared.open(url)
+                        }) {
+                            Label("Apri nel Browser", systemImage: "safari")
                         }
-                    }) {
-                        Label("Apri nel Browser", systemImage: "safari")
+                        .buttonStyle(.bordered)
                     }
-                    .buttonStyle(.bordered)
                 }
             }
         }
@@ -226,7 +174,7 @@ private struct DownloadSection: View {
     
     var body: some View {
         Section(header: Text("Download")) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text(downloadUrl)
                     .font(.system(.caption, design: .monospaced))
                     .lineLimit(3)
@@ -246,16 +194,16 @@ private struct DownloadSection: View {
                                 await onDownload()
                             }
                         }) {
-                            Label("Aggiungi a qBittorrent", systemImage: "arrow.down.circle")
+                            if isDownloading {
+                                ProgressView()
+                                    .frame(height: 14) // Allinea l'altezza con il testo
+                            } else {
+                                Label("Aggiungi a qBittorrent", systemImage: "arrow.down.circle")
+                            }
                         }
                         .buttonStyle(.borderedProminent)
                         .disabled(isDownloading)
                     }
-                }
-                
-                if isDownloading {
-                    ProgressView()
-                        .padding(.top)
                 }
             }
         }
