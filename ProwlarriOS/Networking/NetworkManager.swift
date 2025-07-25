@@ -2,6 +2,21 @@ import Foundation
 
 class NetworkManager: APIService {
     
+    // 1. Aggiungiamo un'istanza privata di URLSession.
+    // La configurazione .default gestisce automaticamente i cookie,
+    // che è esattamente ciò di cui abbiamo bisogno per qBittorrent.
+    private let urlSession: URLSession
+    
+    init() {
+        let configuration = URLSessionConfiguration.default
+        // Abilita l'accettazione dei cookie dal server
+        configuration.httpCookieAcceptPolicy = .always
+        // Usa lo storage dei cookie condiviso
+        configuration.httpCookieStorage = HTTPCookieStorage.shared
+        
+        self.urlSession = URLSession(configuration: configuration)
+    }
+    
     // MARK: - ProwlarrAPIService
     
     func search(query: String, on server: ProwlarrServer) async throws -> [TorrentResult] {
@@ -14,7 +29,7 @@ class NetworkManager: APIService {
         request.setValue(server.apiKey, forHTTPHeaderField: "X-Api-Key")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
-        let (data, response) = try await performRequest(request)
+        let (data, _) = try await performRequest(request)
         
         do {
             return try JSONDecoder().decode([TorrentResult].self, from: data)
@@ -39,6 +54,8 @@ class NetworkManager: APIService {
     // MARK: - QBittorrentAPIService
     
     func getTorrents(on server: QBittorrentServer) async throws -> [QBittorrentTorrent] {
+        // 2. La logica ora è più semplice: prima fai il login, poi la richiesta.
+        // La urlSession si occuperà di allegare il cookie ricevuto dal login.
         try await login(to: server)
         guard let url = URL(string: "\(server.url)api/v2/torrents/info") else { throw AppError.invalidURL }
         
@@ -117,7 +134,10 @@ class NetworkManager: APIService {
     
     func testConnection(to server: QBittorrentServer) async -> Bool {
         do {
-            try await login(to: server, rethrow: false)
+            // Per il test, usiamo una sessione separata per non "inquinare"
+            // lo storage dei cookie condiviso in caso di fallimento.
+            let testSession = URLSession(configuration: .ephemeral)
+            try await login(to: server, using: testSession, rethrow: false)
             return true
         } catch {
             return false
@@ -126,7 +146,7 @@ class NetworkManager: APIService {
     
     // MARK: - Private Helpers
     
-    private func login(to server: QBittorrentServer, rethrow: Bool = true) async throws {
+    private func login(to server: QBittorrentServer, using session: URLSession? = nil, rethrow: Bool = true) async throws {
         guard let url = URL(string: "\(server.url)api/v2/auth/login") else { throw AppError.invalidURL }
         
         var request = URLRequest(url: url)
@@ -136,7 +156,9 @@ class NetworkManager: APIService {
         request.httpBody = credentials.data(using: .utf8)
         
         do {
-            _ = try await performRequest(request)
+            // Usa la sessione specificata o quella di default della classe
+            let sessionToUse = session ?? self.urlSession
+            _ = try await performRequest(request, using: sessionToUse)
         } catch {
             if rethrow {
                 throw AppError.authenticationFailed
@@ -146,9 +168,12 @@ class NetworkManager: APIService {
         }
     }
     
-    private func performRequest(_ request: URLRequest) async throws -> (Data, HTTPURLResponse) {
+    private func performRequest(_ request: URLRequest, using session: URLSession? = nil) async throws -> (Data, HTTPURLResponse) {
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            // 3. Sostituiamo URLSession.shared con la nostra istanza urlSession.
+            let sessionToUse = session ?? self.urlSession
+            let (data, response) = try await sessionToUse.data(for: request)
+            
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw AppError.unknownError
             }
