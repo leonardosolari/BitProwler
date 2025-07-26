@@ -2,25 +2,50 @@
 
 import SwiftUI
 
+// 1. IL CONTAINER VIEW
+struct SearchViewContainer: View {
+    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
+    @EnvironmentObject var searchHistoryManager: SearchHistoryManager
+    
+    var body: some View {
+        SearchView(
+            prowlarrManager: prowlarrManager,
+            searchHistoryManager: searchHistoryManager
+        )
+    }
+}
+
+// 2. LA VISTA PRINCIPALE (MODIFICATA)
 struct SearchView: View {
-    @StateObject private var viewModel = SearchViewModel()
+    @StateObject private var viewModel: SearchViewModel
     @StateObject private var filterViewModel = FilterViewModel()
     @State private var searchText = ""
     
-    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
+    // CORREZIONE QUI: ProwlarrServerManager invece di ProwlarrManager
+    @ObservedObject var prowlarrManager: ProwlarrServerManager
+    @ObservedObject var searchHistoryManager: SearchHistoryManager
+    
     @FocusState private var isSearchFieldFocused: Bool
     
     private var finalResults: [TorrentResult] {
-        _ = filterViewModel.filterUpdateTrigger // Assicura l'aggiornamento quando i filtri cambiano
-        // Prima applichiamo i filtri, poi mostriamo i risultati (già ordinati dal ViewModel)
+        _ = filterViewModel.filterUpdateTrigger
         return filterViewModel.filterResults(viewModel.searchResults)
+    }
+    
+    // CORREZIONE QUI: ProwlarrServerManager invece di ProwlarrManager
+    init(prowlarrManager: ProwlarrServerManager, searchHistoryManager: SearchHistoryManager) {
+        self.prowlarrManager = prowlarrManager
+        self.searchHistoryManager = searchHistoryManager
+        _viewModel = StateObject(wrappedValue: SearchViewModel(
+            prowlarrManager: prowlarrManager,
+            searchHistoryManager: searchHistoryManager
+        ))
     }
     
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
                 searchAndFilterBar
-                
                 mainContent
             }
             .navigationTitle("Cerca Torrent")
@@ -38,14 +63,11 @@ struct SearchView: View {
                         .shadow(radius: 10)
                 }
             }
-            // Applica l'ordinamento quando l'opzione cambia
             .onChange(of: viewModel.activeSortOption) { _ in
                 viewModel.applySorting()
             }
         }
     }
-    
-    // --- Componenti Estratti ---
     
     private var searchAndFilterBar: some View {
         VStack(spacing: 0) {
@@ -71,15 +93,10 @@ struct SearchView: View {
             .padding(.horizontal)
             .padding(.top)
             
-            // Barra con filtri e ordinamento
             if !viewModel.searchResults.isEmpty {
                 HStack {
-                    // Pulsante Filtri
                     FilterButton(viewModel: filterViewModel)
-                    
                     Spacer()
-                    
-                    // Pulsante Ordinamento
                     SortMenu(viewModel: viewModel)
                 }
                 .padding(.horizontal)
@@ -105,6 +122,33 @@ struct SearchView: View {
             } actions: {
                 Button("Riprova") { executeSearch() }.buttonStyle(.borderedProminent)
             }
+        } else if !viewModel.hasSearched && !searchHistoryManager.searches.isEmpty {
+            List {
+                Section {
+                    ForEach(searchHistoryManager.searches, id: \.self) { term in
+                        Button(action: {
+                            searchText = term
+                            executeSearch()
+                        }) {
+                            HStack {
+                                Image(systemName: "magnifyingglass")
+                                Text(term)
+                                Spacer()
+                            }
+                        }
+                        .foregroundColor(.primary)
+                    }
+                } header: {
+                    HStack {
+                        Text("Ricerche Recenti")
+                        Spacer()
+                        Button("Cancella") {
+                            searchHistoryManager.clearHistory()
+                        }
+                        .font(.caption)
+                    }
+                }
+            }
         } else if finalResults.isEmpty && viewModel.hasSearched {
             ContentUnavailableView(
                 "Nessun Risultato",
@@ -127,19 +171,16 @@ struct SearchView: View {
         }
     }
     
-    // --- Funzioni ---
-    
     private func executeSearch() {
         guard !searchText.isEmpty else { return }
         Task {
-            await viewModel.search(query: searchText, prowlarrManager: prowlarrManager)
+            await viewModel.search(query: searchText)
         }
     }
 }
 
-// --- Viste Componente ---
-
-struct FilterButton: View {
+// --- Viste Componente (invariate) ---
+private struct FilterButton: View {
     @ObservedObject var viewModel: FilterViewModel
     
     var body: some View {
@@ -186,6 +227,7 @@ private struct SortMenu: View {
 }
 
 #Preview {
-    SearchView()
+    SearchViewContainer()
         .environmentObject(ProwlarrServerManager())
+        .environmentObject(SearchHistoryManager())
 }

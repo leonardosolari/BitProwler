@@ -1,15 +1,16 @@
+// File: /ProwlarriOS/Views/ContentView.swift
+
 import SwiftUI
 
 struct ContentView: View {
-    // Inizializziamo i nostri nuovi manager qui.
-    // Saranno la "source of truth" per l'intera app.
     @StateObject private var prowlarrManager = ProwlarrServerManager()
     @StateObject private var qbittorrentManager = QBittorrentServerManager()
     @StateObject private var recentPathsManager = RecentPathsManager()
+    @StateObject private var searchHistoryManager = SearchHistoryManager()
     
     var body: some View {
         TabView {
-            SearchView()
+            SearchViewContainer()
                 .tabItem {
                     Label("Cerca", systemImage: "magnifyingglass")
                 }
@@ -24,10 +25,10 @@ struct ContentView: View {
                     Label("Impostazioni", systemImage: "gear")
                 }
         }
-        // Inseriamo tutti i manager necessari nell'ambiente di SwiftUI.
         .environmentObject(prowlarrManager)
         .environmentObject(qbittorrentManager)
         .environmentObject(recentPathsManager)
+        .environmentObject(searchHistoryManager)
     }
 }
 

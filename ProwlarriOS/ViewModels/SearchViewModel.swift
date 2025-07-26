@@ -10,27 +10,37 @@ class SearchViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var hasSearched = false
     
-    // NUOVA PROPRIETÀ PER L'ORDINAMENTO
     @Published var activeSortOption: SortOption = .default
     
+    // Dipendenze
     private let apiService: ProwlarrAPIService
+    private let prowlarrManager: ProwlarrServerManager // Aggiunta dipendenza
+    let searchHistoryManager: SearchHistoryManager
     
-    // Proprietà per memorizzare i risultati originali non ordinati
     private var originalResults: [TorrentResult] = []
     
-    init(apiService: ProwlarrAPIService = NetworkManager()) {
+    // Inizializzatore aggiornato per accettare tutte le dipendenze
+    init(
+        apiService: ProwlarrAPIService = NetworkManager(),
+        prowlarrManager: ProwlarrServerManager,
+        searchHistoryManager: SearchHistoryManager
+    ) {
         self.apiService = apiService
+        self.prowlarrManager = prowlarrManager
+        self.searchHistoryManager = searchHistoryManager
     }
     
-    func search(query: String, prowlarrManager: ProwlarrServerManager) async {
+    // Il metodo search ora usa il manager interno
+    func search(query: String) async {
         guard let prowlarrServer = prowlarrManager.activeServer else {
             handleError(AppError.serverNotConfigured)
             return
         }
         
-        guard !query.isEmpty else {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else {
             self.originalResults = []
-            self.applySorting() // Applica l'ordinamento (che risulterà in una lista vuota)
+            self.applySorting()
             self.hasSearched = false
             return
         }
@@ -39,30 +49,25 @@ class SearchViewModel: ObservableObject {
         hasSearched = true
         
         do {
-            let results = try await apiService.search(query: query, on: prowlarrServer)
+            let results = try await apiService.search(query: trimmedQuery, on: prowlarrServer)
             self.originalResults = results
-            self.applySorting() // Applica l'ordinamento ai nuovi risultati
+            self.applySorting()
+            self.searchHistoryManager.addSearch(trimmedQuery)
             self.isLoading = false
         } catch {
             handleError(error)
         }
     }
     
-    // NUOVO METODO PER APPLICARE L'ORDINAMENTO
     func applySorting() {
         switch activeSortOption {
         case .default:
-            // L'ordinamento di default è quello restituito dall'API
             searchResults = originalResults
         case .seeders:
-            // Ordina per seeders, dal più alto al più basso
             searchResults = originalResults.sorted { $0.seeders > $1.seeders }
         case .size:
-            // Ordina per dimensione, dalla più grande alla più piccola
             searchResults = originalResults.sorted { $0.size > $1.size }
         case .recent:
-            // Ordina per data, dalla più recente alla più vecchia
-            // Usiamo un ISO8601 formatter per convertire la stringa in data
             let formatter = ISO8601DateFormatter()
             searchResults = originalResults.sorted {
                 let date1 = formatter.date(from: $0.publishDate) ?? .distantPast
