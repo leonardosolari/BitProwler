@@ -1,16 +1,18 @@
+// File: /ProwlarriOS/Views/SearchView.swift
+
 import SwiftUI
 
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
     @StateObject private var filterViewModel = FilterViewModel()
     @State private var searchText = ""
-    @State private var showingFilters = false
     
     @EnvironmentObject var prowlarrManager: ProwlarrServerManager
     @FocusState private var isSearchFieldFocused: Bool
     
-    private var filteredResults: [TorrentResult] {
-        _ = filterViewModel.filterUpdateTrigger
+    private var finalResults: [TorrentResult] {
+        _ = filterViewModel.filterUpdateTrigger // Assicura l'aggiornamento quando i filtri cambiano
+        // Prima applichiamo i filtri, poi mostriamo i risultati (già ordinati dal ViewModel)
         return filterViewModel.filterResults(viewModel.searchResults)
     }
     
@@ -36,6 +38,10 @@ struct SearchView: View {
                         .shadow(radius: 10)
                 }
             }
+            // Applica l'ordinamento quando l'opzione cambia
+            .onChange(of: viewModel.activeSortOption) { _ in
+                viewModel.applySorting()
+            }
         }
     }
     
@@ -57,54 +63,30 @@ struct SearchView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.white)
                         .padding(8)
-                        .background(Color.blue)
+                        .background(Color.accentColor)
                         .cornerRadius(8)
                 }
                 .disabled(searchText.isEmpty)
-                
-                if !viewModel.searchResults.isEmpty {
-                    Button(action: { withAnimation { showingFilters.toggle() } }) {
-                        Image(systemName: "line.3.horizontal.decrease.circle\(showingFilters ? ".fill" : "")")
-                            .font(.title2)
-                            .foregroundColor(.blue)
-                    }
-                }
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.top)
             
-            if showingFilters && !viewModel.searchResults.isEmpty {
-                filterSection
-                    .padding(.bottom, 8)
+            // Barra con filtri e ordinamento
+            if !viewModel.searchResults.isEmpty {
+                HStack {
+                    // Pulsante Filtri
+                    FilterButton(viewModel: filterViewModel)
+                    
+                    Spacer()
+                    
+                    // Pulsante Ordinamento
+                    SortMenu(viewModel: viewModel)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
             }
         }
         .background(Color(.systemGroupedBackground))
-    }
-    
-    private var filterSection: some View {
-        VStack(spacing: 8) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(filterViewModel.filters) { filter in
-                        FilterChip(filter: filter, viewModel: filterViewModel)
-                    }
-                    
-                    NavigationLink(destination: FilterManagementView()) {
-                        Image(systemName: "gear")
-                            .padding(8)
-                            .background(Color.blue.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                }
-                .padding(.horizontal)
-            }
-            
-            let activeFilterCount = filterViewModel.filters.filter({ $0.isEnabled }).count
-            if activeFilterCount > 0 {
-                Text("Filtri attivi: \(activeFilterCount)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
     }
     
     @ViewBuilder
@@ -115,18 +97,15 @@ struct SearchView: View {
             } description: {
                 Text("Vai nelle impostazioni per configurare il server Prowlarr.")
             }
-        } else if viewModel.showError { // Usiamo showError per lo stato di errore
+        } else if viewModel.showError {
             ContentUnavailableView {
                 Label("Errore di Ricerca", systemImage: "exclamationmark.triangle")
             } description: {
                 Text(viewModel.errorMessage ?? "Si è verificato un errore sconosciuto.")
             } actions: {
-                Button("Riprova") {
-                    executeSearch()
-                }
-                .buttonStyle(.borderedProminent)
+                Button("Riprova") { executeSearch() }.buttonStyle(.borderedProminent)
             }
-        } else if filteredResults.isEmpty && viewModel.hasSearched {
+        } else if finalResults.isEmpty && viewModel.hasSearched {
             ContentUnavailableView(
                 "Nessun Risultato",
                 systemImage: "magnifyingglass",
@@ -141,7 +120,7 @@ struct SearchView: View {
                 description: Text("Inserisci un termine e premi Cerca")
             )
         } else {
-            List(filteredResults) { result in
+            List(finalResults) { result in
                 TorrentResultRow(result: result)
             }
             .listStyle(.plain)
@@ -153,7 +132,6 @@ struct SearchView: View {
     private func executeSearch() {
         guard !searchText.isEmpty else { return }
         Task {
-            // Passiamo il manager al ViewModel
             await viewModel.search(query: searchText, prowlarrManager: prowlarrManager)
         }
     }
@@ -161,26 +139,53 @@ struct SearchView: View {
 
 // --- Viste Componente ---
 
-struct FilterChip: View {
-    let filter: TorrentFilter
+struct FilterButton: View {
     @ObservedObject var viewModel: FilterViewModel
     
     var body: some View {
-        Button(action: { viewModel.toggleFilter(filter) }) {
-            Text(filter.name)
-                .font(.footnote)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(filter.isEnabled ? Color.blue : Color.gray.opacity(0.2))
-                .foregroundColor(filter.isEnabled ? .white : .primary)
-                .cornerRadius(15)
+        NavigationLink(destination: FilterManagementView()) {
+            HStack(spacing: 4) {
+                Image(systemName: "line.3.horizontal.decrease.circle")
+                Text("Filtri")
+                if viewModel.filters.filter({ $0.isEnabled }).count > 0 {
+                    Text("(\(viewModel.filters.filter({ $0.isEnabled }).count))")
+                        .fontWeight(.bold)
+                }
+            }
+            .font(.subheadline)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.accentColor.opacity(0.1))
+            .cornerRadius(8)
         }
     }
 }
 
-// La preview potrebbe aver bisogno di essere aggiornata per fornire i manager
+struct SortMenu: View {
+    @ObservedObject var viewModel: SearchViewModel
+    
+    var body: some View {
+        Menu {
+            Picker("Ordina per", selection: $viewModel.activeSortOption) {
+                ForEach(SortOption.allCases) { option in
+                    Label(option.rawValue, systemImage: option.systemImage).tag(option)
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: viewModel.activeSortOption.systemImage)
+                Text(viewModel.activeSortOption.rawValue)
+            }
+            .font(.subheadline)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.accentColor.opacity(0.1))
+            .cornerRadius(8)
+        }
+    }
+}
+
 #Preview {
     SearchView()
         .environmentObject(ProwlarrServerManager())
-        .environmentObject(FilterViewModel())
 }
