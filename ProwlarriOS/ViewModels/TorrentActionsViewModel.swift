@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/ViewModels/TorrentActionsViewModel.swift
+
 import Foundation
 import SwiftUI
 
@@ -15,13 +17,19 @@ class TorrentActionsViewModel: ObservableObject {
         TorrentState(from: torrent.state).isPaused
     }
     
+    // NUOVA PROPRIETÀ CALCOLATA
+    var isForced: Bool {
+        TorrentState(from: torrent.state).isForced
+    }
+    
     init(torrent: QBittorrentTorrent, manager: QBittorrentServerManager, apiService: QBittorrentAPIService = NetworkManager()) {
         self.torrent = torrent
         self.qbittorrentManager = manager
         self.apiService = apiService
     }
     
-    func performAction(_ action: TorrentAction, location: String? = nil, deleteFiles: Bool = false, completion: @escaping () -> Void) async {
+    // Modifichiamo il metodo per accettare un parametro booleano per forceStart
+    func performAction(_ action: TorrentAction, location: String? = nil, deleteFiles: Bool = false, forceStart: Bool? = nil, completion: @escaping () -> Void) async {
         guard let server = qbittorrentManager.activeQBittorrentServer else {
             handleError(AppError.serverNotConfigured)
             return
@@ -31,7 +39,8 @@ class TorrentActionsViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-            try await apiService.performAction(action, for: torrent, on: server, location: location, deleteFiles: deleteFiles)
+            // Passiamo il nuovo parametro al servizio API
+            try await apiService.performAction(action, for: torrent, on: server, location: location, deleteFiles: deleteFiles, forceStart: forceStart)
             completion()
         } catch {
             handleError(error)
@@ -43,9 +52,12 @@ class TorrentActionsViewModel: ObservableObject {
         self.showError = true
     }
     
+    // NUOVI CASI ENUM
     enum TorrentAction {
         case togglePauseResume
         case delete
         case move
+        case forceStart // Un'unica azione per abilitare/disabilitare
+        case recheck
     }
 }

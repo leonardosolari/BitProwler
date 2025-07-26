@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/Models/TorrentState.swift
+
 import Foundation
 
 enum TorrentState: String {
@@ -29,6 +31,11 @@ enum TorrentState: String {
         self == .pausedDL || self == .pausedUP
     }
     
+    // NUOVA PROPRIETÀ CALCOLATA
+    var isForced: Bool {
+        self == .forcedDL || self == .forcedUP
+    }
+    
     var displayName: String {
         switch self {
         case .downloading: return "Download"
@@ -52,4 +59,4 @@ enum TorrentState: String {
         case .unknown: return "Sconosciuto"
         }
     }
-} 
+}

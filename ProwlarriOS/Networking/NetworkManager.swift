@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/Networking/NetworkManager.swift
+
 import Foundation
 
 class NetworkManager: APIService {
@@ -61,7 +63,6 @@ class NetworkManager: APIService {
     }
     
     func addTorrent(url torrentUrl: String, on server: QBittorrentServer) async throws {
-        // Questo metodo è una versione semplificata per TorrentDetailView
         let source = TorrentSource.url(torrentUrl)
         try await addTorrent(from: source, savePath: "", on: server)
     }
@@ -78,14 +79,12 @@ class NetworkManager: APIService {
         
         var body = Data()
         
-        // Aggiungi il percorso di download se specificato
         if !savePath.isEmpty {
             body.append("--\(boundary)\r\n".data(using: .utf8)!)
             body.append("Content-Disposition: form-data; name=\"savepath\"\r\n\r\n".data(using: .utf8)!)
             body.append("\(savePath)\r\n".data(using: .utf8)!)
         }
         
-        // Aggiungi la sorgente del torrent
         switch source {
         case .url(let magnetUrl):
             body.append("--\(boundary)\r\n".data(using: .utf8)!)
@@ -105,7 +104,8 @@ class NetworkManager: APIService {
         _ = try await performRequest(request)
     }
     
-    func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool) async throws {
+    // METODO AGGIORNATO
+    func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws {
         try await login(to: server)
         
         var endpoint: String
@@ -122,6 +122,13 @@ class NetworkManager: APIService {
             guard let location = location else { throw AppError.unknownError }
             endpoint = "setLocation"
             bodyParams["location"] = location
+        // NUOVA LOGICA
+        case .forceStart:
+            guard let enable = forceStart else { throw AppError.unknownError }
+            endpoint = "setForceStart"
+            bodyParams["value"] = String(enable)
+        case .recheck:
+            endpoint = "recheck"
         }
         
         guard let url = URL(string: "\(server.url)api/v2/torrents/\(endpoint)") else { throw AppError.invalidURL }

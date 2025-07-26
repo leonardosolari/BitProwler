@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/Views/Components/TorrentDetailActionSheet.swift
+
 import SwiftUI
 
 struct TorrentDetailActionSheet: View {
@@ -12,7 +14,6 @@ struct TorrentDetailActionSheet: View {
     
     private let torrent: QBittorrentTorrent
     
-    // Inizializzatore personalizzato per creare il ViewModel
     init(torrent: QBittorrentTorrent, manager: QBittorrentServerManager) {
         self.torrent = torrent
         _viewModel = StateObject(wrappedValue: TorrentActionsViewModel(torrent: torrent, manager: manager))
@@ -94,6 +95,7 @@ struct TorrentDetailActionSheet: View {
         }
     }
     
+    // SEZIONE AZIONI AGGIORNATA
     private var actionsSection: some View {
         Section(header: Text("Azioni")) {
             Button {
@@ -102,6 +104,22 @@ struct TorrentDetailActionSheet: View {
                 Label(viewModel.isPaused ? "Riprendi" : "Pausa",
                       systemImage: viewModel.isPaused ? "play.fill" : "pause.fill")
                     .foregroundColor(viewModel.isPaused ? .green : .orange)
+            }
+            
+            // Pulsante per Avvio Forzato / Annulla Avvio Forzato
+            Button {
+                Task { await viewModel.performAction(.forceStart, forceStart: !viewModel.isForced) { dismiss() } }
+            } label: {
+                Label(viewModel.isForced ? "Annulla Avvio Forzato" : "Forza Avvio",
+                      systemImage: viewModel.isForced ? "bolt.slash.fill" : "bolt.fill")
+                    .foregroundColor(.purple)
+            }
+            
+            // Pulsante per Ricontrollare
+            Button {
+                Task { await viewModel.performAction(.recheck) { dismiss() } }
+            } label: {
+                Label("Ricontrolla", systemImage: "arrow.triangle.2.circlepath")
             }
             
             Button { showingLocationPicker = true } label: {
@@ -130,7 +148,7 @@ struct TorrentDetailActionSheet: View {
     }
 }
 
-// --- Viste Componente ---
+// --- Viste Componente (invariate) ---
 
 struct CircularProgressView: View {
     let progress: Double
