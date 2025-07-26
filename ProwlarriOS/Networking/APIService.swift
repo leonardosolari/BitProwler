@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/Networking/APIService.swift
+
 import Foundation
 
 // Protocollo per le operazioni di Prowlarr
@@ -9,7 +11,8 @@ protocol ProwlarrAPIService {
 // Protocollo per le operazioni di qBittorrent
 protocol QBittorrentAPIService {
     func getTorrents(on server: QBittorrentServer) async throws -> [QBittorrentTorrent]
-    func addTorrent(url: String, on server: QBittorrentServer) async throws
+    func addTorrent(url: String, on server: QBittorrentServer) async throws // Manteniamo per TorrentDetailView
+    func addTorrent(from source: TorrentSource, savePath: String, on server: QBittorrentServer) async throws // Nuovo metodo per AddTorrentView
     func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool) async throws
     func getFiles(for torrent: QBittorrentTorrent, on server: QBittorrentServer) async throws -> [TorrentFile]
     func testConnection(to server: QBittorrentServer) async -> Bool

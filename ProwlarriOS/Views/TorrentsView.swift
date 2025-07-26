@@ -3,8 +3,15 @@ import SwiftUI
 
 struct TorrentsView: View {
     @StateObject private var viewModel = TorrentsViewModel()
-    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager 
+    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    @EnvironmentObject var recentPathsManager: RecentPathsManager // Aggiungi questa dipendenza
+    
     @State private var showingAddTorrent = false
+    
+    // Creiamo qui il ViewModel per la sheet.
+    // Usiamo @State per un oggetto di classe perché il suo ciclo di vita
+    // è legato alla presentazione della sheet.
+    @State private var addTorrentViewModel: AddTorrentViewModel?
     
     var body: some View {
         NavigationView {
@@ -23,8 +30,14 @@ struct TorrentsView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingAddTorrent) {
-                AddTorrentView()
+            .sheet(isPresented: $showingAddTorrent, onDismiss: {
+                // Resetta il ViewModel quando la sheet viene chiusa
+                addTorrentViewModel = nil
+            }) {
+                // Assicurati che il ViewModel esista prima di presentare la vista
+                if let addTorrentViewModel = addTorrentViewModel {
+                    AddTorrentView(viewModel: addTorrentViewModel)
+                }
             }
         }
         .onAppear {
@@ -71,7 +84,14 @@ struct TorrentsView: View {
             Spacer()
             HStack {
                 Spacer()
-                Button(action: { showingAddTorrent = true }) {
+                Button(action: {
+                    // Crea il ViewModel *prima* di mostrare la sheet
+                    addTorrentViewModel = AddTorrentViewModel(
+                        qbittorrentManager: qbittorrentManager,
+                        recentPathsManager: recentPathsManager
+                    )
+                    showingAddTorrent = true
+                }) {
                     Image(systemName: "plus.circle.fill")
                         .resizable()
                         .frame(width: 50, height: 50)

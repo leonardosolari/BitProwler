@@ -2,18 +2,12 @@ import Foundation
 
 class NetworkManager: APIService {
     
-    // 1. Aggiungiamo un'istanza privata di URLSession.
-    // La configurazione .default gestisce automaticamente i cookie,
-    // che è esattamente ciò di cui abbiamo bisogno per qBittorrent.
     private let urlSession: URLSession
     
     init() {
         let configuration = URLSessionConfiguration.default
-        // Abilita l'accettazione dei cookie dal server
         configuration.httpCookieAcceptPolicy = .always
-        // Usa lo storage dei cookie condiviso
         configuration.httpCookieStorage = HTTPCookieStorage.shared
-        
         self.urlSession = URLSession(configuration: configuration)
     }
     
@@ -54,8 +48,6 @@ class NetworkManager: APIService {
     // MARK: - QBittorrentAPIService
     
     func getTorrents(on server: QBittorrentServer) async throws -> [QBittorrentTorrent] {
-        // 2. La logica ora è più semplice: prima fai il login, poi la richiesta.
-        // La urlSession si occuperà di allegare il cookie ricevuto dal login.
         try await login(to: server)
         guard let url = URL(string: "\(server.url)api/v2/torrents/info") else { throw AppError.invalidURL }
         
@@ -69,6 +61,12 @@ class NetworkManager: APIService {
     }
     
     func addTorrent(url torrentUrl: String, on server: QBittorrentServer) async throws {
+        // Questo metodo è una versione semplificata per TorrentDetailView
+        let source = TorrentSource.url(torrentUrl)
+        try await addTorrent(from: source, savePath: "", on: server)
+    }
+    
+    func addTorrent(from source: TorrentSource, savePath: String, on server: QBittorrentServer) async throws {
         try await login(to: server)
         guard let url = URL(string: "\(server.url)api/v2/torrents/add") else { throw AppError.invalidURL }
         
@@ -79,9 +77,28 @@ class NetworkManager: APIService {
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         
         var body = Data()
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"urls\"\r\n\r\n".data(using: .utf8)!)
-        body.append("\(torrentUrl)\r\n".data(using: .utf8)!)
+        
+        // Aggiungi il percorso di download se specificato
+        if !savePath.isEmpty {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"savepath\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(savePath)\r\n".data(using: .utf8)!)
+        }
+        
+        // Aggiungi la sorgente del torrent
+        switch source {
+        case .url(let magnetUrl):
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"urls\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(magnetUrl)\r\n".data(using: .utf8)!)
+        case .file(let data, let filename):
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"torrents\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: application/x-bittorrent\r\n\r\n".data(using: .utf8)!)
+            body.append(data)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+        
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         request.httpBody = body
         
@@ -134,8 +151,6 @@ class NetworkManager: APIService {
     
     func testConnection(to server: QBittorrentServer) async -> Bool {
         do {
-            // Per il test, usiamo una sessione separata per non "inquinare"
-            // lo storage dei cookie condiviso in caso di fallimento.
             let testSession = URLSession(configuration: .ephemeral)
             try await login(to: server, using: testSession, rethrow: false)
             return true
@@ -156,7 +171,6 @@ class NetworkManager: APIService {
         request.httpBody = credentials.data(using: .utf8)
         
         do {
-            // Usa la sessione specificata o quella di default della classe
             let sessionToUse = session ?? self.urlSession
             _ = try await performRequest(request, using: sessionToUse)
         } catch {
@@ -170,7 +184,6 @@ class NetworkManager: APIService {
     
     private func performRequest(_ request: URLRequest, using session: URLSession? = nil) async throws -> (Data, HTTPURLResponse) {
         do {
-            // 3. Sostituiamo URLSession.shared con la nostra istanza urlSession.
             let sessionToUse = session ?? self.urlSession
             let (data, response) = try await sessionToUse.data(for: request)
             
