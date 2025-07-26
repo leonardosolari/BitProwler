@@ -21,157 +21,211 @@ struct TorrentDetailActionSheet: View {
     
     var body: some View {
         NavigationView {
-            listContent
-                .navigationTitle("Gestione Torrent")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Chiudi") { dismiss() }
+            VStack(spacing: 0) {
+                HeaderView(torrent: torrent)
+                
+                ScrollView {
+                    VStack(spacing: 24) { // Aumenta lo spazio tra le sezioni
+                        PrimaryActionsGrid()
+                        ManagementList()
                     }
+                    .padding()
                 }
-                .alert("Elimina Torrent", isPresented: $showingDeleteAlert, actions: {
-                    Button("Annulla", role: .cancel) {}
-                    Button("Elimina", role: .destructive) {
-                        Task { await viewModel.performAction(.delete) { dismiss() } }
-                    }
-                }, message: {
-                    Text("Vuoi eliminare questo torrent? I dati scaricati non verranno rimossi.")
-                })
-                .alert("Elimina Torrent e Dati", isPresented: $showingDeleteWithDataAlert, actions: {
-                    Button("Annulla", role: .cancel) {}
-                    Button("Elimina", role: .destructive) {
-                        Task { await viewModel.performAction(.delete, deleteFiles: true) { dismiss() } }
-                    }
-                }, message: {
-                    Text("ATTENZIONE: Questa azione è irreversibile. Vuoi eliminare questo torrent e tutti i dati scaricati?")
-                })
-                .alert("Errore", isPresented: $viewModel.showError, actions: {
-                    Button("OK", role: .cancel) {}
-                }, message: {
-                    Text(viewModel.errorMessage ?? "Si è verificato un errore sconosciuto.")
-                })
-                .sheet(isPresented: $showingLocationPicker) {
-                    LocationPickerView(viewModel: viewModel)
-                }
-                .sheet(isPresented: $showingFileList) {
-                    TorrentFilesView(torrent: torrent)
-                }
-                .overlay {
-                    if viewModel.isLoading {
-                        ProgressView()
-                            .padding(30)
-                            .background(.thinMaterial)
-                            .cornerRadius(10)
-                    }
-                }
-        }
-    }
-    
-    private var listContent: some View {
-        List {
-            headerSection
-            infoSection
-            actionsSection
-        }
-    }
-    
-    private var headerSection: some View {
-        Section {
-            HStack(spacing: 16) {
-                CircularProgressView(progress: torrent.progress)
-                Text(torrent.name)
-                    .font(.headline)
-                    .lineLimit(3)
             }
-            .padding(.vertical, 8)
+            .background(Color(.systemGroupedBackground))
+            .navigationTitle("Dettagli Torrent")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Chiudi") { dismiss() }
+                }
+            }
+            .alert("Elimina Torrent", isPresented: $showingDeleteAlert, actions: {
+                Button("Annulla", role: .cancel) {}
+                Button("Elimina", role: .destructive) {
+                    Task { await viewModel.performAction(.delete) { dismiss() } }
+                }
+            }, message: {
+                Text("Vuoi eliminare questo torrent? I dati scaricati non verranno rimossi.")
+            })
+            .alert("Elimina Torrent e Dati", isPresented: $showingDeleteWithDataAlert, actions: {
+                Button("Annulla", role: .cancel) {}
+                Button("Elimina", role: .destructive) {
+                    Task { await viewModel.performAction(.delete, deleteFiles: true) { dismiss() } }
+                }
+            }, message: {
+                Text("ATTENZIONE: Questa azione è irreversibile. Vuoi eliminare questo torrent e tutti i dati scaricati?")
+            })
+            .alert("Errore", isPresented: $viewModel.showError, actions: {
+                Button("OK", role: .cancel) {}
+            }, message: {
+                Text(viewModel.errorMessage ?? "Si è verificato un errore sconosciuto.")
+            })
+            .sheet(isPresented: $showingLocationPicker) {
+                LocationPickerView(viewModel: viewModel)
+            }
+            .sheet(isPresented: $showingFileList) {
+                TorrentFilesView(torrent: torrent)
+            }
+            .overlay {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .padding(30)
+                        .background(.thinMaterial)
+                        .cornerRadius(10)
+                }
+            }
         }
     }
     
-    private var infoSection: some View {
-        Section(header: Text("Informazioni")) {
-            LabeledContent("Stato", value: TorrentState(from: torrent.state).displayName)
-            LabeledContent("Dimensione", value: formatSize(torrent.size))
-            LabeledContent("Ratio", value: String(format: "%.2f", torrent.ratio))
-        }
-    }
+    // MARK: - Subviews
     
-    private var actionsSection: some View {
-        Section(header: Text("Azioni")) {
-            Button {
+    @ViewBuilder
+    private func PrimaryActionsGrid() -> some View {
+        // Griglia a 4 colonne per un layout orizzontale compatto
+        let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+        
+        LazyVGrid(columns: columns, spacing: 16) {
+            ActionButton(
+                title: viewModel.isPaused ? "Riprendi" : "Pausa",
+                icon: viewModel.isPaused ? "play.fill" : "pause.fill",
+                color: viewModel.isPaused ? .green : .orange
+            ) {
                 Task { await viewModel.performAction(.togglePauseResume) { dismiss() } }
-            } label: {
-                Label(viewModel.isPaused ? "Riprendi" : "Pausa",
-                      systemImage: viewModel.isPaused ? "play.fill" : "pause.fill")
-                    .foregroundColor(viewModel.isPaused ? .green : .orange)
             }
             
-            Button {
+            ActionButton(
+                title: viewModel.isForced ? "Annulla" : "Forza",
+                icon: viewModel.isForced ? "bolt.slash.fill" : "bolt.fill",
+                color: .purple
+            ) {
                 Task { await viewModel.performAction(.forceStart, forceStart: !viewModel.isForced) { dismiss() } }
-            } label: {
-                Label(viewModel.isForced ? "Annulla Avvio Forzato" : "Forza Avvio",
-                      systemImage: viewModel.isForced ? "bolt.slash.fill" : "bolt.fill")
-                    .foregroundColor(.purple)
             }
             
-            Button {
+            ActionButton(title: "Ricontrolla", icon: "arrow.triangle.2.circlepath", color: .blue) {
                 Task { await viewModel.performAction(.recheck) { dismiss() } }
-            } label: {
-                Label("Ricontrolla", systemImage: "arrow.triangle.2.circlepath")
             }
             
-            Button { showingLocationPicker = true } label: {
-                Label("Sposta", systemImage: "folder")
-            }
-            
-            Button { showingFileList = true } label: {
-                Label("Mostra File", systemImage: "doc.text")
-            }
-            
-            Button(role: .destructive) { showingDeleteAlert = true } label: {
-                Label("Elimina Torrent", systemImage: "trash")
-            }
-            
-            Button(role: .destructive) { showingDeleteWithDataAlert = true } label: {
-                Label("Elimina Torrent e Dati", systemImage: "trash.fill")
+            ActionButton(title: "Sposta", icon: "folder.fill", color: .cyan) {
+                showingLocationPicker = true
             }
         }
+    }
+    
+    @ViewBuilder
+    private func ManagementList() -> some View {
+        VStack {
+            List {
+                Section(header: Text("Gestione")) {
+                    Button(action: { showingFileList = true }) {
+                        Label("Mostra File", systemImage: "doc.text")
+                    }
+                }
+                
+                Section(header: Text("Zona Pericolo")) {
+                    Button(role: .destructive, action: { showingDeleteAlert = true }) {
+                        Label("Elimina Torrent", systemImage: "trash")
+                    }
+                    Button(role: .destructive, action: { showingDeleteWithDataAlert = true }) {
+                        Label("Elimina Torrent e Dati", systemImage: "trash.fill")
+                    }
+                }
+            }
+            .listStyle(.insetGrouped)
+            .frame(height: 250)
+            .scrollDisabled(true)
+        }
+    }
+}
+
+// MARK: - Reusable Components
+
+private struct HeaderView: View {
+    let torrent: QBittorrentTorrent
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            Text(torrent.name)
+                .font(.title3)
+                .fontWeight(.bold)
+                .lineLimit(2)
+                .multilineTextAlignment(.center)
+            
+            HStack {
+                StatItem(icon: "tray.full.fill", value: formatSize(torrent.size))
+                Spacer()
+                StatusBadge(state: torrent.state)
+                Spacer()
+                StatItem(icon: "arrow.up.arrow.down.circle.fill", value: String(format: "%.2f", torrent.ratio))
+            }
+            
+            ProgressView(value: torrent.progress)
+                .tint(StatusBadge.getBackgroundColor(for: torrent.state))
+        }
+        .padding()
+        .background(.regularMaterial)
     }
     
     private func formatSize(_ size: Int64) -> String {
         let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useGB, .useMB]
+        formatter.allowedUnits = [.useAll]
         formatter.countStyle = .file
         return formatter.string(fromByteCount: size)
     }
 }
 
-// --- Viste Componente ---
-
-struct CircularProgressView: View {
-    let progress: Double
+// NUOVO DESIGN PER ACTIONBUTTON
+private struct ActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
     
     var body: some View {
-        ZStack {
-            Circle().stroke(Color.gray.opacity(0.2), lineWidth: 5)
-            Circle()
-                .trim(from: 0, to: progress)
-                .stroke(progress >= 1.0 ? Color.green : Color.blue, style: StrokeStyle(lineWidth: 5, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-            Text("\(Int(progress * 100))%")
-                .font(.caption.bold())
+        Button(action: action) {
+            VStack(spacing: 6) {
+                // Cerchio con icona
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.15))
+                    Image(systemName: icon)
+                        .font(.title2)
+                        .foregroundColor(color)
+                }
+                .frame(width: 56, height: 56)
+                
+                // Testo sotto l'icona
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
         }
-        .frame(width: 50, height: 50)
+        .buttonStyle(.plain)
     }
 }
 
-// VISTA AGGIORNATA
+private struct StatItem: View {
+    let icon: String
+    let value: String
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+            Text(value)
+        }
+        .font(.subheadline)
+        .foregroundColor(.secondary)
+    }
+}
+
+// LocationPickerView rimane invariato
 struct LocationPickerView: View {
     @ObservedObject var viewModel: TorrentActionsViewModel
     @EnvironmentObject var recentPathsManager: RecentPathsManager
     @Environment(\.dismiss) var dismiss
     
     @State private var newLocation = ""
-    @State private var showingPathManager = false // Stato per la nuova sheet
+    @State private var showingPathManager = false
     
     var body: some View {
         NavigationView {
@@ -183,13 +237,10 @@ struct LocationPickerView: View {
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
                         
-                        // NUOVO MENU UNIFICATO
                         if !recentPathsManager.paths.isEmpty {
                             Menu {
                                 ForEach(recentPathsManager.paths, id: \.self) { recentPath in
-                                    Button(recentPath.path) {
-                                        newLocation = recentPath.path
-                                    }
+                                    Button(recentPath.path) { newLocation = recentPath.path }
                                 }
                                 Divider()
                                 Button(action: { showingPathManager = true }) {
@@ -223,7 +274,6 @@ struct LocationPickerView: View {
                     Button("Annulla") { dismiss() }
                 }
             }
-            // Sheet per la gestione dei percorsi
             .sheet(isPresented: $showingPathManager) {
                 PathManagementView()
             }
