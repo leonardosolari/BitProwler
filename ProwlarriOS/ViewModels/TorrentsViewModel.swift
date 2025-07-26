@@ -1,11 +1,25 @@
+// File: /ProwlarriOS/ViewModels/TorrentsViewModel.swift
+
 import Foundation
 import Combine
 
 @MainActor
 class TorrentsViewModel: ObservableObject {
-    @Published var torrents: [QBittorrentTorrent] = []
+    // Stato per la UI
+    @Published var filteredTorrents: [QBittorrentTorrent] = []
     @Published var isLoading = false
     @Published var error: String?
+    
+    // Stato per ricerca e ordinamento
+    @Published var searchText = "" {
+        didSet { applyFiltersAndSorting() }
+    }
+    @Published var activeSortOption: TorrentSortOption = .progress {
+        didSet { applyFiltersAndSorting() }
+    }
+    
+    // Dati originali dall'API
+    private var allTorrents: [QBittorrentTorrent] = []
     
     private var timer: Timer?
     private let updateInterval: TimeInterval = 2.0
@@ -41,16 +55,48 @@ class TorrentsViewModel: ObservableObject {
             return
         }
         
-        if !silent { isLoading = true }
+        if !silent && allTorrents.isEmpty { isLoading = true }
         
         do {
             let fetchedTorrents = try await apiService.getTorrents(on: server)
-            self.torrents = fetchedTorrents
+            self.allTorrents = fetchedTorrents
+            self.applyFiltersAndSorting() // Applica logica a ogni aggiornamento
             self.error = nil
         } catch {
             self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }
         
         if !silent { isLoading = false }
+    }
+    
+    // NUOVO METODO CENTRALE PER FILTRARE E ORDINARE
+    private func applyFiltersAndSorting() {
+        var processedTorrents = allTorrents
+        
+        // 1. Applica filtro di ricerca (se presente)
+        if !searchText.isEmpty {
+            processedTorrents = processedTorrents.filter {
+                $0.name.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+        
+        // 2. Applica ordinamento
+        switch activeSortOption {
+        case .name:
+            processedTorrents.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        case .progress:
+            processedTorrents.sort { $0.progress > $1.progress }
+        case .downloadSpeed:
+            processedTorrents.sort { $0.downloadSpeed > $1.downloadSpeed }
+        case .uploadSpeed:
+            processedTorrents.sort { $0.uploadSpeed > $1.uploadSpeed }
+        case .size:
+            processedTorrents.sort { $0.size > $1.size }
+        case .state:
+            processedTorrents.sort { $0.state < $1.state }
+        }
+        
+        // 3. Aggiorna la lista pubblicata
+        self.filteredTorrents = processedTorrents
     }
 }

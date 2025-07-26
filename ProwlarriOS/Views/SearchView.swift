@@ -161,7 +161,7 @@ struct FilterButton: View {
     }
 }
 
-struct SortMenu: View {
+private struct SortMenu: View {
     @ObservedObject var viewModel: SearchViewModel
     
     var body: some View {
