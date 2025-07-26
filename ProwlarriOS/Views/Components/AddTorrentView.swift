@@ -5,15 +5,11 @@ import UniformTypeIdentifiers
 
 struct AddTorrentView: View {
     @Environment(\.dismiss) var dismiss
-    
-    // Usiamo @ObservedObject perché il ciclo di vita del ViewModel
-    // sarà gestito dalla vista che presenta questa sheet.
     @ObservedObject var viewModel: AddTorrentViewModel
-    
     @EnvironmentObject var recentPathsManager: RecentPathsManager
     
     @State private var showFileImporter = false
-    @State private var showingRecentPaths = false
+    @State private var showingPathManager = false // Stato per la nuova sheet
     
     var body: some View {
         NavigationView {
@@ -42,8 +38,9 @@ struct AddTorrentView: View {
                         loadingView
                     }
                 }
-                .sheet(isPresented: $showingRecentPaths) {
-                    recentPathsSheet
+                // Sheet per la gestione dei percorsi
+                .sheet(isPresented: $showingPathManager) {
+                    PathManagementView()
                 }
                 .onChange(of: viewModel.shouldDismiss) { shouldDismiss in
                     if shouldDismiss {
@@ -85,14 +82,29 @@ struct AddTorrentView: View {
             }
             
             Section(header: Text("Percorso Download")) {
-                TextField("Percorso", text: $viewModel.downloadPath)
-                    .autocapitalization(.none)
-                    .textInputAutocapitalization(.never)
-                    .autocorrectionDisabled()
-                
-                if !recentPathsManager.paths.isEmpty {
-                    Button(action: { showingRecentPaths = true }) {
-                        Label("Percorsi Recenti", systemImage: "clock")
+                HStack {
+                    TextField("Percorso", text: $viewModel.downloadPath)
+                        .autocapitalization(.none)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    
+                    // NUOVO MENU UNIFICATO
+                    if !recentPathsManager.paths.isEmpty {
+                        Menu {
+                            ForEach(recentPathsManager.paths, id: \.self) { recentPath in
+                                Button(recentPath.path) {
+                                    viewModel.downloadPath = recentPath.path
+                                }
+                            }
+                            Divider()
+                            Button(action: { showingPathManager = true }) {
+                                Label("Gestisci Percorsi", systemImage: "folder.badge.gear")
+                            }
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .font(.title3)
+                                .foregroundColor(.secondary)
+                        }
                     }
                 }
             }
@@ -121,30 +133,6 @@ struct AddTorrentView: View {
                     .background(Color.systemBackground)
                     .cornerRadius(10)
             )
-    }
-    
-    private var recentPathsSheet: some View {
-        NavigationView {
-            List(recentPathsManager.paths) { recentPath in
-                Button(action: {
-                    viewModel.downloadPath = recentPath.path
-                    showingRecentPaths = false
-                }) {
-                    VStack(alignment: .leading) {
-                        Text(recentPath.path)
-                        Text(recentPath.lastUsed.formatted())
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .navigationTitle("Percorsi Recenti")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Annulla") { showingRecentPaths = false }
-                }
-            }
-        }
     }
 }
 

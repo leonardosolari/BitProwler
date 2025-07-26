@@ -95,7 +95,6 @@ struct TorrentDetailActionSheet: View {
         }
     }
     
-    // SEZIONE AZIONI AGGIORNATA
     private var actionsSection: some View {
         Section(header: Text("Azioni")) {
             Button {
@@ -106,7 +105,6 @@ struct TorrentDetailActionSheet: View {
                     .foregroundColor(viewModel.isPaused ? .green : .orange)
             }
             
-            // Pulsante per Avvio Forzato / Annulla Avvio Forzato
             Button {
                 Task { await viewModel.performAction(.forceStart, forceStart: !viewModel.isForced) { dismiss() } }
             } label: {
@@ -115,7 +113,6 @@ struct TorrentDetailActionSheet: View {
                     .foregroundColor(.purple)
             }
             
-            // Pulsante per Ricontrollare
             Button {
                 Task { await viewModel.performAction(.recheck) { dismiss() } }
             } label: {
@@ -148,7 +145,7 @@ struct TorrentDetailActionSheet: View {
     }
 }
 
-// --- Viste Componente (invariate) ---
+// --- Viste Componente ---
 
 struct CircularProgressView: View {
     let progress: Double
@@ -167,28 +164,42 @@ struct CircularProgressView: View {
     }
 }
 
+// VISTA AGGIORNATA
 struct LocationPickerView: View {
     @ObservedObject var viewModel: TorrentActionsViewModel
     @EnvironmentObject var recentPathsManager: RecentPathsManager
     @Environment(\.dismiss) var dismiss
     
     @State private var newLocation = ""
+    @State private var showingPathManager = false // Stato per la nuova sheet
     
     var body: some View {
         NavigationView {
             Form {
                 Section(header: Text("Nuova Posizione")) {
-                    TextField("Percorso Completo", text: $newLocation)
-                        .autocapitalization(.none)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                }
-                
-                if !recentPathsManager.paths.isEmpty {
-                    Section(header: Text("Percorsi Recenti")) {
-                        ForEach(recentPathsManager.paths) { recentPath in
-                            Button(recentPath.path) { newLocation = recentPath.path }
-                                .foregroundColor(.primary)
+                    HStack {
+                        TextField("Percorso Completo", text: $newLocation)
+                            .autocapitalization(.none)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                        
+                        // NUOVO MENU UNIFICATO
+                        if !recentPathsManager.paths.isEmpty {
+                            Menu {
+                                ForEach(recentPathsManager.paths, id: \.self) { recentPath in
+                                    Button(recentPath.path) {
+                                        newLocation = recentPath.path
+                                    }
+                                }
+                                Divider()
+                                Button(action: { showingPathManager = true }) {
+                                    Label("Gestisci Percorsi", systemImage: "folder.badge.gear")
+                                }
+                            } label: {
+                                Image(systemName: "clock.arrow.circlepath")
+                                    .font(.title3)
+                                    .foregroundColor(.secondary)
+                            }
                         }
                     }
                 }
@@ -211,6 +222,10 @@ struct LocationPickerView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Annulla") { dismiss() }
                 }
+            }
+            // Sheet per la gestione dei percorsi
+            .sheet(isPresented: $showingPathManager) {
+                PathManagementView()
             }
         }
     }

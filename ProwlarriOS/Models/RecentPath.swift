@@ -1,9 +1,11 @@
+// File: /ProwlarriOS/Models/RecentPath.swift
+
 import Foundation
 
-struct RecentPath: Codable, Identifiable {
+struct RecentPath: Codable, Identifiable, Hashable { // Aggiungi Hashable per ForEach
     let id: UUID
     let path: String
-    let lastUsed: Date
+    var lastUsed: Date // Rendi 'var' per poterla aggiornare
     
     init(path: String) {
         self.id = UUID()
@@ -19,12 +21,13 @@ class RecentPathsManager: ObservableObject {
         }
     }
     
-    private let maxPaths = 10
+    private let maxPaths = 15 // Aumentiamo un po' il limite
     
     init() {
         if let data = UserDefaults.standard.data(forKey: "recentPaths"),
            let decoded = try? JSONDecoder().decode([RecentPath].self, from: data) {
-            self.paths = decoded
+            // Ordina i percorsi per data di ultimo utilizzo, dal più recente al più vecchio
+            self.paths = decoded.sorted { $0.lastUsed > $1.lastUsed }
         } else {
             self.paths = []
         }
@@ -37,15 +40,26 @@ class RecentPathsManager: ObservableObject {
     }
     
     func addPath(_ path: String) {
-        // Rimuovi il percorso esistente se presente
-        paths.removeAll { $0.path == path }
+        // Se il percorso esiste già, aggiorna la sua data e spostalo in cima
+        if let index = paths.firstIndex(where: { $0.path == path }) {
+            paths[index].lastUsed = Date()
+        } else {
+            // Altrimenti, aggiungi un nuovo percorso
+            let newPath = RecentPath(path: path)
+            paths.insert(newPath, at: 0)
+        }
         
-        // Aggiungi il nuovo percorso all'inizio
-        paths.insert(RecentPath(path: path), at: 0)
+        // Riordina sempre per data per essere sicuri
+        paths.sort { $0.lastUsed > $1.lastUsed }
         
         // Mantieni solo gli ultimi maxPaths percorsi
         if paths.count > maxPaths {
             paths = Array(paths.prefix(maxPaths))
         }
+    }
+    
+    // NUOVO METODO PER ELIMINARE
+    func deletePath(at offsets: IndexSet) {
+        paths.remove(atOffsets: offsets)
     }
 }
