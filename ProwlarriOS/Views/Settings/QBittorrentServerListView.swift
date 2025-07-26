@@ -1,9 +1,10 @@
+// File: /ProwlarriOS/Views/Settings/QBittorrentServerListView.swift
+
 import SwiftUI
 
 struct QBittorrentServerListView: View {
     @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
     @State private var showingAddServer = false
-    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         List {
@@ -16,11 +17,14 @@ struct QBittorrentServerListView: View {
             if !qbittorrentManager.qbittorrentServers.isEmpty {
                 Section("Server Configurati") {
                     ForEach(qbittorrentManager.qbittorrentServers) { server in
-                        ServerRow(
-                            name: server.name,
-                            isActive: qbittorrentManager.activeQBittorrentServerId == server.id,
-                            onSelect: { qbittorrentManager.activeQBittorrentServerId = server.id }
-                        )
+                        // Usa NavigationLink per la modifica
+                        NavigationLink(destination: AddQBittorrentServerView(serverToEdit: server)) {
+                            ServerRow(
+                                name: server.name,
+                                isActive: qbittorrentManager.activeQBittorrentServerId == server.id,
+                                onSelect: { qbittorrentManager.activeQBittorrentServerId = server.id }
+                            )
+                        }
                         .swipeActions {
                             Button(role: .destructive) {
                                 qbittorrentManager.deleteQBittorrentServer(server)
@@ -34,7 +38,8 @@ struct QBittorrentServerListView: View {
         }
         .navigationTitle("Server qBittorrent")
         .sheet(isPresented: $showingAddServer) {
+            // La sheet apre la vista in modalità "Aggiungi" (serverToEdit è nil)
             AddQBittorrentServerView()
         }
     }
-} 
+}

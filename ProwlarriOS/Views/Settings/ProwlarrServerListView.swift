@@ -1,9 +1,10 @@
+// File: /ProwlarriOS/Views/Settings/ProwlarrServerListView.swift
+
 import SwiftUI
 
 struct ProwlarrServerListView: View {
     @EnvironmentObject var prowlarrManager: ProwlarrServerManager
     @State private var showingAddServer = false
-    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         List {
@@ -16,11 +17,14 @@ struct ProwlarrServerListView: View {
             if !prowlarrManager.prowlarrServers.isEmpty {
                 Section("Server Configurati") {
                     ForEach(prowlarrManager.prowlarrServers) { server in
-                        ServerRow(
-                            name: server.name,
-                            isActive: prowlarrManager.activeProwlarrServerId == server.id,
-                            onSelect: { prowlarrManager.activeProwlarrServerId = server.id }
-                        )
+                        // Usa NavigationLink per la modifica
+                        NavigationLink(destination: AddProwlarrServerView(serverToEdit: server)) {
+                            ServerRow(
+                                name: server.name,
+                                isActive: prowlarrManager.activeProwlarrServerId == server.id,
+                                onSelect: { prowlarrManager.activeProwlarrServerId = server.id }
+                            )
+                        }
                         .swipeActions {
                             Button(role: .destructive) {
                                 prowlarrManager.deleteProwlarrServer(server)
@@ -34,7 +38,8 @@ struct ProwlarrServerListView: View {
         }
         .navigationTitle("Server Prowlarr")
         .sheet(isPresented: $showingAddServer) {
+            // La sheet apre la vista in modalità "Aggiungi" (serverToEdit è nil)
             AddProwlarrServerView()
         }
     }
-} 
+}

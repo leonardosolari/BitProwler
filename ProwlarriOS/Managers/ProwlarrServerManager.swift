@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/Managers/ProwlarrServerManager.swift
+
 import Foundation
 import SwiftUI
 
@@ -15,12 +17,9 @@ class ProwlarrServerManager: ObservableObject {
     }
     
     var activeServer: ProwlarrServer? {
-        // Prima di restituire il server, assicuriamoci che abbia l'API key caricata.
         guard let server = prowlarrServers.first(where: { $0.id == activeProwlarrServerId }) else {
             return nil
         }
-        // Se l'apiKey è vuota, potrebbe essere un server appena caricato da UserDefaults.
-        // Proviamo a ricaricarla dal Keychain.
         if server.apiKey.isEmpty, let apiKey = keychainService.get(key: server.id.uuidString) {
             var mutableServer = server
             mutableServer.apiKey = apiKey
@@ -33,7 +32,7 @@ class ProwlarrServerManager: ObservableObject {
     private let serversKey = "prowlarrServers"
     
     init() {
-        self.prowlarrServers = [] // Inizializza vuoto, poi carica
+        self.prowlarrServers = []
         loadServers()
         
         if let idString = UserDefaults.standard.string(forKey: "activeProwlarrServerId") {
@@ -50,7 +49,6 @@ class ProwlarrServerManager: ObservableObject {
             return
         }
         
-        // Per ogni server, carica la sua API key dal Keychain
         for i in 0..<servers.count {
             if let apiKey = keychainService.get(key: servers[i].id.uuidString) {
                 servers[i].apiKey = apiKey
@@ -74,6 +72,18 @@ class ProwlarrServerManager: ObservableObject {
             }
         } catch {
             print("Errore nel salvataggio della API key nel Keychain: \(error)")
+        }
+    }
+    
+    // NUOVO METODO DI AGGIORNAMENTO
+    func updateProwlarrServer(_ server: ProwlarrServer) {
+        guard let index = prowlarrServers.firstIndex(where: { $0.id == server.id }) else { return }
+        
+        do {
+            try keychainService.save(key: server.id.uuidString, value: server.apiKey)
+            prowlarrServers[index] = server
+        } catch {
+            print("Errore nell'aggiornamento della API key nel Keychain: \(error)")
         }
     }
     

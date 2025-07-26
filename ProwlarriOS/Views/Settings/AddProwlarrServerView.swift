@@ -2,22 +2,20 @@
 
 import SwiftUI
 
-// Definiamo un tipo di errore semplice per il risultato del test
-struct TestConnectionError: Error, LocalizedError {
-    var errorDescription: String?
-}
-
 struct AddProwlarrServerView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var prowlarrManager: ProwlarrServerManager
+    
+    var serverToEdit: ProwlarrServer?
+    private var isEditing: Bool { serverToEdit != nil }
     
     @State private var name = ""
     @State private var url = ""
     @State private var apiKey = ""
     @State private var isTesting = false
     
-    // Usiamo la nostra nuova struct di errore
-    @State private var testResult: Result<String, TestConnectionError>?
+    // Ora usiamo AppError, il nostro tipo di errore globale
+    @State private var testResult: Result<String, AppError>?
     @State private var isShowingTestResult = false
     
     private let apiService: ProwlarrAPIService = NetworkManager()
@@ -39,11 +37,7 @@ struct AddProwlarrServerView: View {
                     Button(action: testConnection) {
                         HStack {
                             Spacer()
-                            if isTesting {
-                                ProgressView()
-                            } else {
-                                Text("Testa Connessione")
-                            }
+                            if isTesting { ProgressView() } else { Text("Testa Connessione") }
                             Spacer()
                         }
                     }
@@ -53,19 +47,21 @@ struct AddProwlarrServerView: View {
                         .disabled(!canSave)
                 }
             }
-            .navigationTitle("Nuovo Server Prowlarr")
+            .navigationTitle(isEditing ? "Modifica Server" : "Nuovo Server Prowlarr")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Annulla") { dismiss() }
                 }
             }
+            .onAppear(perform: setupForEditing)
             .alert(isPresented: $isShowingTestResult) {
                 switch testResult {
                 case .success(let message):
                     return Alert(title: Text("Successo"), message: Text(message), dismissButton: .default(Text("OK")))
                 case .failure(let error):
-                    return Alert(title: Text("Errore"), message: Text(error.localizedDescription), dismissButton: .default(Text("OK")))
+                    // Usiamo la errorDescription di AppError
+                    return Alert(title: Text("Errore"), message: Text(error.errorDescription ?? "Errore sconosciuto"), dismissButton: .default(Text("OK")))
                 case .none:
                     return Alert(title: Text("Errore Sconosciuto"))
                 }
@@ -76,9 +72,16 @@ struct AddProwlarrServerView: View {
     private var canTest: Bool { !url.isEmpty && !apiKey.isEmpty }
     private var canSave: Bool { !name.isEmpty && canTest }
     
+    private func setupForEditing() {
+        if let server = serverToEdit {
+            name = server.name
+            url = server.url
+            apiKey = server.apiKey
+        }
+    }
+    
     private func testConnection() {
         isTesting = true
-        // Usiamo la nuova estensione qui
         let serverToTest = ProwlarrServer(name: "Test", url: url.asSanitizedURL(), apiKey: apiKey)
         
         Task {
@@ -86,8 +89,8 @@ struct AddProwlarrServerView: View {
             if success {
                 testResult = .success("Connessione al server Prowlarr riuscita!")
             } else {
-                // Creiamo un'istanza del nostro errore personalizzato
-                testResult = .failure(TestConnectionError(errorDescription: "Impossibile connettersi al server. Controlla l'URL e la chiave API."))
+                // In caso di fallimento, usiamo un errore specifico da AppError
+                testResult = .failure(.authenticationFailed)
             }
             isShowingTestResult = true
             isTesting = false
@@ -95,14 +98,20 @@ struct AddProwlarrServerView: View {
     }
     
     private func saveServer() {
-        let server = ProwlarrServer(
-            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
-            // E la usiamo anche qui
-            url: url.asSanitizedURL(),
-            apiKey: apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-        )
-        prowlarrManager.addProwlarrServer(server)
+        if let serverToEdit = serverToEdit {
+            var updatedServer = serverToEdit
+            updatedServer.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            updatedServer.url = url.asSanitizedURL()
+            updatedServer.apiKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            prowlarrManager.updateProwlarrServer(updatedServer)
+        } else {
+            let newServer = ProwlarrServer(
+                name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+                url: url.asSanitizedURL(),
+                apiKey: apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+            prowlarrManager.addProwlarrServer(newServer)
+        }
         dismiss()
     }
-    
 }

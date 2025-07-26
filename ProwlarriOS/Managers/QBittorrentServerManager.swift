@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/Managers/QBittorrentServerManager.swift
+
 import Foundation
 import SwiftUI
 
@@ -70,6 +72,18 @@ class QBittorrentServerManager: ObservableObject {
             }
         } catch {
             print("Errore nel salvataggio della password nel Keychain: \(error)")
+        }
+    }
+    
+    // NUOVO METODO DI AGGIORNAMENTO
+    func updateQBittorrentServer(_ server: QBittorrentServer) {
+        guard let index = qbittorrentServers.firstIndex(where: { $0.id == server.id }) else { return }
+        
+        do {
+            try keychainService.save(key: server.id.uuidString, value: server.password)
+            qbittorrentServers[index] = server
+        } catch {
+            print("Errore nell'aggiornamento della password nel Keychain: \(error)")
         }
     }
     

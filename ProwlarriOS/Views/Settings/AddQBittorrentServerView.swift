@@ -6,14 +6,17 @@ struct AddQBittorrentServerView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
     
+    var serverToEdit: QBittorrentServer?
+    private var isEditing: Bool { serverToEdit != nil }
+    
     @State private var name = ""
     @State private var url = ""
     @State private var username = ""
     @State private var password = ""
     @State private var isTesting = false
     
-    // Usiamo la struct di errore che conforma a Error
-    @State private var testResult: Result<String, TestConnectionError>?
+    // Ora usiamo AppError, il nostro tipo di errore globale
+    @State private var testResult: Result<String, AppError>?
     @State private var isShowingTestResult = false
     
     private let apiService: QBittorrentAPIService = NetworkManager()
@@ -38,11 +41,7 @@ struct AddQBittorrentServerView: View {
                     Button(action: testConnection) {
                         HStack {
                             Spacer()
-                            if isTesting {
-                                ProgressView()
-                            } else {
-                                Text("Testa Connessione")
-                            }
+                            if isTesting { ProgressView() } else { Text("Testa Connessione") }
                             Spacer()
                         }
                     }
@@ -52,19 +51,21 @@ struct AddQBittorrentServerView: View {
                         .disabled(!canSave)
                 }
             }
-            .navigationTitle("Nuovo Server qBittorrent")
+            .navigationTitle(isEditing ? "Modifica Server" : "Nuovo Server qBittorrent")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Annulla") { dismiss() }
                 }
             }
+            .onAppear(perform: setupForEditing)
             .alert(isPresented: $isShowingTestResult) {
                 switch testResult {
                 case .success(let message):
                     return Alert(title: Text("Successo"), message: Text(message), dismissButton: .default(Text("OK")))
                 case .failure(let error):
-                    return Alert(title: Text("Errore"), message: Text(error.localizedDescription), dismissButton: .default(Text("OK")))
+                    // Usiamo la errorDescription di AppError
+                    return Alert(title: Text("Errore"), message: Text(error.errorDescription ?? "Errore sconosciuto"), dismissButton: .default(Text("OK")))
                 case .none:
                     return Alert(title: Text("Errore Sconosciuto"))
                 }
@@ -75,9 +76,17 @@ struct AddQBittorrentServerView: View {
     private var canTest: Bool { !url.isEmpty && !username.isEmpty && !password.isEmpty }
     private var canSave: Bool { !name.isEmpty && canTest }
     
+    private func setupForEditing() {
+        if let server = serverToEdit {
+            name = server.name
+            url = server.url
+            username = server.username
+            password = server.password
+        }
+    }
+    
     private func testConnection() {
         isTesting = true
-        // Usiamo la nuova estensione qui
         let serverToTest = QBittorrentServer(name: "Test", url: url.asSanitizedURL(), username: username, password: password)
         
         Task {
@@ -85,7 +94,8 @@ struct AddQBittorrentServerView: View {
             if success {
                 testResult = .success("Connessione al server qBittorrent riuscita!")
             } else {
-                testResult = .failure(TestConnectionError(errorDescription: "Impossibile connettersi al server. Controlla URL e credenziali."))
+                // In caso di fallimento, usiamo un errore specifico da AppError
+                testResult = .failure(.authenticationFailed)
             }
             isShowingTestResult = true
             isTesting = false
@@ -93,15 +103,22 @@ struct AddQBittorrentServerView: View {
     }
     
     private func saveServer() {
-        let server = QBittorrentServer(
-            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
-            // E la usiamo anche qui
-            url: url.asSanitizedURL(),
-            username: username.trimmingCharacters(in: .whitespacesAndNewlines),
-            password: password
-        )
-        qbittorrentManager.addQBittorrentServer(server)
+        if let serverToEdit = serverToEdit {
+            var updatedServer = serverToEdit
+            updatedServer.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            updatedServer.url = url.asSanitizedURL()
+            updatedServer.username = username.trimmingCharacters(in: .whitespacesAndNewlines)
+            updatedServer.password = password
+            qbittorrentManager.updateQBittorrentServer(updatedServer)
+        } else {
+            let newServer = QBittorrentServer(
+                name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+                url: url.asSanitizedURL(),
+                username: username.trimmingCharacters(in: .whitespacesAndNewlines),
+                password: password
+            )
+            qbittorrentManager.addQBittorrentServer(newServer)
+        }
         dismiss()
     }
-    
 }
