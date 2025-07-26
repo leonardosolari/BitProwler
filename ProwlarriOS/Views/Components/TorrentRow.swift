@@ -8,54 +8,54 @@ struct TorrentRow: View {
     @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Sezione Titolo e Stato
+        VStack(alignment: .leading, spacing: 8) {
+            // Livello 1: Titolo e Stato
             HStack {
                 Text(torrent.name)
-                    .font(.headline)
+                    .font(.subheadline) // Font più compatto
                     .fontWeight(.semibold)
                     .lineLimit(2)
                 Spacer()
                 StatusBadge(state: torrent.state)
             }
             
-            // Sezione Progresso
-            VStack(alignment: .leading, spacing: 4) {
+            // Livello 2: Progresso e Statistiche
+            VStack(alignment: .leading, spacing: 6) {
                 ProgressView(value: torrent.progress)
                     .tint(StatusBadge.getBackgroundColor(for: torrent.state))
                 
                 HStack {
-                    Text("\(Int(torrent.progress * 100))%")
+                    // Percentuale e Dimensione
+                    Text("\(Int(torrent.progress * 100))% di \(formatSize(torrent.size))")
+                    
                     Spacer()
-                    Text(formatSize(torrent.size))
+                    
+                    // Velocità
+                    if torrent.downloadSpeed > 0 {
+                        StatItem(icon: "arrow.down", value: formatSpeed(torrent.downloadSpeed), color: .green)
+                    }
+                    if torrent.uploadSpeed > 0 {
+                        StatItem(icon: "arrow.up", value: formatSpeed(torrent.uploadSpeed), color: .blue)
+                    }
+                    
+                    // Seeders e Leechers
+                    StatItem(icon: "person.2.fill", value: "\(torrent.numSeeds)", color: .green)
+                    StatItem(icon: "person.2", value: "\(torrent.numLeechs)", color: .orange)
                 }
-                .font(.caption)
+                .font(.caption) // Unico font per tutta la riga di statistiche
                 .foregroundColor(.secondary)
             }
-            
-            // Sezione Statistiche
-            HStack(spacing: 0) {
-                StatItem(icon: "arrow.down", value: formatSpeed(torrent.downloadSpeed), color: .green)
-                Spacer()
-                StatItem(icon: "arrow.up", value: formatSpeed(torrent.uploadSpeed), color: .blue)
-                Spacer()
-                StatItem(icon: "person.2.fill", value: "\(torrent.numSeeds)", color: .green)
-                Spacer()
-                StatItem(icon: "person.2", value: "\(torrent.numLeechs)", color: .orange)
-            }
-            .font(.footnote)
-            
         }
-        .padding()
-        .background(Color(.secondarySystemGroupedBackground)) // Sfondo leggermente diverso
-        .cornerRadius(12)
-        .listRowSeparator(.hidden) // Nasconde il separatore di default
-        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(Color(.secondarySystemGroupedBackground))
+        .cornerRadius(10)
+        .listRowSeparator(.hidden)
+        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
         .contentShape(Rectangle())
         .onTapGesture {
             showingActionSheet = true
         }
-        // RIGA CORRETTA
         .sheet(isPresented: $showingActionSheet) {
             TorrentDetailActionSheet(torrent: torrent, manager: qbittorrentManager)
         }
@@ -83,7 +83,7 @@ private struct StatItem: View {
     let color: Color
     
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: 2) { // Spacing ridotto
             Image(systemName: icon)
                 .foregroundColor(color)
             Text(value)
@@ -92,7 +92,7 @@ private struct StatItem: View {
     }
 }
 
-// StatusBadge rimane quasi uguale, ma possiamo migliorarla
+// StatusBadge rimane invariato
 struct StatusBadge: View {
     let state: String
     
@@ -102,8 +102,8 @@ struct StatusBadge: View {
             .fontWeight(.medium)
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(Self.getBackgroundColor(for: state).opacity(0.2)) // Sfondo più leggero
-            .foregroundColor(Self.getBackgroundColor(for: state)) // Testo con colore pieno
+            .background(Self.getBackgroundColor(for: state).opacity(0.2))
+            .foregroundColor(Self.getBackgroundColor(for: state))
             .clipShape(Capsule())
     }
     
