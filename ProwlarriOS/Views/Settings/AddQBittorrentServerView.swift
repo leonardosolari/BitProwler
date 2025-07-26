@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/Views/Settings/AddQBittorrentServerView.swift
+
 import SwiftUI
 
 struct AddQBittorrentServerView: View {
@@ -75,7 +77,8 @@ struct AddQBittorrentServerView: View {
     
     private func testConnection() {
         isTesting = true
-        let serverToTest = QBittorrentServer(name: "Test", url: formattedUrl, username: username, password: password)
+        // Usiamo la nuova estensione qui
+        let serverToTest = QBittorrentServer(name: "Test", url: url.asSanitizedURL(), username: username, password: password)
         
         Task {
             let success = await apiService.testConnection(to: serverToTest)
@@ -92,7 +95,8 @@ struct AddQBittorrentServerView: View {
     private func saveServer() {
         let server = QBittorrentServer(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
-            url: formattedUrl,
+            // E la usiamo anche qui
+            url: url.asSanitizedURL(),
             username: username.trimmingCharacters(in: .whitespacesAndNewlines),
             password: password
         )
@@ -100,11 +104,4 @@ struct AddQBittorrentServerView: View {
         dismiss()
     }
     
-    private var formattedUrl: String {
-        var finalUrl = url.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !finalUrl.hasSuffix("/") {
-            finalUrl += "/"
-        }
-        return finalUrl
-    }
 }

@@ -1,3 +1,5 @@
+// File: /ProwlarriOS/Views/Settings/AddProwlarrServerView.swift
+
 import SwiftUI
 
 // Definiamo un tipo di errore semplice per il risultato del test
@@ -76,7 +78,8 @@ struct AddProwlarrServerView: View {
     
     private func testConnection() {
         isTesting = true
-        let serverToTest = ProwlarrServer(name: "Test", url: formattedUrl, apiKey: apiKey)
+        // Usiamo la nuova estensione qui
+        let serverToTest = ProwlarrServer(name: "Test", url: url.asSanitizedURL(), apiKey: apiKey)
         
         Task {
             let success = await apiService.testConnection(to: serverToTest)
@@ -94,18 +97,12 @@ struct AddProwlarrServerView: View {
     private func saveServer() {
         let server = ProwlarrServer(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
-            url: formattedUrl,
+            // E la usiamo anche qui
+            url: url.asSanitizedURL(),
             apiKey: apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         prowlarrManager.addProwlarrServer(server)
         dismiss()
     }
     
-    private var formattedUrl: String {
-        var finalUrl = url.trimmingCharacters(in: .whitespacesAndNewlines)
-        if !finalUrl.hasSuffix("/") {
-            finalUrl += "/"
-        }
-        return finalUrl
-    }
 }
