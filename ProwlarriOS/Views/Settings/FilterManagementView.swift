@@ -1,7 +1,11 @@
+// File: /ProwlarriOS/Views/Settings/FilterManagementView.swift
+
 import SwiftUI
 
 struct FilterManagementView: View {
-    @StateObject private var filterViewModel = FilterViewModel()
+    // <-- MODIFICA QUI: Usa l'oggetto condiviso dall'ambiente
+    @EnvironmentObject private var filterViewModel: FilterViewModel
+    
     @Environment(\.dismiss) var dismiss
     @State private var showingAddFilter = false
     
@@ -23,7 +27,7 @@ struct FilterManagementView: View {
             } header: {
                 Text("Impostazioni Filtri")
             } footer: {
-                Text(filterViewModel.filterLogic == .and ? 
+                Text(filterViewModel.filterLogic == .and ?
                     "I risultati devono contenere tutte le parole chiave dei filtri attivi" :
                     "I risultati devono contenere almeno una delle parole chiave dei filtri attivi")
             }
@@ -31,18 +35,16 @@ struct FilterManagementView: View {
             if !filterViewModel.filters.isEmpty {
                 Section("Filtri Configurati") {
                     ForEach(filterViewModel.filters) { filter in
-                        FilterRow(filter: filter, viewModel: filterViewModel)
+                        FilterRow(filter: filter) // Non ha più bisogno del viewModel
                     }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            filterViewModel.deleteFilter(filterViewModel.filters[index])
-                        }
-                    }
+                    // <-- MODIFICA QUI: Usa la nuova funzione di cancellazione
+                    .onDelete(perform: filterViewModel.deleteFilter)
                 }
             }
         }
         .navigationTitle("Gestione Filtri")
         .sheet(isPresented: $showingAddFilter) {
+            // Passiamo l'istanza condivisa alla vista di aggiunta
             AddFilterView(filterViewModel: filterViewModel)
         }
     }
@@ -50,7 +52,9 @@ struct FilterManagementView: View {
 
 struct FilterRow: View {
     let filter: TorrentFilter
-    let viewModel: FilterViewModel
+    
+    // <-- MODIFICA QUI: Usa l'oggetto condiviso dall'ambiente anche qui
+    @EnvironmentObject var viewModel: FilterViewModel
     
     var body: some View {
         HStack {
@@ -64,10 +68,20 @@ struct FilterRow: View {
             
             Spacer()
             
+            // Il binding ora funziona correttamente perché stiamo modificando
+            // l'oggetto condiviso, che farà ri-renderizzare la vista.
             Toggle("", isOn: Binding(
                 get: { filter.isEnabled },
                 set: { _ in viewModel.toggleFilter(filter) }
             ))
         }
     }
-} 
+}
+
+#Preview {
+    // Aggiorna la preview per fornire l'environment object
+    NavigationView {
+        FilterManagementView()
+    }
+    .environmentObject(FilterViewModel())
+}

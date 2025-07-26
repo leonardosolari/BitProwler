@@ -1,33 +1,36 @@
+// File: /ProwlarriOS/ViewModels/FilterViewModel.swift
+
 import Foundation
 
-class FilterViewModel: ObservableObject {
+final class FilterViewModel: ObservableObject {
     @Published var filters: [TorrentFilter] {
         didSet {
             saveFilters()
         }
     }
     
-    @Published var filterUpdateTrigger = false
-    
-    enum FilterLogic {
-        case and  // Deve corrispondere a tutti i filtri
-        case or   // Deve corrispondere ad almeno un filtro
+    enum FilterLogic: String, Codable {
+        case and
+        case or
     }
     
     @Published var filterLogic: FilterLogic {
         didSet {
-            UserDefaults.standard.set(filterLogic == .and ? "and" : "or", forKey: "filterLogic")
+            // Salva la logica in UserDefaults ogni volta che cambia
+            UserDefaults.standard.set(filterLogic.rawValue, forKey: "filterLogic")
         }
     }
     
     init() {
         // Carica la logica salvata
-        if let savedLogic = UserDefaults.standard.string(forKey: "filterLogic") {
-            self.filterLogic = savedLogic == "and" ? .and : .or
+        if let savedLogicRaw = UserDefaults.standard.string(forKey: "filterLogic"),
+           let savedLogic = FilterLogic(rawValue: savedLogicRaw) {
+            self.filterLogic = savedLogic
         } else {
-            self.filterLogic = .and
+            self.filterLogic = .and // Default
         }
         
+        // Carica i filtri salvati
         if let data = UserDefaults.standard.data(forKey: "torrentFilters"),
            let decodedFilters = try? JSONDecoder().decode([TorrentFilter].self, from: data) {
             self.filters = decodedFilters
@@ -44,25 +47,17 @@ class FilterViewModel: ObservableObject {
     
     func addFilter(_ filter: TorrentFilter) {
         filters.append(filter)
-        triggerUpdate()
     }
     
-    func deleteFilter(_ filter: TorrentFilter) {
-        filters.removeAll { $0.id == filter.id }
-        triggerUpdate()
+    // Funzione migliorata per funzionare direttamente con l'onDelete della List
+    func deleteFilter(at offsets: IndexSet) {
+        filters.remove(atOffsets: offsets)
     }
     
     func toggleFilter(_ filter: TorrentFilter) {
         if let index = filters.firstIndex(where: { $0.id == filter.id }) {
-            var updatedFilter = filters[index]
-            updatedFilter.isEnabled.toggle()
-            filters[index] = updatedFilter
-            triggerUpdate()
+            filters[index].isEnabled.toggle()
         }
-    }
-    
-    private func triggerUpdate() {
-        filterUpdateTrigger.toggle()
     }
     
     func filterResults(_ results: [TorrentResult]) -> [TorrentResult] {
@@ -88,4 +83,4 @@ class FilterViewModel: ObservableObject {
             }
         }
     }
-} 
+}

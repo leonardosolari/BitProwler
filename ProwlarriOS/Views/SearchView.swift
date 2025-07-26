@@ -2,7 +2,6 @@
 
 import SwiftUI
 
-// 1. IL CONTAINER VIEW
 struct SearchViewContainer: View {
     @EnvironmentObject var prowlarrManager: ProwlarrServerManager
     @EnvironmentObject var searchHistoryManager: SearchHistoryManager
@@ -15,24 +14,22 @@ struct SearchViewContainer: View {
     }
 }
 
-// 2. LA VISTA PRINCIPALE (MODIFICATA)
 struct SearchView: View {
     @StateObject private var viewModel: SearchViewModel
-    @StateObject private var filterViewModel = FilterViewModel()
-    @State private var searchText = ""
+    @EnvironmentObject private var filterViewModel: FilterViewModel
     
-    // CORREZIONE QUI: ProwlarrServerManager invece di ProwlarrManager
     @ObservedObject var prowlarrManager: ProwlarrServerManager
     @ObservedObject var searchHistoryManager: SearchHistoryManager
     
+    @State private var searchText = ""
     @FocusState private var isSearchFieldFocused: Bool
     
+    @State private var isNavigatingToFilterManagement = false
+    
     private var finalResults: [TorrentResult] {
-        _ = filterViewModel.filterUpdateTrigger
         return filterViewModel.filterResults(viewModel.searchResults)
     }
     
-    // CORREZIONE QUI: ProwlarrServerManager invece di ProwlarrManager
     init(prowlarrManager: ProwlarrServerManager, searchHistoryManager: SearchHistoryManager) {
         self.prowlarrManager = prowlarrManager
         self.searchHistoryManager = searchHistoryManager
@@ -45,9 +42,16 @@ struct SearchView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
+                // La barra di ricerca viene chiamata qui
                 searchAndFilterBar
                 mainContent
             }
+            .background(
+                NavigationLink(
+                    destination: FilterManagementView(),
+                    isActive: $isNavigatingToFilterManagement
+                ) { EmptyView() }
+            )
             .navigationTitle("Cerca Torrent")
             .alert("Errore", isPresented: $viewModel.showError) {
                 Button("OK", role: .cancel) {}
@@ -63,48 +67,13 @@ struct SearchView: View {
                         .shadow(radius: 10)
                 }
             }
-            .onChange(of: viewModel.activeSortOption) { _ in
+            .onChange(of: viewModel.activeSortOption) {
                 viewModel.applySorting()
             }
         }
     }
     
-    private var searchAndFilterBar: some View {
-        VStack(spacing: 0) {
-            HStack {
-                TextField("Cerca...", text: $searchText)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .focused($isSearchFieldFocused)
-                    .onSubmit(executeSearch)
-                    .submitLabel(.search)
-                
-                Button(action: {
-                    isSearchFieldFocused = false
-                    executeSearch()
-                }) {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(Color.accentColor)
-                        .cornerRadius(8)
-                }
-                .disabled(searchText.isEmpty)
-            }
-            .padding(.horizontal)
-            .padding(.top)
-            
-            if !viewModel.searchResults.isEmpty {
-                HStack {
-                    FilterButton(viewModel: filterViewModel)
-                    Spacer()
-                    SortMenu(viewModel: viewModel)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-            }
-        }
-        .background(Color(.systemGroupedBackground))
-    }
+    // <-- MODIFICA QUI: La vecchia definizione di searchAndFilterBar è stata rimossa da qui.
     
     @ViewBuilder
     private var mainContent: some View {
@@ -179,17 +148,43 @@ struct SearchView: View {
     }
 }
 
-// --- Viste Componente (invariate) ---
-private struct FilterButton: View {
-    @ObservedObject var viewModel: FilterViewModel
-    
+// --- Viste Componente ---
+
+private struct FilterMenuWrapper: View {
+    @EnvironmentObject var filterViewModel: FilterViewModel
+    @Binding var isNavigating: Bool
+
     var body: some View {
-        NavigationLink(destination: FilterManagementView()) {
+        Menu {
+            if filterViewModel.filters.isEmpty {
+                Label("Nessun filtro configurato", systemImage: "xmark.circle")
+                    .disabled(true)
+            } else {
+                Section("Filtri Rapidi") {
+                    ForEach(filterViewModel.filters) { filter in
+                        Toggle(isOn: Binding(
+                            get: { filter.isEnabled },
+                            set: { _ in filterViewModel.toggleFilter(filter) }
+                        )) {
+                            Text(filter.name)
+                        }
+                    }
+                }
+            }
+            
+            Divider()
+            
+            Button(action: { isNavigating = true }) {
+                Label("Gestisci Filtri", systemImage: "slider.horizontal.3")
+            }
+            
+        } label: {
             HStack(spacing: 4) {
                 Image(systemName: "line.3.horizontal.decrease.circle")
                 Text("Filtri")
-                if viewModel.filters.filter({ $0.isEnabled }).count > 0 {
-                    Text("(\(viewModel.filters.filter({ $0.isEnabled }).count))")
+                let activeFilterCount = filterViewModel.filters.filter({ $0.isEnabled }).count
+                if activeFilterCount > 0 {
+                    Text("(\(activeFilterCount))")
                         .fontWeight(.bold)
                 }
             }
@@ -198,7 +193,48 @@ private struct FilterButton: View {
             .padding(.vertical, 6)
             .background(Color.accentColor.opacity(0.1))
             .cornerRadius(8)
+            .foregroundColor(.accentColor)
         }
+    }
+}
+
+// <-- MODIFICA QUI: Questa è l'UNICA definizione di searchAndFilterBar
+extension SearchView {
+    var searchAndFilterBar: some View {
+        VStack(spacing: 0) {
+            HStack {
+                TextField("Cerca...", text: $searchText)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .focused($isSearchFieldFocused)
+                    .onSubmit(executeSearch)
+                    .submitLabel(.search)
+                
+                Button(action: {
+                    isSearchFieldFocused = false
+                    executeSearch()
+                }) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(Color.accentColor)
+                        .cornerRadius(8)
+                }
+                .disabled(searchText.isEmpty)
+            }
+            .padding(.horizontal)
+            .padding(.top)
+            
+            if !viewModel.searchResults.isEmpty {
+                HStack {
+                    FilterMenuWrapper(isNavigating: $isNavigatingToFilterManagement)
+                    Spacer()
+                    SortMenu(viewModel: viewModel)
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+            }
+        }
+        .background(Color.systemGroupedBackground)
     }
 }
 
@@ -227,7 +263,5 @@ private struct SortMenu: View {
 }
 
 #Preview {
-    SearchViewContainer()
-        .environmentObject(ProwlarrServerManager())
-        .environmentObject(SearchHistoryManager())
+    ContentView()
 }
