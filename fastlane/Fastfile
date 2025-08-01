@@ -24,9 +24,13 @@ default_platform(:ios)
 # =============================================================================
 
 # --- VARIABILI DA PERSONALIZZARE ---
-PROJECT_NAME = "ProwlarriOS" # Es. "MyAwesomeApp"
-SCHEME_NAME = "ProwlarriOS"   # Solitamente è uguale a PROJECT_NAME
-REPO_NAME = "leonardosolari/ProwlarriOS" # Es. "johnnyappleseed/MyAwesomeApp"
+PROJECT_NAME = "ProwlarriOS"
+SCHEME_NAME = "ProwlarriOS"
+REPO_NAME = "leonardosolari/ProwlarriOS"
+
+# Definiamo i percorsi corretti una sola volta
+XCODEPROJ_PATH = "#{PROJECT_NAME}.xcodeproj"
+XCWORKSPACE_PATH = "#{XCODEPROJ_PATH}/project.xcworkspace"
 # -----------------------------------
 
 platform :ios do
@@ -37,52 +41,84 @@ platform :ios do
   # 1. Per compilare e lanciare l'app sul simulatore:
   #    `fastlane run_sim`
   #
-  # 2. Per creare una nuova release (patch, commit, tag, build IPA e upload):
+  # 2. Per creare una nuova release (minor, commit, tag, build IPA e upload):
   #    `fastlane release`
   #
-  # 3. Per creare una release di tipo "minor" o "major":
-  #    `fastlane release bump_type:minor`
+  # 3. Per creare una release di tipo "patch" o "major":
+  #    `fastlane release bump_type:patch`
   #    `fastlane release bump_type:major`
   # ===========================================================================
 
   desc "Compila e lancia l'app sul simulatore di default"
   lane :run_sim do
-    puts "🏃 Compilando e lanciando l'app sul simulatore..."
     
-    # 'scan' è perfetto per questo. Compila, installa e lancia.
-    scan(
-      workspace: "#{PROJECT_NAME}.xcworkspace",
+    # -------------------------------------------------------------------------
+    # PASSO 1: Compila l'app per il simulatore usando 'gym'.
+    # Non creiamo un .ipa, ma solo il file .app nella DerivedData.
+    # -------------------------------------------------------------------------
+    UI.message "📦 Compilando l'app per il simulatore..."
+    gym(
+      workspace: XCWORKSPACE_PATH,
       scheme: SCHEME_NAME,
-      device: "iPhone 16 Pro", # Cambia con il tuo simulatore preferito
-                               # Esegui `xcrun simctl list devices` per vedere la lista
-      skip_testing: true,
-      build_for_testing: true
+      sdk: "iphonesimulator", # Specifica che la build è per il simulatore
+      destination: "platform=iOS Simulator,name=iPhone 16 Pro", # Specifica il simulatore
+      derived_data_path: "./derived_data", # Specifichiamo dove salvare la build
+      skip_package_ipa: true # Non vogliamo un .ipa, solo il file .app
     )
     
-    UI.success "✅ App lanciata con successo sul simulatore!"
+    # -------------------------------------------------------------------------
+    # PASSO 2: Installa l'app sul simulatore.
+    # L'azione 'install_on_simulator' è deprecata. Usiamo 'xcrun simctl'.
+    # Dobbiamo trovare il percorso del file .app appena creato.
+    # -------------------------------------------------------------------------
+    UI.message "📲 Installando l'app sul simulatore..."
+    
+    # Costruiamo il percorso del file .app all'interno della DerivedData
+    app_path = "./derived_data/Build/Products/Debug-iphonesimulator/#{PROJECT_NAME}.app"
+    
+    # Eseguiamo il comando di installazione
+    sh "xcrun simctl install booted '#{app_path}'"
+
+    # -------------------------------------------------------------------------
+    # PASSO 3: Lancia l'app.
+    # Per lanciare l'app, abbiamo bisogno del suo Bundle Identifier.
+    # Lo leggiamo direttamente dal file di progetto.
+    # -------------------------------------------------------------------------
+    UI.message "🚀 Lanciando l'app..."
+    
+    # Ottiene il bundle identifier dal file di progetto
+    bundle_id = get_info_plist_value(
+      path: "#{XCODEPROJ_PATH}/../#{PROJECT_NAME}/Info.plist", # Percorso standard per Info.plist generato
+      key: "CFBundleIdentifier",
+      xcodeproj: XCODEPROJ_PATH
+    )
+
+    # Lancia l'app usando il suo identifier
+    sh "xcrun simctl launch booted '#{bundle_id}'"
+
+    UI.success "✅ App compilata, installata e lanciata con successo!"
   end
+
 
 
   desc "Crea una nuova release completa: versione, commit, tag, build e upload su GitHub"
   lane :release do |options|
-    # Chiedi conferma prima di iniziare un'operazione così importante
     ensure_git_status_clean
     UI.confirm("Sei sicuro di voler creare una nuova release? Questo modificherà la versione, creerà un commit e un tag.")
 
-    # Determina il tipo di incremento di versione (default: patch)
+    # Determina il tipo di incremento di versione (default: minor)
     bump_type = options[:bump_type] || "minor"
     UI.message "📈 Incremento versione di tipo: #{bump_type}"
 
     # 1. Gestione Automatica della Versione
     increment_version_number(bump_type: bump_type)
     
-    # Salva il nuovo numero di versione per usarlo dopo
     new_version_number = get_version_number
 
     # 2. Crea un commit e un tag Git
     commit_version_bump(
       message: "chore(release): Versione #{new_version_number}",
-      xcodeproj: "#{PROJECT_NAME}.xcodeproj"
+      xcodeproj: XCODEPROJ_PATH # <-- MODIFICA QUI
     )
     add_git_tag(tag: "v#{new_version_number}")
 
@@ -118,9 +154,9 @@ platform :ios do
 
     # 1. Archivia il progetto senza tentare di firmarlo o pacchettizzarlo
     archive_path = gym(
-      workspace: "#{PROJECT_NAME}.xcworkspace",
+      workspace: XCWORKSPACE_PATH, # <-- MODIFICA QUI
       scheme: SCHEME_NAME,
-      skip_package_ipa: true, # FONDAMENTALE: non creare l'IPA qui
+      skip_package_ipa: true,
       archive_path: "#{output_dir}/#{PROJECT_NAME}.xcarchive",
       xcargs: "CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
     )
@@ -143,7 +179,6 @@ platform :ios do
     
     UI.success "✅ IPA non firmato creato: #{ipa_full_path}"
     
-    # Ritorna il percorso completo dell'IPA
     next ipa_full_path
   end
 
