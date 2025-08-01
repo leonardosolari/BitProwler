@@ -1,23 +1,150 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
+# fastlane/Fastfile
 
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
+# -----------------------------------------------------------------------------
+# BENVENUTO NEL TUO WORKFLOW AUTOMATIZZATO!
+#
+# Questo file definisce tutte le operazioni automatizzate per il tuo progetto.
+# Per eseguirle, apri il terminale nella cartella principale del progetto e
+# lancia i comandi descritti nella sezione "Come Usare".
+# -----------------------------------------------------------------------------
 
 default_platform(:ios)
 
+# =============================================================================
+# ⚙️ PREREQUISITI E CONFIGURAZIONE
+#
+# 1. Assicurati di aver installato Fastlane: `sudo gem install fastlane`
+# 2. Modifica le 3 variabili qui sotto con i dati del tuo progetto.
+# 3. Per le release su GitHub, crea un Personal Access Token qui:
+#    https://github.com/settings/tokens (con permesso "repo")
+#    e impostalo nel tuo ambiente con:
+#    `export FASTLANE_GITHUB_API_TOKEN="tuo_token_qui"`
+#    (Aggiungi questa riga al tuo file .zshrc o .bash_profile per non doverlo
+#    fare ogni volta).
+# =============================================================================
+
+# --- VARIABILI DA PERSONALIZZARE ---
+PROJECT_NAME = "NomeTuoProgetto" # Es. "MyAwesomeApp"
+SCHEME_NAME = "NomeTuoScheme"   # Solitamente è uguale a PROJECT_NAME
+REPO_NAME = "TuoUtente/TuoRepo" # Es. "johnnyappleseed/MyAwesomeApp"
+# -----------------------------------
+
 platform :ios do
-  desc "Description of what the lane does"
-  lane :custom_lane do
-    # add actions here: https://docs.fastlane.tools/actions
+  
+  # ===========================================================================
+  # 🚀 COME USARE QUESTO FILE
+  #
+  # 1. Per compilare e lanciare l'app sul simulatore:
+  #    `fastlane run_sim`
+  #
+  # 2. Per creare una nuova release (patch, commit, tag, build IPA e upload):
+  #    `fastlane release`
+  #
+  # 3. Per creare una release di tipo "minor" o "major":
+  #    `fastlane release bump_type:minor`
+  #    `fastlane release bump_type:major`
+  # ===========================================================================
+
+  desc "Compila e lancia l'app sul simulatore di default"
+  lane :run_sim do
+    puts "🏃 Compilando e lanciando l'app sul simulatore..."
+    
+    # 'scan' è perfetto per questo. Compila, installa e lancia.
+    scan(
+      workspace: "#{PROJECT_NAME}.xcworkspace",
+      scheme: SCHEME_NAME,
+      device: "iPhone 14 Pro", # Cambia con il tuo simulatore preferito
+                               # Esegui `xcrun simctl list devices` per vedere la lista
+      skip_testing: true,
+      build_for_testing: true
+    )
+    
+    UI.success "✅ App lanciata con successo sul simulatore!"
   end
+
+
+  desc "Crea una nuova release completa: versione, commit, tag, build e upload su GitHub"
+  lane :release do |options|
+    # Chiedi conferma prima di iniziare un'operazione così importante
+    ensure_git_status_clean
+    UI.confirm("Sei sicuro di voler creare una nuova release? Questo modificherà la versione, creerà un commit e un tag.")
+
+    # Determina il tipo di incremento di versione (default: patch)
+    bump_type = options[:bump_type] || "minor"
+    UI.message "📈 Incremento versione di tipo: #{bump_type}"
+
+    # 1. Gestione Automatica della Versione
+    increment_version_number(bump_type: bump_type)
+    
+    # Salva il nuovo numero di versione per usarlo dopo
+    new_version_number = get_version_number
+
+    # 2. Crea un commit e un tag Git
+    commit_version_bump(
+      message: "chore(release): Versione #{new_version_number}",
+      xcodeproj: "#{PROJECT_NAME}.xcodeproj"
+    )
+    add_git_tag(tag: "v#{new_version_number}")
+
+    # 3. Crea il file IPA non firmato
+    UI.message "📦 Creazione del file IPA non firmato..."
+    ipa_path = _build_unsigned_ipa(version: new_version_number)
+    
+    # 4. Crea la release su GitHub
+    UI.message "☁️ Creazione della release su GitHub e upload dell'IPA..."
+    set_github_release(
+      repository_name: REPO_NAME,
+      name: "Release v#{new_version_number}",
+      tag_name: "v#{new_version_number}",
+      description: "Release v#{new_version_number}. Allego l'IPA per l'installazione.",
+      upload_assets: [ipa_path]
+    )
+
+    # 5. Fai il push di commit e tag sul repository remoto
+    push_to_git_remote
+
+    UI.success "🎉 Release v#{new_version_number} completata e pubblicata con successo su GitHub!"
+  end
+
+
+  # ---------------------------------------------------------------------------
+  # --- LANE PRIVATE (Funzioni di supporto, non chiamare direttamente) ---
+  # ---------------------------------------------------------------------------
+  
+  private_lane :_build_unsigned_ipa do |options|
+    version = options[:version]
+    output_dir = "./Builds"
+    final_ipa_name = "#{PROJECT_NAME}-v#{version}.ipa"
+
+    # 1. Archivia il progetto senza tentare di firmarlo o pacchettizzarlo
+    archive_path = gym(
+      workspace: "#{PROJECT_NAME}.xcworkspace",
+      scheme: SCHEME_NAME,
+      skip_package_ipa: true, # FONDAMENTALE: non creare l'IPA qui
+      archive_path: "#{output_dir}/#{PROJECT_NAME}.xcarchive",
+      xcargs: "CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
+    )
+
+    # 2. Estrai il file .app e crea l'IPA manualmente (il tuo trucco Payload->zip)
+    app_path = "#{archive_path}/Products/Applications/#{PROJECT_NAME}.app"
+    payload_dir = "#{output_dir}/Payload"
+    ipa_full_path = "#{output_dir}/#{final_ipa_name}"
+
+    sh "mkdir -p '#{payload_dir}'"
+    sh "cp -R '#{app_path}' '#{payload_dir}/'"
+    
+    Dir.chdir(output_dir) do
+      sh "zip -qr '#{final_ipa_name}' Payload"
+    end
+
+    # 3. Pulisci i file temporanei
+    sh "rm -rf '#{payload_dir}'"
+    sh "rm -rf '#{archive_path}'"
+    
+    UI.success "✅ IPA non firmato creato: #{ipa_full_path}"
+    
+    # Ritorna il percorso completo dell'IPA
+    next ipa_full_path
+  end
+
 end
