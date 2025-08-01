@@ -24,9 +24,9 @@ default_platform(:ios)
 # =============================================================================
 
 # --- VARIABILI DA PERSONALIZZARE ---
-PROJECT_NAME = "NomeTuoProgetto" # Es. "MyAwesomeApp"
-SCHEME_NAME = "NomeTuoScheme"   # Solitamente è uguale a PROJECT_NAME
-REPO_NAME = "TuoUtente/TuoRepo" # Es. "johnnyappleseed/MyAwesomeApp"
+PROJECT_NAME = "ProwlarriOS" # Es. "MyAwesomeApp"
+SCHEME_NAME = "ProwlarriOS"   # Solitamente è uguale a PROJECT_NAME
+REPO_NAME = "leonardosolari/ProwlarriOS" # Es. "johnnyappleseed/MyAwesomeApp"
 # -----------------------------------
 
 platform :ios do
@@ -53,7 +53,7 @@ platform :ios do
     scan(
       workspace: "#{PROJECT_NAME}.xcworkspace",
       scheme: SCHEME_NAME,
-      device: "iPhone 14 Pro", # Cambia con il tuo simulatore preferito
+      device: "iPhone 16 Pro", # Cambia con il tuo simulatore preferito
                                # Esegui `xcrun simctl list devices` per vedere la lista
       skip_testing: true,
       build_for_testing: true
