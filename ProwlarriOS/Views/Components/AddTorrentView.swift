@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/Components/AddTorrentView.swift
-
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -9,7 +7,7 @@ struct AddTorrentView: View {
     @EnvironmentObject var recentPathsManager: RecentPathsManager
     
     @State private var showFileImporter = false
-    @State private var showingPathManager = false // Stato per la nuova sheet
+    @State private var showingPathManager = false
     
     var body: some View {
         NavigationView {
@@ -38,7 +36,6 @@ struct AddTorrentView: View {
                         loadingView
                     }
                 }
-                // Sheet per la gestione dei percorsi
                 .sheet(isPresented: $showingPathManager) {
                     PathManagementView()
                 }
@@ -88,7 +85,6 @@ struct AddTorrentView: View {
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                     
-                    // NUOVO MENU UNIFICATO
                     if !recentPathsManager.paths.isEmpty {
                         Menu {
                             ForEach(recentPathsManager.paths, id: \.self) { recentPath in
@@ -136,7 +132,6 @@ struct AddTorrentView: View {
     }
 }
 
-// L'estensione UTType rimane invariata
 extension UTType {
     static var torrent: UTType {
         if let type = UTType("application/x-bittorrent") {

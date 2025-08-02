@@ -5,11 +5,8 @@ struct QBittorrentServer: Identifiable, Codable, Equatable {
     var name: String
     var url: String
     var username: String
-    
-    // Questo campo non verrà codificato in JSON.
     var password: String
     
-    // Definiamo quali proprietà codificare, escludendo `password`.
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -17,7 +14,6 @@ struct QBittorrentServer: Identifiable, Codable, Equatable {
         case username
     }
     
-    // Inizializzatore personalizzato
     init(id: UUID = UUID(), name: String, url: String, username: String, password: String) {
         self.id = id
         self.name = name
@@ -26,7 +22,6 @@ struct QBittorrentServer: Identifiable, Codable, Equatable {
         self.password = password
     }
     
-    // Inizializzatore per la decodifica
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(UUID.self, forKey: .id)
@@ -37,7 +32,6 @@ struct QBittorrentServer: Identifiable, Codable, Equatable {
         self.password = ""
     }
     
-    // Funzione per codificare
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)

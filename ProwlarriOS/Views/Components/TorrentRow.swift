@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/Components/TorrentRow.swift
-
 import SwiftUI
 
 struct TorrentRow: View {
@@ -9,28 +7,24 @@ struct TorrentRow: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Livello 1: Titolo e Stato
             HStack {
                 Text(torrent.name)
-                    .font(.subheadline) // Font più compatto
+                    .font(.subheadline)
                     .fontWeight(.semibold)
                     .lineLimit(2)
                 Spacer()
                 StatusBadge(state: torrent.state)
             }
             
-            // Livello 2: Progresso e Statistiche
             VStack(alignment: .leading, spacing: 6) {
                 ProgressView(value: torrent.progress)
                     .tint(StatusBadge.getBackgroundColor(for: torrent.state))
                 
                 HStack {
-                    // Percentuale e Dimensione
                     Text("\(Int(torrent.progress * 100))% di \(formatSize(torrent.size))")
                     
                     Spacer()
                     
-                    // Velocità
                     if torrent.downloadSpeed > 0 {
                         StatItem(icon: "arrow.down", value: formatSpeed(torrent.downloadSpeed), color: .green)
                     }
@@ -38,11 +32,10 @@ struct TorrentRow: View {
                         StatItem(icon: "arrow.up", value: formatSpeed(torrent.uploadSpeed), color: .blue)
                     }
                     
-                    // Seeders e Leechers
                     StatItem(icon: "person.2.fill", value: "\(torrent.numSeeds)", color: .green)
                     StatItem(icon: "person.2", value: "\(torrent.numLeechs)", color: .orange)
                 }
-                .font(.caption) // Unico font per tutta la riga di statistiche
+                .font(.caption)
                 .foregroundColor(.secondary)
             }
         }
@@ -76,14 +69,13 @@ struct TorrentRow: View {
     }
 }
 
-// Componente riutilizzabile per le statistiche
 private struct StatItem: View {
     let icon: String
     let value: String
     let color: Color
     
     var body: some View {
-        HStack(spacing: 2) { // Spacing ridotto
+        HStack(spacing: 2) {
             Image(systemName: icon)
                 .foregroundColor(color)
             Text(value)
@@ -92,7 +84,6 @@ private struct StatItem: View {
     }
 }
 
-// StatusBadge rimane invariato
 struct StatusBadge: View {
     let state: String
     

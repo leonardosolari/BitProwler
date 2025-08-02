@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/TorrentDetailView.swift
-
 import SwiftUI
 
 struct TorrentDetailView: View {
@@ -17,13 +15,11 @@ struct TorrentDetailView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // 1. Header non scorrevole con l'azione principale
                 headerSection
                 
-                // 2. Contenuto scorrevole con le card informative
                 contentScrollView
             }
-            .background(Color(.systemGroupedBackground)) // Sfondo per l'intera vista
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("Dettagli Torrent")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -78,7 +74,7 @@ struct TorrentDetailView: View {
             }
         }
         .padding()
-        .background(.regularMaterial) // Effetto vetro smerigliato
+        .background(.regularMaterial)
     }
     
     private var contentScrollView: some View {
@@ -168,7 +164,6 @@ struct TorrentDetailView: View {
     
     private func handleDownloadSuccess() {
         self.downloadError = nil
-        // La sheet si chiuderà a causa del binding sull'alert
     }
     
     private func handleDownloadError(_ error: Error) {
@@ -241,7 +236,6 @@ private struct LinkRow: View {
     }
 }
 
-// Riutilizziamo lo stesso StatItem per coerenza
 private struct StatItem: View {
     let icon: String
     let value: String

@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/TorrentsView.swift
-
 import SwiftUI
 
 struct TorrentsView: View {
@@ -17,10 +15,8 @@ struct TorrentsView: View {
                 floatingAddButton
             }
             .navigationTitle("Torrent")
-            // 1. Aggiungi la barra di ricerca
             .searchable(text: $viewModel.searchText, prompt: "Cerca per nome...")
             .toolbar {
-                // 2. Aggiungi il menu di ordinamento
                 ToolbarItem(placement: .navigationBarLeading) {
                     SortMenu(viewModel: viewModel)
                 }
@@ -50,7 +46,6 @@ struct TorrentsView: View {
     
     @ViewBuilder
     private var content: some View {
-        // La vista ora osserva `filteredTorrents` invece di `torrents`
         if viewModel.isLoading && viewModel.filteredTorrents.isEmpty {
             ProgressView("Caricamento...")
         } else if let error = viewModel.error {
@@ -65,7 +60,6 @@ struct TorrentsView: View {
                 .buttonStyle(.borderedProminent)
             }
         } else if viewModel.filteredTorrents.isEmpty {
-            // Messaggio contestuale se la lista è vuota a causa della ricerca
             if !viewModel.searchText.isEmpty {
                 ContentUnavailableView.search(text: viewModel.searchText)
             } else {
@@ -76,11 +70,10 @@ struct TorrentsView: View {
                 )
             }
         } else {
-            // La lista ora itera su `filteredTorrents`
             List(viewModel.filteredTorrents) { torrent in
                 TorrentRow(torrent: torrent)
             }
-            .listStyle(.plain) // Stile migliore per le card
+            .listStyle(.plain)
             .refreshable {
                 await viewModel.fetchTorrents()
             }
@@ -103,7 +96,7 @@ struct TorrentsView: View {
                         .resizable()
                         .frame(width: 50, height: 50)
                         .foregroundColor(.accentColor)
-                        .background(Color(.systemBackground)) // Adatta a light/dark mode
+                        .background(Color(.systemBackground))
                         .clipShape(Circle())
                         .shadow(radius: 4, y: 2)
                 }
@@ -113,7 +106,6 @@ struct TorrentsView: View {
     }
 }
 
-// NUOVA VISTA COMPONENTE PER IL MENU DI ORDINAMENTO
 private struct SortMenu: View {
     @ObservedObject var viewModel: TorrentsViewModel
     

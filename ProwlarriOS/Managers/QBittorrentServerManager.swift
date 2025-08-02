@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Managers/QBittorrentServerManager.swift
-
 import Foundation
 import SwiftUI
 
@@ -75,7 +73,6 @@ class QBittorrentServerManager: ObservableObject {
         }
     }
     
-    // NUOVO METODO DI AGGIORNAMENTO
     func updateQBittorrentServer(_ server: QBittorrentServer) {
         guard let index = qbittorrentServers.firstIndex(where: { $0.id == server.id }) else { return }
         

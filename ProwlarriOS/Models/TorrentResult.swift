@@ -27,7 +27,6 @@ struct TorrentResult: Identifiable, Codable {
         id = try container.decode(String.self, forKey: .id)
         title = try container.decode(String.self, forKey: .title)
         
-        // Gestione flessibile della size che potrebbe arrivare in formati diversi
         if let sizeInt = try? container.decode(Int64.self, forKey: .size) {
             size = sizeInt
         } else if let sizeString = try? container.decode(String.self, forKey: .size),
@@ -37,7 +36,6 @@ struct TorrentResult: Identifiable, Codable {
             size = 0
         }
         
-        // Gestione flessibile di seeders e leechers
         if let seedersInt = try? container.decode(Int.self, forKey: .seeders) {
             seeders = seedersInt
         } else if let seedersString = try? container.decode(String.self, forKey: .seeders),

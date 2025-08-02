@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/Components/TorrentFilesView.swift
-
 import SwiftUI
 
 struct TorrentFilesView: View {
@@ -10,7 +8,6 @@ struct TorrentFilesView: View {
     @State private var files: [TorrentFile] = []
     @State private var isLoading = false
     
-    // Stato per tenere traccia del file espanso
     @State private var expandedFile: TorrentFile?
     
     private let apiService: QBittorrentAPIService = NetworkManager()
@@ -53,13 +50,11 @@ struct TorrentFilesView: View {
             let fetchedFiles = try await apiService.getFiles(for: torrent, on: server)
             self.files = fetchedFiles
         } catch {
-            // Potremmo mostrare un errore all'utente qui
             print("Error fetching files: \(error.localizedDescription)")
         }
     }
 }
 
-// MARK: - Vista per la singola riga
 
 struct TorrentFileRow: View {
     let file: TorrentFile
@@ -72,31 +67,26 @@ struct TorrentFileRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
-                // 1. Icona del file
                 FileIconView(filename: file.name)
                 
-                // 2. Nome del file (espandibile)
                 Text(file.name)
                     .font(.body)
                     .lineLimit(isExpanded ? nil : 1) // Logica di espansione
                 
                 Spacer()
                 
-                // 3. Dimensione del file
                 Text(formatSize(file.size))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.leading, 4)
             }
             
-            // 4. Barra di progresso
             ProgressView(value: file.progress)
                 .tint(file.progress >= 1.0 ? .green : .blue)
         }
         .padding(.vertical, 6)
-        .contentShape(Rectangle()) // Rende l'intera area toccabile
+        .contentShape(Rectangle())
         .onTapGesture {
-            // Animazione per un'espansione fluida
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 expandedFile = isExpanded ? nil : file
             }
@@ -112,7 +102,7 @@ struct TorrentFileRow: View {
     
     private func formatSize(_ size: Int64) -> String {
         let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll] // Mostra l'unità più appropriata
+        formatter.allowedUnits = [.useAll]
         formatter.countStyle = .file
         return formatter.string(fromByteCount: size)
     }

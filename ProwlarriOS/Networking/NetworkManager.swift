@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Networking/NetworkManager.swift
-
 import Foundation
 
 class NetworkManager: APIService {

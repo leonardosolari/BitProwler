@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/SearchView.swift
-
 import SwiftUI
 
 struct SearchViewContainer: View {
@@ -42,7 +40,6 @@ struct SearchView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // La barra di ricerca viene chiamata qui
                 searchAndFilterBar
                 mainContent
             }
@@ -72,9 +69,7 @@ struct SearchView: View {
             }
         }
     }
-    
-    // <-- MODIFICA QUI: La vecchia definizione di searchAndFilterBar è stata rimossa da qui.
-    
+        
     @ViewBuilder
     private var mainContent: some View {
         if prowlarrManager.activeServer == nil {
@@ -148,7 +143,6 @@ struct SearchView: View {
     }
 }
 
-// --- Viste Componente ---
 
 private struct FilterMenuWrapper: View {
     @EnvironmentObject var filterViewModel: FilterViewModel
@@ -198,7 +192,6 @@ private struct FilterMenuWrapper: View {
     }
 }
 
-// <-- MODIFICA QUI: Questa è l'UNICA definizione di searchAndFilterBar
 extension SearchView {
     var searchAndFilterBar: some View {
         VStack(spacing: 0) {

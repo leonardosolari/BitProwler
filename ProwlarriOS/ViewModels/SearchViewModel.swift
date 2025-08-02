@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/ViewModels/SearchViewModel.swift
-
 import Foundation
 
 @MainActor
@@ -12,14 +10,13 @@ class SearchViewModel: ObservableObject {
     
     @Published var activeSortOption: SortOption = .default
     
-    // Dipendenze
     private let apiService: ProwlarrAPIService
-    private let prowlarrManager: ProwlarrServerManager // Aggiunta dipendenza
+    private let prowlarrManager: ProwlarrServerManager
     let searchHistoryManager: SearchHistoryManager
     
     private var originalResults: [TorrentResult] = []
     
-    // Inizializzatore aggiornato per accettare tutte le dipendenze
+    
     init(
         apiService: ProwlarrAPIService = NetworkManager(),
         prowlarrManager: ProwlarrServerManager,
@@ -30,7 +27,6 @@ class SearchViewModel: ObservableObject {
         self.searchHistoryManager = searchHistoryManager
     }
     
-    // Il metodo search ora usa il manager interno
     func search(query: String) async {
         guard let prowlarrServer = prowlarrManager.activeServer else {
             handleError(AppError.serverNotConfigured)

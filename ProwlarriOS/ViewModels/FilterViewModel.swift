@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/ViewModels/FilterViewModel.swift
-
 import Foundation
 
 final class FilterViewModel: ObservableObject {
@@ -16,21 +14,18 @@ final class FilterViewModel: ObservableObject {
     
     @Published var filterLogic: FilterLogic {
         didSet {
-            // Salva la logica in UserDefaults ogni volta che cambia
             UserDefaults.standard.set(filterLogic.rawValue, forKey: "filterLogic")
         }
     }
     
     init() {
-        // Carica la logica salvata
         if let savedLogicRaw = UserDefaults.standard.string(forKey: "filterLogic"),
            let savedLogic = FilterLogic(rawValue: savedLogicRaw) {
             self.filterLogic = savedLogic
         } else {
-            self.filterLogic = .and // Default
+            self.filterLogic = .and
         }
         
-        // Carica i filtri salvati
         if let data = UserDefaults.standard.data(forKey: "torrentFilters"),
            let decodedFilters = try? JSONDecoder().decode([TorrentFilter].self, from: data) {
             self.filters = decodedFilters
@@ -49,7 +44,6 @@ final class FilterViewModel: ObservableObject {
         filters.append(filter)
     }
     
-    // Funzione migliorata per funzionare direttamente con l'onDelete della List
     func deleteFilter(at offsets: IndexSet) {
         filters.remove(atOffsets: offsets)
     }
@@ -71,12 +65,10 @@ final class FilterViewModel: ObservableObject {
             
             switch filterLogic {
             case .and:
-                // Deve corrispondere a TUTTI i filtri attivi
                 return activeFilters.allSatisfy { filter in
                     title.contains(filter.keyword.lowercased())
                 }
             case .or:
-                // Deve corrispondere ad ALMENO UN filtro attivo
                 return activeFilters.contains { filter in
                     title.contains(filter.keyword.lowercased())
                 }

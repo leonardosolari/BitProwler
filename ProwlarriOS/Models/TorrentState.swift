@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Models/TorrentState.swift
-
 import Foundation
 
 enum TorrentState: String {
@@ -31,7 +29,6 @@ enum TorrentState: String {
         self == .pausedDL || self == .pausedUP
     }
     
-    // NUOVA PROPRIETÀ CALCOLATA
     var isForced: Bool {
         self == .forcedDL || self == .forcedUP
     }

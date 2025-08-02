@@ -9,13 +9,12 @@ class AddTorrentViewModel: ObservableObject {
     @Published var magnetUrl = ""
     @Published var torrentFile: Data?
     @Published var selectedFileName: String?
-    @Published var downloadPath = "" // Inizializza vuoto, poi popola
+    @Published var downloadPath = ""
     
     @Published var isLoading = false
     @Published var showError = false
     @Published var errorMessage: String?
     
-    // Flag per comunicare alla vista di chiudersi
     @Published var shouldDismiss = false
     
     // MARK: - Dependencies
@@ -38,9 +37,7 @@ class AddTorrentViewModel: ObservableObject {
     init(qbittorrentManager: QBittorrentServerManager, recentPathsManager: RecentPathsManager, apiService: QBittorrentAPIService = NetworkManager()) {
         self.qbittorrentManager = qbittorrentManager
         self.recentPathsManager = recentPathsManager
-        self.apiService = apiService
-        
-        // Imposta un percorso di default se non ce n'è uno recente
+        self.apiService = apiService        
         self.downloadPath = recentPathsManager.paths.first?.path ?? "/downloads"
     }
     
@@ -103,7 +100,6 @@ class AddTorrentViewModel: ObservableObject {
     }
 }
 
-// Definiamo un tipo per la sorgente del torrent, per pulire l'API
 enum TorrentSource {
     case url(String)
     case file(data: Data, filename: String)

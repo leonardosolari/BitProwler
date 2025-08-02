@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/Components/TorrentDetailActionSheet.swift
-
 import SwiftUI
 
 struct TorrentDetailActionSheet: View {
@@ -25,7 +23,7 @@ struct TorrentDetailActionSheet: View {
                 HeaderView(torrent: torrent)
                 
                 ScrollView {
-                    VStack(spacing: 24) { // Aumenta lo spazio tra le sezioni
+                    VStack(spacing: 24) {
                         PrimaryActionsGrid()
                         ManagementList()
                     }
@@ -82,7 +80,6 @@ struct TorrentDetailActionSheet: View {
     
     @ViewBuilder
     private func PrimaryActionsGrid() -> some View {
-        // Griglia a 4 colonne per un layout orizzontale compatto
         let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
         
         LazyVGrid(columns: columns, spacing: 16) {
@@ -174,7 +171,6 @@ private struct HeaderView: View {
     }
 }
 
-// NUOVO DESIGN PER ACTIONBUTTON
 private struct ActionButton: View {
     let title: String
     let icon: String
@@ -218,7 +214,6 @@ private struct StatItem: View {
     }
 }
 
-// LocationPickerView rimane invariato
 struct LocationPickerView: View {
     @ObservedObject var viewModel: TorrentActionsViewModel
     @EnvironmentObject var recentPathsManager: RecentPathsManager

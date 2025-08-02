@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Models/SortOption.swift
-
 import Foundation
 
 enum SortOption: String, CaseIterable, Identifiable {

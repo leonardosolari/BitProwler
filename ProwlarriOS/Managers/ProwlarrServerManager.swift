@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Managers/ProwlarrServerManager.swift
-
 import Foundation
 import SwiftUI
 
@@ -75,7 +73,6 @@ class ProwlarrServerManager: ObservableObject {
         }
     }
     
-    // NUOVO METODO DI AGGIORNAMENTO
     func updateProwlarrServer(_ server: ProwlarrServer) {
         guard let index = prowlarrServers.firstIndex(where: { $0.id == server.id }) else { return }
         

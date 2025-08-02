@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Models/TorrentSortOption.swift
-
 import Foundation
 
 enum TorrentSortOption: String, CaseIterable, Identifiable {

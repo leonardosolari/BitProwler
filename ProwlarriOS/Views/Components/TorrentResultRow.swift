@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/Components/TorrentResultRow.swift
-
 import SwiftUI
 
 struct TorrentResultRow: View {
@@ -8,15 +6,12 @@ struct TorrentResultRow: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Sezione Titolo
             Text(result.title)
-                .font(.subheadline) // Font leggermente più piccolo per compattezza
+                .font(.subheadline)
                 .fontWeight(.semibold)
                 .lineLimit(2)
             
-            // Sezione Statistiche e Indexer su un'unica riga
             HStack(spacing: 12) {
-                // Gruppo Seeders & Leechers
                 HStack(spacing: 10) {
                     StatItem(icon: "arrow.up.circle.fill", value: "\(result.seeders)", color: .green)
                     StatItem(icon: "arrow.down.circle.fill", value: "\(result.leechers)", color: .orange)
@@ -24,12 +19,11 @@ struct TorrentResultRow: View {
                 
                 Spacer()
                 
-                // Gruppo Dimensione & Indexer
                 VStack(alignment: .trailing, spacing: 4) {
                     StatItem(icon: "tray.full.fill", value: formatSize(result.size), color: .secondary)
                     
                     Text(result.indexer)
-                        .font(.caption2) // Ancora più piccolo per non essere invadente
+                        .font(.caption2)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
                         .background(Color.accentColor.opacity(0.1))
@@ -37,7 +31,7 @@ struct TorrentResultRow: View {
                         .cornerRadius(6)
                 }
             }
-            .font(.footnote) // Font di base per le statistiche
+            .font(.footnote)
         }
         .padding(.vertical, 10)
         .padding(.horizontal, 12)
@@ -62,7 +56,6 @@ struct TorrentResultRow: View {
     }
 }
 
-// La vista di supporto "StatItem" rimane invariata
 private struct StatItem: View {
     let icon: String
     let value: String
