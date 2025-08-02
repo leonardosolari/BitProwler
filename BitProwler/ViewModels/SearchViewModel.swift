@@ -18,7 +18,7 @@ class SearchViewModel: ObservableObject {
     
     
     init(
-        apiService: ProwlarrAPIService = NetworkManager(),
+        apiService: ProwlarrAPIService,
         prowlarrManager: ProwlarrServerManager,
         searchHistoryManager: SearchHistoryManager
     ) {

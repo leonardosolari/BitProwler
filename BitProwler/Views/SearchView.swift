@@ -1,13 +1,13 @@
 import SwiftUI
 
 struct SearchViewContainer: View {
-    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
-    @EnvironmentObject var searchHistoryManager: SearchHistoryManager
+    @EnvironmentObject private var container: AppContainer
     
     var body: some View {
         SearchView(
-            prowlarrManager: prowlarrManager,
-            searchHistoryManager: searchHistoryManager
+            prowlarrManager: container.prowlarrManager,
+            searchHistoryManager: container.searchHistoryManager,
+            apiService: container.apiService
         )
     }
 }
@@ -28,10 +28,11 @@ struct SearchView: View {
         return filterViewModel.filterResults(viewModel.searchResults)
     }
     
-    init(prowlarrManager: ProwlarrServerManager, searchHistoryManager: SearchHistoryManager) {
+    init(prowlarrManager: ProwlarrServerManager, searchHistoryManager: SearchHistoryManager, apiService: ProwlarrAPIService) {
         self.prowlarrManager = prowlarrManager
         self.searchHistoryManager = searchHistoryManager
         _viewModel = StateObject(wrappedValue: SearchViewModel(
+            apiService: apiService,
             prowlarrManager: prowlarrManager,
             searchHistoryManager: searchHistoryManager
         ))
