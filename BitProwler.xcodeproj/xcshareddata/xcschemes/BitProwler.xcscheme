@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "594AA99F2CF6621F00A8451F"
-               BuildableName = "ProwlarriOS.app"
-               BlueprintName = "ProwlarriOS"
-               ReferencedContainer = "container:ProwlarriOS.xcodeproj">
+               BuildableName = "BitProwler.app"
+               BlueprintName = "BitProwler"
+               ReferencedContainer = "container:BitProwler.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -36,9 +36,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "594AA9AF2CF6622300A8451F"
-               BuildableName = "ProwlarriOSTests.xctest"
-               BlueprintName = "ProwlarriOSTests"
-               ReferencedContainer = "container:ProwlarriOS.xcodeproj">
+               BuildableName = "BitProwlerOSTests.xctest"
+               BlueprintName = "BitProwlerOSTests"
+               ReferencedContainer = "container:BitProwler.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "594AA9B92CF6622300A8451F"
-               BuildableName = "ProwlarriOSUITests.xctest"
-               BlueprintName = "ProwlarriOSUITests"
-               ReferencedContainer = "container:ProwlarriOS.xcodeproj">
+               BuildableName = "BitProwlerOSUITests.xctest"
+               BlueprintName = "BitProwlerOSUITests"
+               ReferencedContainer = "container:BitProwler.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -69,9 +69,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "594AA99F2CF6621F00A8451F"
-            BuildableName = "ProwlarriOS.app"
-            BlueprintName = "ProwlarriOS"
-            ReferencedContainer = "container:ProwlarriOS.xcodeproj">
+            BuildableName = "BitProwler.app"
+            BlueprintName = "BitProwler"
+            ReferencedContainer = "container:BitProwler.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -86,9 +86,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "594AA99F2CF6621F00A8451F"
-            BuildableName = "ProwlarriOS.app"
-            BlueprintName = "ProwlarriOS"
-            ReferencedContainer = "container:ProwlarriOS.xcodeproj">
+            BuildableName = "BitProwler.app"
+            BlueprintName = "BitProwler"
+            ReferencedContainer = "container:BitProwler.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
@@ -97,6 +97,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
+      customArchiveName = "BitProwler"
       revealArchiveInOrganizer = "YES">
       <PostActions>
          <ExecutionAction
@@ -108,9 +109,9 @@
                   <BuildableReference
                      BuildableIdentifier = "primary"
                      BlueprintIdentifier = "594AA99F2CF6621F00A8451F"
-                     BuildableName = "ProwlarriOS.app"
-                     BlueprintName = "ProwlarriOS"
-                     ReferencedContainer = "container:ProwlarriOS.xcodeproj">
+                     BuildableName = "BitProwler.app"
+                     BlueprintName = "BitProwler"
+                     ReferencedContainer = "container:BitProwler.xcodeproj">
                   </BuildableReference>
                </EnvironmentBuildable>
             </ActionContent>

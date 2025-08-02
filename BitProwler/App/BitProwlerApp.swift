@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct ProwlarriOSApp: App {
+struct BitProwlerApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

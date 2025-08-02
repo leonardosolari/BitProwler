@@ -7,7 +7,7 @@
 
 import XCTest
 
-final class ProwlarriOSUITestsLaunchTests: XCTestCase {
+final class BitProwlerUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
