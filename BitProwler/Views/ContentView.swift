@@ -1,13 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var prowlarrManager = ProwlarrServerManager()
-    @StateObject private var qbittorrentManager = QBittorrentServerManager()
-    @StateObject private var recentPathsManager = RecentPathsManager()
-    @StateObject private var searchHistoryManager = SearchHistoryManager()
-    
-    @StateObject private var filterViewModel = FilterViewModel()
-    
     var body: some View {
         TabView {
             SearchViewContainer()
@@ -25,14 +18,16 @@ struct ContentView: View {
                     Label("Impostazioni", systemImage: "gear")
                 }
         }
-        .environmentObject(prowlarrManager)
-        .environmentObject(qbittorrentManager)
-        .environmentObject(recentPathsManager)
-        .environmentObject(searchHistoryManager)
-        .environmentObject(filterViewModel)
     }
 }
 
 #Preview {
-    ContentView()
+    let container = AppContainer()
+    return ContentView()
+        .environmentObject(container)
+        .environmentObject(container.prowlarrManager)
+        .environmentObject(container.qbittorrentManager)
+        .environmentObject(container.recentPathsManager)
+        .environmentObject(container.searchHistoryManager)
+        .environmentObject(container.filterViewModel)
 }
