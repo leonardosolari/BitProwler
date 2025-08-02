@@ -1,12 +1,23 @@
 import SwiftUI
 
 struct TorrentsView: View {
-    @StateObject private var viewModel = TorrentsViewModel()
-    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
-    @EnvironmentObject var recentPathsManager: RecentPathsManager
+    @EnvironmentObject private var container: AppContainer
+
+    var body: some View {
+        TorrentsContentView(apiService: container.apiService)
+    }
+}
+
+fileprivate struct TorrentsContentView: View {
+    @StateObject private var viewModel: TorrentsViewModel
+    @EnvironmentObject private var container: AppContainer
     
     @State private var showingAddTorrent = false
     @State private var addTorrentViewModel: AddTorrentViewModel?
+    
+    init(apiService: QBittorrentAPIService) {
+        _viewModel = StateObject(wrappedValue: TorrentsViewModel(apiService: apiService))
+    }
     
     var body: some View {
         NavigationView {
@@ -37,7 +48,7 @@ struct TorrentsView: View {
             }
         }
         .onAppear {
-            viewModel.setup(with: qbittorrentManager)
+            viewModel.setup(with: container.qbittorrentManager)
         }
         .onDisappear {
             viewModel.stopTimer()
@@ -87,8 +98,9 @@ struct TorrentsView: View {
                 Spacer()
                 Button(action: {
                     addTorrentViewModel = AddTorrentViewModel(
-                        qbittorrentManager: qbittorrentManager,
-                        recentPathsManager: recentPathsManager
+                        qbittorrentManager: container.qbittorrentManager,
+                        recentPathsManager: container.recentPathsManager,
+                        apiService: container.apiService
                     )
                     showingAddTorrent = true
                 }) {

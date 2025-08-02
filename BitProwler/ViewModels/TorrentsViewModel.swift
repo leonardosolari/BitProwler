@@ -22,7 +22,7 @@ class TorrentsViewModel: ObservableObject {
     
     private let apiService: QBittorrentAPIService
     
-    init(apiService: QBittorrentAPIService = NetworkManager()) {
+    init(apiService: QBittorrentAPIService) {
         self.apiService = apiService
     }
     

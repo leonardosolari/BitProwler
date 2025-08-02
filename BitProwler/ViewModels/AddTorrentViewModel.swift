@@ -34,10 +34,10 @@ class AddTorrentViewModel: ObservableObject {
     }
     
     // MARK: - Initializer
-    init(qbittorrentManager: QBittorrentServerManager, recentPathsManager: RecentPathsManager, apiService: QBittorrentAPIService = NetworkManager()) {
+    init(qbittorrentManager: QBittorrentServerManager, recentPathsManager: RecentPathsManager, apiService: QBittorrentAPIService) {
         self.qbittorrentManager = qbittorrentManager
         self.recentPathsManager = recentPathsManager
-        self.apiService = apiService        
+        self.apiService = apiService
         self.downloadPath = recentPathsManager.paths.first?.path ?? "/downloads"
     }
     

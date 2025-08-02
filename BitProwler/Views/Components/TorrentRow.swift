@@ -3,7 +3,7 @@ import SwiftUI
 struct TorrentRow: View {
     let torrent: QBittorrentTorrent
     @State private var showingActionSheet = false
-    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    @EnvironmentObject var container: AppContainer
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -50,7 +50,11 @@ struct TorrentRow: View {
             showingActionSheet = true
         }
         .sheet(isPresented: $showingActionSheet) {
-            TorrentDetailActionSheet(torrent: torrent, manager: qbittorrentManager)
+            TorrentDetailActionSheet(
+                torrent: torrent,
+                manager: container.qbittorrentManager,
+                apiService: container.apiService
+            )
         }
     }
     

@@ -19,7 +19,7 @@ class TorrentActionsViewModel: ObservableObject {
         TorrentState(from: torrent.state).isForced
     }
     
-    init(torrent: QBittorrentTorrent, manager: QBittorrentServerManager, apiService: QBittorrentAPIService = NetworkManager()) {
+    init(torrent: QBittorrentTorrent, manager: QBittorrentServerManager, apiService: QBittorrentAPIService) {
         self.torrent = torrent
         self.qbittorrentManager = manager
         self.apiService = apiService

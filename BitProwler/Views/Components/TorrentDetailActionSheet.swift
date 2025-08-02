@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TorrentDetailActionSheet: View {
     @StateObject private var viewModel: TorrentActionsViewModel
+    @EnvironmentObject private var container: AppContainer
     
     @Environment(\.dismiss) var dismiss
     
@@ -12,9 +13,9 @@ struct TorrentDetailActionSheet: View {
     
     private let torrent: QBittorrentTorrent
     
-    init(torrent: QBittorrentTorrent, manager: QBittorrentServerManager) {
+    init(torrent: QBittorrentTorrent, manager: QBittorrentServerManager, apiService: QBittorrentAPIService) {
         self.torrent = torrent
-        _viewModel = StateObject(wrappedValue: TorrentActionsViewModel(torrent: torrent, manager: manager))
+        _viewModel = StateObject(wrappedValue: TorrentActionsViewModel(torrent: torrent, manager: manager, apiService: apiService))
     }
     
     var body: some View {
