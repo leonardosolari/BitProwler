@@ -8,12 +8,12 @@ struct QBittorrentServerListView: View {
         List {
             Section {
                 Button(action: { showingAddServer = true }) {
-                    Label("Aggiungi Server", systemImage: "plus.circle")
+                    Label("Add Server", systemImage: "plus.circle")
                 }
             }
             
             if !qbittorrentManager.servers.isEmpty {
-                Section("Server Configurati") {
+                Section("Configured Servers") {
                     ForEach(qbittorrentManager.servers) { server in
                         NavigationLink(destination: AddQBittorrentServerView(serverToEdit: server)) {
                             ServerRow(
@@ -27,7 +27,7 @@ struct QBittorrentServerListView: View {
                 }
             }
         }
-        .navigationTitle("Server qBittorrent")
+        .navigationTitle("qBittorrent servers")
         .sheet(isPresented: $showingAddServer) {
             AddQBittorrentServerView()
         }

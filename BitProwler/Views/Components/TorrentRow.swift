@@ -21,7 +21,7 @@ struct TorrentRow: View {
                     .tint(StatusBadge.getBackgroundColor(for: torrent.state))
                 
                 HStack {
-                    Text("\(Int(torrent.progress * 100))% di \(formatSize(torrent.size))")
+                    Text("\(Int(torrent.progress * 100))% of \(formatSize(torrent.size))")
                     
                     Spacer()
                     

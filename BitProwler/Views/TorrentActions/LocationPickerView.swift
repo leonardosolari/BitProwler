@@ -11,9 +11,9 @@ struct LocationPickerView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Nuova Posizione")) {
+                Section(header: Text("New Location")) {
                     HStack {
-                        TextField("Percorso Completo", text: $newLocation)
+                        TextField("Full Path", text: $newLocation)
                             .autocapitalization(.none)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -25,7 +25,7 @@ struct LocationPickerView: View {
                                 }
                                 Divider()
                                 Button(action: { showingPathManager = true }) {
-                                    Label("Gestisci Percorsi", systemImage: "folder.badge.gear")
+                                    Label("Manage Paths", systemImage: "folder.badge.gear")
                                 }
                             } label: {
                                 Image(systemName: "clock.arrow.circlepath")
@@ -37,7 +37,7 @@ struct LocationPickerView: View {
                 }
                 
                 Section {
-                    Button("Sposta") {
+                    Button("Move") {
                         Task {
                             await viewModel.performAction(.move, location: newLocation) {
                                 recentPathsManager.addPath(newLocation)
@@ -48,11 +48,11 @@ struct LocationPickerView: View {
                     .disabled(newLocation.isEmpty)
                 }
             }
-            .navigationTitle("Sposta Torrent")
+            .navigationTitle("Move Torrent")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Annulla") { dismiss() }
+                    Button("Cancel") { dismiss() }
                 }
             }
             .sheet(isPresented: $showingPathManager) {

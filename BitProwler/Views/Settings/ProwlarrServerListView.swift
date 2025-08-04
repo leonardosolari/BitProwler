@@ -8,12 +8,12 @@ struct ProwlarrServerListView: View {
         List {
             Section {
                 Button(action: { showingAddServer = true }) {
-                    Label("Aggiungi Server", systemImage: "plus.circle")
+                    Label("Add Server", systemImage: "plus.circle")
                 }
             }
             
             if !prowlarrManager.servers.isEmpty {
-                Section("Server Configurati") {
+                Section("Configured Servers") {
                     ForEach(prowlarrManager.servers) { server in
                         NavigationLink(destination: AddProwlarrServerView(serverToEdit: server)) {
                             ServerRow(
@@ -27,7 +27,7 @@ struct ProwlarrServerListView: View {
                 }
             }
         }
-        .navigationTitle("Server Prowlarr")
+        .navigationTitle("Prowlarr Servers")
         .sheet(isPresented: $showingAddServer) {
             AddProwlarrServerView()
         }

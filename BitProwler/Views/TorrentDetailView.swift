@@ -24,18 +24,18 @@ struct TorrentDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Chiudi") { dismiss() }
+                    Button("Close") { dismiss() }
                 }
             }
-            .alert("Link Copiato!", isPresented: $showingCopiedAlert) {
+            .alert("Link Copied!", isPresented: $showingCopiedAlert) {
                 Button("OK", role: .cancel) {}
             }
-            .alert("Download Avviato", isPresented: $viewModel.showSuccessAlert) {
+            .alert("Download Started", isPresented: $viewModel.showSuccessAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("Il torrent è stato aggiunto con successo a qBittorrent.")
+                Text("The torrent has been successfully added to qBittorrent")
             }
-            .alert("Errore", isPresented: .constant(viewModel.error != nil), actions: {
+            .alert("Error", isPresented: .constant(viewModel.error != nil), actions: {
                 Button("OK", role: .cancel) { viewModel.error = nil }
             }, message: {
                 Text(viewModel.error?.errorDescription ?? "Si è verificato un errore sconosciuto.")
@@ -60,7 +60,7 @@ struct TorrentDetailView: View {
                             ProgressView().tint(.white)
                         } else {
                             Image(systemName: "arrow.down.circle.fill")
-                            Text("Aggiungi a qBittorrent")
+                            Text("Add to qBittorrent")
                         }
                     }
                     .fontWeight(.semibold)
@@ -89,7 +89,7 @@ struct TorrentDetailView: View {
     
     private var statsSection: some View {
         VStack(alignment: .leading) {
-            Text("Statistiche")
+            Text("Stats")
                 .font(.headline)
                 .padding(.bottom, 4)
             
@@ -108,14 +108,14 @@ struct TorrentDetailView: View {
     
     private var detailsSection: some View {
         VStack(alignment: .leading) {
-            Text("Informazioni")
+            Text("Informations")
                 .font(.headline)
                 .padding(.bottom, 4)
             
             VStack(spacing: 12) {
                 LabeledContent("Indexer", value: result.indexer)
                 Divider()
-                LabeledContent("Data Pubblicazione", value: formatDate(result.publishDate))
+                LabeledContent("Publish Date", value: formatDate(result.publishDate))
             }
             .padding()
             .background(Color(.secondarySystemGroupedBackground))
@@ -183,7 +183,7 @@ private struct LinkRow: View {
                 Image(systemName: "doc.on.doc")
             }
             .buttonStyle(.plain)
-            .alert("Copiato!", isPresented: $showingCopiedAlert) {
+            .alert("Copied!", isPresented: $showingCopiedAlert) {
                 Button("OK", role: .cancel) {}
             }
             

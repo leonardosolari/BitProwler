@@ -1,0 +1,340 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "" : {
+
+    },
+    "(%lld)" : {
+
+    },
+    "%lld%% of %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld%% of %2$@"
+          }
+        }
+      }
+    },
+    "Add Filter" : {
+
+    },
+    "Add Server" : {
+
+    },
+    "Add to qBittorrent" : {
+
+    },
+    "Add Torrent" : {
+
+    },
+    "API Key" : {
+
+    },
+    "Cancel" : {
+
+    },
+    "Change" : {
+
+    },
+    "Clear" : {
+
+    },
+    "Close" : {
+
+    },
+    "Configuration Required" : {
+
+    },
+    "Configured Filters" : {
+
+    },
+    "Configured Servers" : {
+
+    },
+    "Connection Error" : {
+
+    },
+    "Copied!" : {
+
+    },
+    "Copy File Name" : {
+
+    },
+    "Danger Zone" : {
+
+    },
+    "Delete" : {
+
+    },
+    "Delete Torrent" : {
+
+    },
+    "Delete Torrent and Data" : {
+
+    },
+    "Dettagli Torrent" : {
+
+    },
+    "Do you want to delete this torrent? The downloaded data will not be removed" : {
+
+    },
+    "Download Path" : {
+
+    },
+    "Download Started" : {
+
+    },
+    "Edit Server" : {
+
+    },
+    "Elimina" : {
+
+    },
+    "Elimina Torrent" : {
+
+    },
+    "Enter a term and press Search" : {
+
+    },
+    "Enter magnet Link" : {
+
+    },
+    "Error" : {
+
+    },
+    "Filter Details" : {
+
+    },
+    "Filter Logic" : {
+
+    },
+    "Filter Management" : {
+
+    },
+    "Filter Settings" : {
+
+    },
+    "Filters" : {
+
+    },
+    "Full Path" : {
+
+    },
+    "Go to settings to configure a Prowlarr server" : {
+
+    },
+    "Indexer" : {
+
+    },
+    "Informations" : {
+
+    },
+    "Key" : {
+      "extractionState" : "manual"
+    },
+    "Keyword" : {
+
+    },
+    "Last Used: %@" : {
+
+    },
+    "Link" : {
+
+    },
+    "Link Copied!" : {
+
+    },
+    "Loading files..." : {
+
+    },
+    "Loading..." : {
+
+    },
+    "Magnet Link" : {
+
+    },
+    "Manage Filters" : {
+
+    },
+    "Manage Paths" : {
+
+    },
+    "Management" : {
+
+    },
+    "Match all filters" : {
+
+    },
+    "Match any filter" : {
+
+    },
+    "Method" : {
+
+    },
+    "Move" : {
+
+    },
+    "Move Torrent" : {
+
+    },
+    "Name" : {
+
+    },
+    "New Filter" : {
+
+    },
+    "New Location" : {
+
+    },
+    "New Prowlarr Server" : {
+
+    },
+    "New qBittorrent Server" : {
+
+    },
+    "No Files" : {
+
+    },
+    "No filter configured" : {
+
+    },
+    "No Paths" : {
+
+    },
+    "No Results" : {
+
+    },
+    "No results match the active filters" : {
+
+    },
+    "No Torrents" : {
+
+    },
+    "No torrents found for '%@'" : {
+
+    },
+    "Non è stato possibile trovare i file per questo torrent." : {
+
+    },
+    "OK" : {
+
+    },
+    "Password" : {
+
+    },
+    "Path" : {
+
+    },
+    "Path Management" : {
+
+    },
+    "Prowlarr Servers" : {
+
+    },
+    "Publish Date" : {
+
+    },
+    "qBittorrent servers" : {
+
+    },
+    "qBittorrent Servers" : {
+
+    },
+    "Quick Filters" : {
+
+    },
+    "Recent Searches" : {
+
+    },
+    "Results must contain all of the active filter keywords" : {
+
+    },
+    "Results must contain at least one of the active filter keywords" : {
+
+    },
+    "Save" : {
+
+    },
+    "Search" : {
+
+    },
+    "Search by name..." : {
+
+    },
+    "Search Error" : {
+
+    },
+    "Search Torrents" : {
+
+    },
+    "Search..." : {
+
+    },
+    "Searching..." : {
+
+    },
+    "Select File" : {
+
+    },
+    "Server Informations" : {
+
+    },
+    "Server Prowlarr" : {
+
+    },
+    "Server URL" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Show Files" : {
+
+    },
+    "Stats" : {
+
+    },
+    "Success" : {
+
+    },
+    "Test Connection" : {
+
+    },
+    "The paths you use for downloads will appear here" : {
+
+    },
+    "The torrent has been successfully added to qBittorrent" : {
+
+    },
+    "There are no active torrents at the moment" : {
+
+    },
+    "Torrent" : {
+
+    },
+    "Torrent Details" : {
+
+    },
+    "Torrent File" : {
+
+    },
+    "Torrent Files" : {
+
+    },
+    "Try Again" : {
+
+    },
+    "Unknown Error" : {
+
+    },
+    "Username" : {
+
+    },
+    "WARNING: This action is irreversible. Do you want to delete this torrent and all its downloaded data?" : {
+
+    }
+  },
+  "version" : "1.0"
+}

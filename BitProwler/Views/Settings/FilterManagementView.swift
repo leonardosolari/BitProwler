@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct FilterManagementView: View {
-    // <-- MODIFICA QUI: Usa l'oggetto condiviso dall'ambiente
     @EnvironmentObject private var filterViewModel: FilterViewModel
     
     @Environment(\.dismiss) var dismiss
@@ -11,38 +10,36 @@ struct FilterManagementView: View {
         List {
             Section {
                 Button(action: { showingAddFilter = true }) {
-                    Label("Aggiungi Filtro", systemImage: "plus.circle")
+                    Label("Add Filter", systemImage: "plus.circle")
                 }
             }
             
             Section {
-                Picker("Logica Filtri", selection: $filterViewModel.filterLogic) {
-                    Text("Tutti i filtri devono corrispondere")
+                Picker("Filter Logic", selection: $filterViewModel.filterLogic) {
+                    Text("Match all filters")
                         .tag(FilterViewModel.FilterLogic.and)
-                    Text("Basta che corrisponda un filtro")
+                    Text("Match any filter")
                         .tag(FilterViewModel.FilterLogic.or)
                 }
             } header: {
-                Text("Impostazioni Filtri")
+                Text("Filter Settings")
             } footer: {
                 Text(filterViewModel.filterLogic == .and ?
-                    "I risultati devono contenere tutte le parole chiave dei filtri attivi" :
-                    "I risultati devono contenere almeno una delle parole chiave dei filtri attivi")
+                     "Results must contain all of the active filter keywords" :
+                     "Results must contain at least one of the active filter keywords")
             }
             
             if !filterViewModel.filters.isEmpty {
-                Section("Filtri Configurati") {
+                Section("Configured Filters") {
                     ForEach(filterViewModel.filters) { filter in
-                        FilterRow(filter: filter) // Non ha più bisogno del viewModel
+                        FilterRow(filter: filter)
                     }
-                    // <-- MODIFICA QUI: Usa la nuova funzione di cancellazione
                     .onDelete(perform: filterViewModel.deleteFilter)
                 }
             }
         }
-        .navigationTitle("Gestione Filtri")
+        .navigationTitle("Filter Management")
         .sheet(isPresented: $showingAddFilter) {
-            // Passiamo l'istanza condivisa alla vista di aggiunta
             AddFilterView(filterViewModel: filterViewModel)
         }
     }
@@ -51,7 +48,6 @@ struct FilterManagementView: View {
 struct FilterRow: View {
     let filter: TorrentFilter
     
-    // <-- MODIFICA QUI: Usa l'oggetto condiviso dall'ambiente anche qui
     @EnvironmentObject var viewModel: FilterViewModel
     
     var body: some View {
@@ -66,8 +62,7 @@ struct FilterRow: View {
             
             Spacer()
             
-            // Il binding ora funziona correttamente perché stiamo modificando
-            // l'oggetto condiviso, che farà ri-renderizzare la vista.
+            
             Toggle("", isOn: Binding(
                 get: { filter.isEnabled },
                 set: { _ in viewModel.toggleFilter(filter) }
@@ -77,7 +72,6 @@ struct FilterRow: View {
 }
 
 #Preview {
-    // Aggiorna la preview per fornire l'environment object
     NavigationView {
         FilterManagementView()
     }

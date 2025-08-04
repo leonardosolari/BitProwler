@@ -21,7 +21,7 @@ struct SettingsView: View {
                     
                     NavigationLink(destination: QBittorrentServerListView()) {
                         HStack {
-                            Label("Server qBittorrent", systemImage: "arrow.down.circle")
+                            Label("qBittorrent Servers", systemImage: "arrow.down.circle")
                             Spacer()
                             if let activeServer = qbittorrentManager.activeServer {
                                 Text(activeServer.name)
@@ -44,7 +44,7 @@ struct SettingsView: View {
                 }
                 .listRowInsets(EdgeInsets())
             }
-            .navigationTitle("Impostazioni")
+            .navigationTitle("Settings")
         }
     }
 }

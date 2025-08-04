@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5947B9BF2E4134B800F8D506 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 5947B9BE2E4134B800F8D506 /* Localizable.xcstrings */; };
 		5980806A2E33BBE0006945D9 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 598080692E33BBE0006945D9 /* KeychainAccess */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5947B9BE2E4134B800F8D506 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		594AA9A02CF6621F00A8451F /* BitProwler.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BitProwler.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		594AA9B02CF6622300A8451F /* BitProwlerOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitProwlerOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		594AA9BA2CF6622300A8451F /* BitProwlerOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BitProwlerOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,6 +82,7 @@
 		594AA9972CF6621F00A8451F = {
 			isa = PBXGroup;
 			children = (
+				5947B9BE2E4134B800F8D506 /* Localizable.xcstrings */,
 				594AA9A22CF6621F00A8451F /* BitProwler */,
 				594AA9B32CF6622300A8451F /* BitProwlerTests */,
 				594AA9BD2CF6622300A8451F /* BitProwlerUITests */,
@@ -222,6 +225,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5947B9BF2E4134B800F8D506 /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -359,6 +363,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -415,6 +420,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

@@ -50,15 +50,15 @@ struct SearchView: View {
                     isActive: $isNavigatingToFilterManagement
                 ) { EmptyView() }
             )
-            .navigationTitle("Cerca Torrent")
-            .alert("Errore", isPresented: $viewModel.showError) {
+            .navigationTitle("Search Torrents")
+            .alert("Error", isPresented: $viewModel.showError) {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(viewModel.errorMessage ?? "Si è verificato un errore durante la ricerca")
             }
             .overlay {
                 if viewModel.isLoading {
-                    ProgressView("Ricerca in corso...")
+                    ProgressView("Searching...")
                         .padding()
                         .background(.thinMaterial)
                         .cornerRadius(10)
@@ -75,17 +75,17 @@ struct SearchView: View {
     private var mainContent: some View {
         if prowlarrManager.activeServer == nil {
             ContentUnavailableView {
-                Label("Configurazione Necessaria", systemImage: "gear")
+                Label("Configuration Required", systemImage: "gear")
             } description: {
-                Text("Vai nelle impostazioni per configurare il server Prowlarr.")
+                Text("Go to settings to configure a Prowlarr server")
             }
         } else if viewModel.showError {
             ContentUnavailableView {
-                Label("Errore di Ricerca", systemImage: "exclamationmark.triangle")
+                Label("Search Error", systemImage: "exclamationmark.triangle")
             } description: {
                 Text(viewModel.errorMessage ?? "Si è verificato un errore sconosciuto.")
             } actions: {
-                Button("Riprova") { executeSearch() }.buttonStyle(.borderedProminent)
+                Button("Try Again") { executeSearch() }.buttonStyle(.borderedProminent)
             }
         } else if !viewModel.hasSearched && !searchHistoryManager.searches.isEmpty {
             List {
@@ -105,9 +105,9 @@ struct SearchView: View {
                     }
                 } header: {
                     HStack {
-                        Text("Ricerche Recenti")
+                        Text("Recent Searches")
                         Spacer()
-                        Button("Cancella") {
+                        Button("Clear") {
                             searchHistoryManager.clearHistory()
                         }
                         .font(.caption)
@@ -116,17 +116,17 @@ struct SearchView: View {
             }
         } else if finalResults.isEmpty && viewModel.hasSearched {
             ContentUnavailableView(
-                "Nessun Risultato",
+                "No Results",
                 systemImage: "magnifyingglass",
                 description: Text(viewModel.searchResults.isEmpty ?
-                               "Nessun torrent trovato per '\(searchText)'" :
-                               "Nessun risultato corrisponde ai filtri attivi")
+                               "No torrents found for '\(searchText)'" :
+                               "No results match the active filters")
             )
         } else if !viewModel.hasSearched {
             ContentUnavailableView(
-                "Cerca Torrent",
+                "Search Torrents",
                 systemImage: "magnifyingglass",
-                description: Text("Inserisci un termine e premi Cerca")
+                description: Text("Enter a term and press Search")
             )
         } else {
             List(finalResults) { result in
@@ -152,10 +152,10 @@ private struct FilterMenuWrapper: View {
     var body: some View {
         Menu {
             if filterViewModel.filters.isEmpty {
-                Label("Nessun filtro configurato", systemImage: "xmark.circle")
+                Label("No filter configured", systemImage: "xmark.circle")
                     .disabled(true)
             } else {
-                Section("Filtri Rapidi") {
+                Section("Quick Filters") {
                     ForEach(filterViewModel.filters) { filter in
                         Toggle(isOn: Binding(
                             get: { filter.isEnabled },
@@ -170,13 +170,13 @@ private struct FilterMenuWrapper: View {
             Divider()
             
             Button(action: { isNavigating = true }) {
-                Label("Gestisci Filtri", systemImage: "slider.horizontal.3")
+                Label("Manage Filters", systemImage: "slider.horizontal.3")
             }
             
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: "line.3.horizontal.decrease.circle")
-                Text("Filtri")
+                Text("Filters")
                 let activeFilterCount = filterViewModel.filters.filter({ $0.isEnabled }).count
                 if activeFilterCount > 0 {
                     Text("(\(activeFilterCount))")
@@ -197,7 +197,7 @@ extension SearchView {
     var searchAndFilterBar: some View {
         VStack(spacing: 0) {
             HStack {
-                TextField("Cerca...", text: $searchText)
+                TextField("Search...", text: $searchText)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .focused($isSearchFieldFocused)
                     .onSubmit(executeSearch)

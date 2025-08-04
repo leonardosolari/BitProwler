@@ -9,9 +9,9 @@ struct PathManagementView: View {
             Group {
                 if recentPathsManager.paths.isEmpty {
                     ContentUnavailableView(
-                        "Nessun Percorso",
+                        "No Paths",
                         systemImage: "folder.badge.questionmark",
-                        description: Text("I percorsi che usi per i download appariranno qui.")
+                        description: Text("The paths you use for downloads will appear here")
                     )
                 } else {
                     List {
@@ -19,7 +19,7 @@ struct PathManagementView: View {
                             VStack(alignment: .leading) {
                                 Text(path.path)
                                     .font(.body)
-                                Text("Usato il: \(path.lastUsed.formatted(date: .numeric, time: .shortened))")
+                                Text("Last Used: \(path.lastUsed.formatted(date: .numeric, time: .shortened))")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             }
@@ -28,14 +28,13 @@ struct PathManagementView: View {
                     }
                 }
             }
-            .navigationTitle("Gestione Percorsi")
+            .navigationTitle("Path Management")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Chiudi") { dismiss() }
+                    Button("Close") { dismiss() }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    // Aggiunge il pulsante standard di iOS per modificare/eliminare
                     EditButton()
                 }
             }

@@ -12,14 +12,14 @@ struct AddTorrentView: View {
     var body: some View {
         NavigationView {
             formContent
-                .navigationTitle("Aggiungi Torrent")
+                .navigationTitle("Add Torrent")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
-                        Button("Annulla") { dismiss() }
+                        Button("Cancel") { dismiss() }
                     }
                 }
-                .alert("Errore", isPresented: $viewModel.showError) {
+                .alert("Error", isPresented: $viewModel.showError) {
                     Button("OK", role: .cancel) { }
                 } message: {
                     Text(viewModel.errorMessage ?? "Si è verificato un errore")
@@ -50,37 +50,37 @@ struct AddTorrentView: View {
     private var formContent: some View {
         Form {
             Section {
-                Picker("Metodo", selection: $viewModel.isMagnetLink) {
-                    Text("Link Magnet").tag(true)
-                    Text("File Torrent").tag(false)
+                Picker("Method", selection: $viewModel.isMagnetLink) {
+                    Text("Magnet Link").tag(true)
+                    Text("Torrent File").tag(false)
                 }
                 .pickerStyle(.segmented)
             }
             
             if viewModel.isMagnetLink {
-                Section(header: Text("Link Magnet")) {
-                    TextField("Inserisci il link magnet", text: $viewModel.magnetUrl)
+                Section(header: Text("Magnet Link")) {
+                    TextField("Enter magnet Link", text: $viewModel.magnetUrl)
                         .autocapitalization(.none)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
                 }
             } else {
-                Section(header: Text("File Torrent")) {
+                Section(header: Text("Torrent File")) {
                     if let fileName = viewModel.selectedFileName {
                         HStack {
                             Text(fileName)
                             Spacer()
-                            Button("Cambia") { showFileImporter = true }
+                            Button("Change") { showFileImporter = true }
                         }
                     } else {
-                        Button("Seleziona File") { showFileImporter = true }
+                        Button("Select File") { showFileImporter = true }
                     }
                 }
             }
             
-            Section(header: Text("Percorso Download")) {
+            Section(header: Text("Download Path")) {
                 HStack {
-                    TextField("Percorso", text: $viewModel.downloadPath)
+                    TextField("Path", text: $viewModel.downloadPath)
                         .autocapitalization(.none)
                         .textInputAutocapitalization(.never)
                         .autocorrectionDisabled()
@@ -94,7 +94,7 @@ struct AddTorrentView: View {
                             }
                             Divider()
                             Button(action: { showingPathManager = true }) {
-                                Label("Gestisci Percorsi", systemImage: "folder.badge.gear")
+                                Label("Manage Paths", systemImage: "folder.badge.gear")
                             }
                         } label: {
                             Image(systemName: "clock.arrow.circlepath")
@@ -111,7 +111,7 @@ struct AddTorrentView: View {
                 }) {
                     HStack {
                         Spacer()
-                        Text("Aggiungi Torrent")
+                        Text("Add Torrent")
                         Spacer()
                     }
                 }

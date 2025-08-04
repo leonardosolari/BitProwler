@@ -19,9 +19,9 @@ struct AddProwlarrServerView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Informazioni Server")) {
-                    TextField("Nome", text: $name)
-                    TextField("URL Server", text: $url)
+                Section(header: Text("Server Informations")) {
+                    TextField("Name", text: $name)
+                    TextField("Server URL", text: $url)
                         .autocapitalization(.none)
                         .keyboardType(.URL)
                         .textContentType(.URL)
@@ -33,32 +33,32 @@ struct AddProwlarrServerView: View {
                     Button(action: testConnection) {
                         HStack {
                             Spacer()
-                            if isTesting { ProgressView() } else { Text("Testa Connessione") }
+                            if isTesting { ProgressView() } else { Text("Test Connection") }
                             Spacer()
                         }
                     }
                     .disabled(!canTest || isTesting)
                     
-                    Button("Salva", action: saveServer)
+                    Button("Save", action: saveServer)
                         .disabled(!canSave)
                 }
             }
-            .navigationTitle(isEditing ? "Modifica Server" : "Nuovo Server Prowlarr")
+            .navigationTitle(isEditing ? "Edit Server" : "New Prowlarr Server")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Annulla") { dismiss() }
+                    Button("Cancel") { dismiss() }
                 }
             }
             .onAppear(perform: setupForEditing)
             .alert(isPresented: $isShowingTestResult) {
                 switch testResult {
                 case .success(let message):
-                    return Alert(title: Text("Successo"), message: Text(message), dismissButton: .default(Text("OK")))
+                    return Alert(title: Text("Success"), message: Text(message), dismissButton: .default(Text("OK")))
                 case .failure(let error):
-                    return Alert(title: Text("Errore"), message: Text(error.errorDescription ?? "Errore sconosciuto"), dismissButton: .default(Text("OK")))
+                    return Alert(title: Text("Error"), message: Text(error.errorDescription ?? "Unknown Error"), dismissButton: .default(Text("OK")))
                 case .none:
-                    return Alert(title: Text("Errore Sconosciuto"))
+                    return Alert(title: Text("Unknown Error"))
                 }
             }
         }

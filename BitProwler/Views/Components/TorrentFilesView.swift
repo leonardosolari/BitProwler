@@ -14,9 +14,9 @@ struct TorrentFilesView: View {
         NavigationView {
             Group {
                 if isLoading {
-                    ProgressView("Caricamento file...")
+                    ProgressView("Loading files...")
                 } else if files.isEmpty {
-                    ContentUnavailableView("Nessun File", systemImage: "doc.questionmark", description: Text("Non è stato possibile trovare i file per questo torrent."))
+                    ContentUnavailableView("No Files", systemImage: "doc.questionmark", description: Text("Non è stato possibile trovare i file per questo torrent."))
                 } else {
                     List {
                         ForEach(files) { file in
@@ -25,11 +25,11 @@ struct TorrentFilesView: View {
                     }
                 }
             }
-            .navigationTitle("File del Torrent")
+            .navigationTitle("Torrent Files")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Chiudi") { dismiss() }
+                    Button("Close") { dismiss() }
                 }
             }
             .task {
@@ -93,7 +93,7 @@ struct TorrentFileRow: View {
             Button(action: {
                 UIPasteboard.general.string = file.name
             }) {
-                Label("Copia Nome File", systemImage: "doc.on.doc")
+                Label("Copy File Name", systemImage: "doc.on.doc")
             }
         }
     }

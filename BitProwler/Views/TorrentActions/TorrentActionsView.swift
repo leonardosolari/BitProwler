@@ -31,30 +31,30 @@ struct TorrentActionsView: View {
                 }
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Dettagli Torrent")
+            .navigationTitle("Torrent Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Chiudi") { dismiss() }
+                    Button("Close") { dismiss() }
                 }
             }
             .alert("Elimina Torrent", isPresented: $showingDeleteAlert, actions: {
-                Button("Annulla", role: .cancel) {}
-                Button("Elimina", role: .destructive) {
+                Button("Cancel", role: .cancel) {}
+                Button("Delete", role: .destructive) {
                     Task { await viewModel.performAction(.delete) { dismiss() } }
                 }
             }, message: {
-                Text("Vuoi eliminare questo torrent? I dati scaricati non verranno rimossi.")
+                Text("Do you want to delete this torrent? The downloaded data will not be removed")
             })
-            .alert("Elimina Torrent e Dati", isPresented: $showingDeleteWithDataAlert, actions: {
-                Button("Annulla", role: .cancel) {}
+            .alert("Delete Torrent and Data", isPresented: $showingDeleteWithDataAlert, actions: {
+                Button("Cancel", role: .cancel) {}
                 Button("Elimina", role: .destructive) {
                     Task { await viewModel.performAction(.delete, deleteFiles: true) { dismiss() } }
                 }
             }, message: {
-                Text("ATTENZIONE: Questa azione è irreversibile. Vuoi eliminare questo torrent e tutti i dati scaricati?")
+                Text("WARNING: This action is irreversible. Do you want to delete this torrent and all its downloaded data?")
             })
-            .alert("Errore", isPresented: $viewModel.showError, actions: {
+            .alert("Error", isPresented: $viewModel.showError, actions: {
                 Button("OK", role: .cancel) {}
             }, message: {
                 Text(viewModel.errorMessage ?? "Si è verificato un errore sconosciuto.")
@@ -108,18 +108,18 @@ struct TorrentActionsView: View {
     
     private var managementList: some View {
         List {
-            Section(header: Text("Gestione")) {
+            Section(header: Text("Management")) {
                 Button(action: { showingFileList = true }) {
-                    Label("Mostra File", systemImage: "doc.text")
+                    Label("Show Files", systemImage: "doc.text")
                 }
             }
             
-            Section(header: Text("Zona Pericolo")) {
+            Section(header: Text("Danger Zone")) {
                 Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                    Label("Elimina Torrent", systemImage: "trash")
+                    Label("Delete Torrent", systemImage: "trash")
                 }
                 Button(role: .destructive, action: { showingDeleteWithDataAlert = true }) {
-                    Label("Elimina Torrent e Dati", systemImage: "trash.fill")
+                    Label("Delete Torrent and Data", systemImage: "trash.fill")
                 }
             }
         }

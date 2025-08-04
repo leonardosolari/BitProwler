@@ -10,13 +10,13 @@ struct AddFilterView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Dettagli Filtro")) {
-                    TextField("Nome", text: $name)
+                Section(header: Text("Filter Details")) {
+                    TextField("Name", text: $name)
                     TextField("Keyword", text: $keyword)
                 }
                 
                 Section {
-                    Button("Salva") {
+                    Button("Save") {
                         let filter = TorrentFilter(
                             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                             keyword: keyword.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -27,11 +27,11 @@ struct AddFilterView: View {
                     .disabled(name.isEmpty || keyword.isEmpty)
                 }
             }
-            .navigationTitle("Nuovo Filtro")
+            .navigationTitle("New Filter")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Annulla") {
+                    Button("Cancel") {
                         dismiss()
                     }
                 }

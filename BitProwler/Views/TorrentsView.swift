@@ -26,7 +26,7 @@ fileprivate struct TorrentsContentView: View {
                 floatingAddButton
             }
             .navigationTitle("Torrent")
-            .searchable(text: $viewModel.searchText, prompt: "Cerca per nome...")
+            .searchable(text: $viewModel.searchText, prompt: "Search by name...")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Ordina per")
@@ -58,14 +58,14 @@ fileprivate struct TorrentsContentView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.filteredTorrents.isEmpty {
-            ProgressView("Caricamento...")
+            ProgressView("Loading...")
         } else if let error = viewModel.error {
             ContentUnavailableView {
-                Label("Errore di Connessione", systemImage: "exclamationmark.triangle")
+                Label("Connection Error", systemImage: "exclamationmark.triangle")
             } description: {
                 Text(error)
             } actions: {
-                Button("Riprova") {
+                Button("Try Again") {
                     Task { await viewModel.fetchTorrents() }
                 }
                 .buttonStyle(.borderedProminent)
@@ -75,9 +75,9 @@ fileprivate struct TorrentsContentView: View {
                 ContentUnavailableView.search(text: viewModel.searchText)
             } else {
                 ContentUnavailableView(
-                    "Nessun Torrent",
+                    "No Torrents",
                     systemImage: "arrow.down.circle",
-                    description: Text("Non ci sono torrent attivi al momento.")
+                    description: Text("There are no active torrents at the moment")
                 )
             }
         } else {

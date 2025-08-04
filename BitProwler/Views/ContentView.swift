@@ -5,7 +5,7 @@ struct ContentView: View {
         TabView {
             SearchViewContainer()
                 .tabItem {
-                    Label("Cerca", systemImage: "magnifyingglass")
+                    Label("Search", systemImage: "magnifyingglass")
                 }
             
             TorrentsView()
@@ -15,7 +15,7 @@ struct ContentView: View {
             
             SettingsView()
                 .tabItem {
-                    Label("Impostazioni", systemImage: "gear")
+                    Label("Settings", systemImage: "gear")
                 }
         }
     }
