@@ -1,18 +1,14 @@
 import Foundation
 
-struct TorrentFile: Identifiable, Equatable {
-    let id = UUID()
+struct TorrentFile: Identifiable, Codable, Equatable {
+    let index: Int
     let name: String
     let size: Int64
     let progress: Double
     
-    init(from dictionary: [String: Any]) {
-        self.name = dictionary["name"] as? String ?? ""
-        self.size = dictionary["size"] as? Int64 ?? 0
-        self.progress = dictionary["progress"] as? Double ?? 0.0
-    }
+    var id: Int { index }
     
-    static func == (lhs: TorrentFile, rhs: TorrentFile) -> Bool {
-        return lhs.id == rhs.id
+    enum CodingKeys: String, CodingKey {
+        case index, name, size, progress
     }
 }

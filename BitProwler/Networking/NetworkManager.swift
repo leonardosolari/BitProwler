@@ -53,10 +53,11 @@ class NetworkManager: APIService {
         
         let (data, _) = try await performRequest(URLRequest(url: url))
         
-        if let jsonArray = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-            return jsonArray.map { QBittorrentTorrent(from: $0) }
-        } else {
-            throw AppError.decodingError(underlyingError: NSError(domain: "NetworkManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON format for torrents"]))
+        do {
+            let decoder = JSONDecoder()
+            return try decoder.decode([QBittorrentTorrent].self, from: data)
+        } catch {
+            throw AppError.decodingError(underlyingError: error)
         }
     }
     
@@ -147,10 +148,11 @@ class NetworkManager: APIService {
         
         let (data, _) = try await performRequest(URLRequest(url: url))
         
-        if let jsonArray = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-            return jsonArray.map { TorrentFile(from: $0) }
-        } else {
-            throw AppError.decodingError(underlyingError: NSError(domain: "NetworkManager", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid JSON format for files"]))
+        do {
+            let decoder = JSONDecoder()
+            return try decoder.decode([TorrentFile].self, from: data)
+        } catch {
+            throw AppError.decodingError(underlyingError: error)
         }
     }
     
