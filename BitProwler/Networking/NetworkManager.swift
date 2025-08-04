@@ -14,10 +14,9 @@ class NetworkManager: APIService {
     // MARK: - ProwlarrAPIService
     
     func search(query: String, on server: ProwlarrServer) async throws -> [TorrentResult] {
-        guard let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "\(server.url)api/v1/search?query=\(encodedQuery)") else {
-            throw AppError.invalidURL
-        }
+        let url = try buildURL(from: server.url, path: "api/v1/search", queryItems: [
+            URLQueryItem(name: "query", value: query)
+        ])
         
         var request = URLRequest(url: url)
         request.setValue(server.apiKey, forHTTPHeaderField: "X-Api-Key")
@@ -33,11 +32,10 @@ class NetworkManager: APIService {
     }
     
     func testConnection(to server: ProwlarrServer) async -> Bool {
-        guard let url = URL(string: "\(server.url)api/v1/system/status") else { return false }
-        var request = URLRequest(url: url)
-        request.setValue(server.apiKey, forHTTPHeaderField: "X-Api-Key")
-        
         do {
+            let url = try buildURL(from: server.url, path: "api/v1/system/status")
+            var request = URLRequest(url: url)
+            request.setValue(server.apiKey, forHTTPHeaderField: "X-Api-Key")
             _ = try await performRequest(request)
             return true
         } catch {
@@ -48,10 +46,8 @@ class NetworkManager: APIService {
     // MARK: - QBittorrentAPIService
     
     func getTorrents(on server: QBittorrentServer) async throws -> [QBittorrentTorrent] {
-        try await login(to: server)
-        guard let url = URL(string: "\(server.url)api/v2/torrents/info") else { throw AppError.invalidURL }
-        
-        let (data, _) = try await performRequest(URLRequest(url: url))
+        let url = try buildURL(from: server.url, path: "api/v2/torrents/info")
+        let (data, _) = try await performQBittorrentRequest(URLRequest(url: url), on: server)
         
         do {
             let decoder = JSONDecoder()
@@ -67,8 +63,7 @@ class NetworkManager: APIService {
     }
     
     func addTorrent(from source: TorrentSource, savePath: String, on server: QBittorrentServer) async throws {
-        try await login(to: server)
-        guard let url = URL(string: "\(server.url)api/v2/torrents/add") else { throw AppError.invalidURL }
+        let url = try buildURL(from: server.url, path: "api/v2/torrents/add")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -100,13 +95,10 @@ class NetworkManager: APIService {
         body.append("--\(boundary)--\r\n".data(using: .utf8)!)
         request.httpBody = body
         
-        _ = try await performRequest(request)
+        _ = try await performQBittorrentRequest(request, on: server)
     }
     
-    // METODO AGGIORNATO
     func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws {
-        try await login(to: server)
-        
         var endpoint: String
         var bodyParams: [String: String] = ["hashes": torrent.hash]
         
@@ -121,7 +113,6 @@ class NetworkManager: APIService {
             guard let location = location else { throw AppError.unknownError }
             endpoint = "setLocation"
             bodyParams["location"] = location
-        // NUOVA LOGICA
         case .forceStart:
             guard let enable = forceStart else { throw AppError.unknownError }
             endpoint = "setForceStart"
@@ -130,7 +121,7 @@ class NetworkManager: APIService {
             endpoint = "recheck"
         }
         
-        guard let url = URL(string: "\(server.url)api/v2/torrents/\(endpoint)") else { throw AppError.invalidURL }
+        let url = try buildURL(from: server.url, path: "api/v2/torrents/\(endpoint)")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -139,14 +130,15 @@ class NetworkManager: APIService {
         let bodyString = bodyParams.map { "\($0.key)=\($0.value)" }.joined(separator: "&")
         request.httpBody = bodyString.data(using: .utf8)
         
-        _ = try await performRequest(request)
+        _ = try await performQBittorrentRequest(request, on: server)
     }
     
     func getFiles(for torrent: QBittorrentTorrent, on server: QBittorrentServer) async throws -> [TorrentFile] {
-        try await login(to: server)
-        guard let url = URL(string: "\(server.url)api/v2/torrents/files?hash=\(torrent.hash)") else { throw AppError.invalidURL }
+        let url = try buildURL(from: server.url, path: "api/v2/torrents/files", queryItems: [
+            URLQueryItem(name: "hash", value: torrent.hash)
+        ])
         
-        let (data, _) = try await performRequest(URLRequest(url: url))
+        let (data, _) = try await performQBittorrentRequest(URLRequest(url: url), on: server)
         
         do {
             let decoder = JSONDecoder()
@@ -159,7 +151,7 @@ class NetworkManager: APIService {
     func testConnection(to server: QBittorrentServer) async -> Bool {
         do {
             let testSession = URLSession(configuration: .ephemeral)
-            try await login(to: server, using: testSession, rethrow: false)
+            try await login(to: server, using: testSession)
             return true
         } catch {
             return false
@@ -168,8 +160,26 @@ class NetworkManager: APIService {
     
     // MARK: - Private Helpers
     
-    private func login(to server: QBittorrentServer, using session: URLSession? = nil, rethrow: Bool = true) async throws {
-        guard let url = URL(string: "\(server.url)api/v2/auth/login") else { throw AppError.invalidURL }
+    private func buildURL(from baseURL: String, path: String, queryItems: [URLQueryItem]? = nil) throws -> URL {
+        guard var urlComponents = URLComponents(string: baseURL) else {
+            throw AppError.invalidURL
+        }
+        
+        urlComponents.path = (urlComponents.path as NSString).appendingPathComponent(path)
+        
+        if let queryItems = queryItems {
+            urlComponents.queryItems = queryItems
+        }
+        
+        guard let finalURL = urlComponents.url else {
+            throw AppError.invalidURL
+        }
+        
+        return finalURL
+    }
+    
+    private func login(to server: QBittorrentServer, using session: URLSession? = nil) async throws {
+        let url = try buildURL(from: server.url, path: "api/v2/auth/login")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -177,15 +187,24 @@ class NetworkManager: APIService {
         let credentials = "username=\(server.username)&password=\(server.password)"
         request.httpBody = credentials.data(using: .utf8)
         
+        let sessionToUse = session ?? self.urlSession
+        
         do {
-            let sessionToUse = session ?? self.urlSession
             _ = try await performRequest(request, using: sessionToUse)
         } catch {
-            if rethrow {
-                throw AppError.authenticationFailed
-            } else {
-                throw error
+            throw AppError.authenticationFailed
+        }
+    }
+    
+    private func performQBittorrentRequest(_ request: URLRequest, on server: QBittorrentServer, isRetry: Bool = false) async throws -> (Data, HTTPURLResponse) {
+        do {
+            return try await performRequest(request)
+        } catch let error as AppError {
+            if case .httpError(let statusCode) = error, statusCode == 403, !isRetry {
+                try await login(to: server)
+                return try await performQBittorrentRequest(request, on: server, isRetry: true)
             }
+            throw error
         }
     }
     
