@@ -53,7 +53,7 @@ struct TorrentRow: View {
             TorrentDetailActionSheet(
                 torrent: torrent,
                 manager: container.qbittorrentManager,
-                apiService: container.apiService
+                apiService: container.qbittorrentService
             )
         }
     }

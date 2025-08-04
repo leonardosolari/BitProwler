@@ -4,13 +4,11 @@ struct TorrentDetailView: View {
     let result: TorrentResult
     
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    @EnvironmentObject var container: AppContainer
     
     @State private var showingCopiedAlert = false
     @State private var downloadError: String?
     @State private var isDownloading = false
-    
-    private let apiService: QBittorrentAPIService = NetworkManager()
     
     var body: some View {
         NavigationView {
@@ -70,7 +68,7 @@ struct TorrentDetailView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .tint(.accentColor)
-                .disabled(isDownloading || qbittorrentManager.activeQBittorrentServer == nil)
+                .disabled(isDownloading || container.qbittorrentManager.activeQBittorrentServer == nil)
             }
         }
         .padding()
@@ -147,7 +145,7 @@ struct TorrentDetailView: View {
     // MARK: - Logic
     
     private func downloadTorrent() async {
-        guard let server = qbittorrentManager.activeQBittorrentServer, let url = result.downloadUrl else {
+        guard let server = container.qbittorrentManager.activeQBittorrentServer, let url = result.downloadUrl else {
             handleDownloadError(AppError.serverNotConfigured)
             return
         }
@@ -155,7 +153,7 @@ struct TorrentDetailView: View {
         isDownloading = true
         
         do {
-            try await apiService.addTorrent(url: url, on: server)
+            try await container.qbittorrentService.addTorrent(url: url, on: server)
             handleDownloadSuccess()
         } catch {
             handleDownloadError(error)

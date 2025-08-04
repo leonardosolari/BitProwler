@@ -4,7 +4,7 @@ struct TorrentsView: View {
     @EnvironmentObject private var container: AppContainer
 
     var body: some View {
-        TorrentsContentView(apiService: container.apiService)
+        TorrentsContentView(apiService: container.qbittorrentService)
     }
 }
 
@@ -100,7 +100,7 @@ fileprivate struct TorrentsContentView: View {
                     addTorrentViewModel = AddTorrentViewModel(
                         qbittorrentManager: container.qbittorrentManager,
                         recentPathsManager: container.recentPathsManager,
-                        apiService: container.apiService
+                        apiService: container.qbittorrentService
                     )
                     showingAddTorrent = true
                 }) {

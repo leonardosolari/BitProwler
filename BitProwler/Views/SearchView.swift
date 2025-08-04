@@ -7,7 +7,7 @@ struct SearchViewContainer: View {
         SearchView(
             prowlarrManager: container.prowlarrManager,
             searchHistoryManager: container.searchHistoryManager,
-            apiService: container.apiService
+            apiService: container.prowlarrService
         )
     }
 }

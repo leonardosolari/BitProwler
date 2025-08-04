@@ -1,49 +1,6 @@
 import Foundation
 
-class NetworkManager: APIService {
-    
-    private let urlSession: URLSession
-    
-    init() {
-        let configuration = URLSessionConfiguration.default
-        configuration.httpCookieAcceptPolicy = .always
-        configuration.httpCookieStorage = HTTPCookieStorage.shared
-        self.urlSession = URLSession(configuration: configuration)
-    }
-    
-    // MARK: - ProwlarrAPIService
-    
-    func search(query: String, on server: ProwlarrServer) async throws -> [TorrentResult] {
-        let url = try buildURL(from: server.url, path: "api/v1/search", queryItems: [
-            URLQueryItem(name: "query", value: query)
-        ])
-        
-        var request = URLRequest(url: url)
-        request.setValue(server.apiKey, forHTTPHeaderField: "X-Api-Key")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        
-        let (data, _) = try await performRequest(request)
-        
-        do {
-            return try JSONDecoder().decode([TorrentResult].self, from: data)
-        } catch {
-            throw AppError.decodingError(underlyingError: error)
-        }
-    }
-    
-    func testConnection(to server: ProwlarrServer) async -> Bool {
-        do {
-            let url = try buildURL(from: server.url, path: "api/v1/system/status")
-            var request = URLRequest(url: url)
-            request.setValue(server.apiKey, forHTTPHeaderField: "X-Api-Key")
-            _ = try await performRequest(request)
-            return true
-        } catch {
-            return false
-        }
-    }
-    
-    // MARK: - QBittorrentAPIService
+class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
     
     func getTorrents(on server: QBittorrentServer) async throws -> [QBittorrentTorrent] {
         let url = try buildURL(from: server.url, path: "api/v2/torrents/info")
@@ -158,25 +115,7 @@ class NetworkManager: APIService {
         }
     }
     
-    // MARK: - Private Helpers
-    
-    private func buildURL(from baseURL: String, path: String, queryItems: [URLQueryItem]? = nil) throws -> URL {
-        guard var urlComponents = URLComponents(string: baseURL) else {
-            throw AppError.invalidURL
-        }
-        
-        urlComponents.path = (urlComponents.path as NSString).appendingPathComponent(path)
-        
-        if let queryItems = queryItems {
-            urlComponents.queryItems = queryItems
-        }
-        
-        guard let finalURL = urlComponents.url else {
-            throw AppError.invalidURL
-        }
-        
-        return finalURL
-    }
+    // MARK: - Private QBittorrent Helpers
     
     private func login(to server: QBittorrentServer, using session: URLSession? = nil) async throws {
         let url = try buildURL(from: server.url, path: "api/v2/auth/login")
@@ -205,27 +144,6 @@ class NetworkManager: APIService {
                 return try await performQBittorrentRequest(request, on: server, isRetry: true)
             }
             throw error
-        }
-    }
-    
-    private func performRequest(_ request: URLRequest, using session: URLSession? = nil) async throws -> (Data, HTTPURLResponse) {
-        do {
-            let sessionToUse = session ?? self.urlSession
-            let (data, response) = try await sessionToUse.data(for: request)
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                throw AppError.unknownError
-            }
-            
-            guard (200...299).contains(httpResponse.statusCode) else {
-                throw AppError.httpError(statusCode: httpResponse.statusCode)
-            }
-            
-            return (data, httpResponse)
-        } catch let error as AppError {
-            throw error
-        } catch {
-            throw AppError.networkError(underlyingError: error)
         }
     }
 }

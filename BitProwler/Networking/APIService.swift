@@ -13,5 +13,3 @@ protocol QBittorrentAPIService {
     func getFiles(for torrent: QBittorrentTorrent, on server: QBittorrentServer) async throws -> [TorrentFile]
     func testConnection(to server: QBittorrentServer) async -> Bool
 }
-
-typealias APIService = ProwlarrAPIService & QBittorrentAPIService

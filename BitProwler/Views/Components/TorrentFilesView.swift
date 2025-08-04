@@ -3,14 +3,12 @@ import SwiftUI
 struct TorrentFilesView: View {
     let torrent: QBittorrentTorrent
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    @EnvironmentObject var container: AppContainer
     
     @State private var files: [TorrentFile] = []
     @State private var isLoading = false
     
     @State private var expandedFile: TorrentFile?
-    
-    private let apiService: QBittorrentAPIService = NetworkManager()
     
     var body: some View {
         NavigationView {
@@ -41,13 +39,13 @@ struct TorrentFilesView: View {
     }
     
     private func fetchFiles() async {
-        guard let server = qbittorrentManager.activeQBittorrentServer else { return }
+        guard let server = container.qbittorrentManager.activeQBittorrentServer else { return }
         
         isLoading = true
         defer { isLoading = false }
         
         do {
-            let fetchedFiles = try await apiService.getFiles(for: torrent, on: server)
+            let fetchedFiles = try await container.qbittorrentService.getFiles(for: torrent, on: server)
             self.files = fetchedFiles
         } catch {
             print("Error fetching files: \(error.localizedDescription)")

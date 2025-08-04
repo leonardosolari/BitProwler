@@ -2,7 +2,8 @@ import Foundation
 
 @MainActor
 final class AppContainer: ObservableObject {
-    let apiService: APIService = NetworkManager()
+    let prowlarrService: ProwlarrAPIService = ProwlarrService()
+    let qbittorrentService: QBittorrentAPIService = QBittorrentService()
 
     let prowlarrManager: ProwlarrServerManager
     let qbittorrentManager: QBittorrentServerManager

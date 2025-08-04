@@ -1,10 +1,9 @@
-// File: /ProwlarriOS/Views/Settings/AddQBittorrentServerView.swift
-
 import SwiftUI
 
 struct AddQBittorrentServerView: View {
     @Environment(\.dismiss) var dismiss
     @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    @EnvironmentObject var container: AppContainer
     
     var serverToEdit: QBittorrentServer?
     private var isEditing: Bool { serverToEdit != nil }
@@ -15,11 +14,8 @@ struct AddQBittorrentServerView: View {
     @State private var password = ""
     @State private var isTesting = false
     
-    // Ora usiamo AppError, il nostro tipo di errore globale
     @State private var testResult: Result<String, AppError>?
     @State private var isShowingTestResult = false
-    
-    private let apiService: QBittorrentAPIService = NetworkManager()
     
     var body: some View {
         NavigationView {
@@ -64,7 +60,6 @@ struct AddQBittorrentServerView: View {
                 case .success(let message):
                     return Alert(title: Text("Successo"), message: Text(message), dismissButton: .default(Text("OK")))
                 case .failure(let error):
-                    // Usiamo la errorDescription di AppError
                     return Alert(title: Text("Errore"), message: Text(error.errorDescription ?? "Errore sconosciuto"), dismissButton: .default(Text("OK")))
                 case .none:
                     return Alert(title: Text("Errore Sconosciuto"))
@@ -90,11 +85,10 @@ struct AddQBittorrentServerView: View {
         let serverToTest = QBittorrentServer(name: "Test", url: url.asSanitizedURL(), username: username, password: password)
         
         Task {
-            let success = await apiService.testConnection(to: serverToTest)
+            let success = await container.qbittorrentService.testConnection(to: serverToTest)
             if success {
                 testResult = .success("Connessione al server qBittorrent riuscita!")
             } else {
-                // In caso di fallimento, usiamo un errore specifico da AppError
                 testResult = .failure(.authenticationFailed)
             }
             isShowingTestResult = true
