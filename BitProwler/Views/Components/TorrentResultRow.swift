@@ -3,6 +3,7 @@ import SwiftUI
 struct TorrentResultRow: View {
     let result: TorrentResult
     @State private var showingDetail = false
+    @EnvironmentObject var container: AppContainer
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -44,7 +45,12 @@ struct TorrentResultRow: View {
             showingDetail = true
         }
         .sheet(isPresented: $showingDetail) {
-            TorrentDetailView(result: result)
+            let viewModel = TorrentDetailViewModel(
+                result: result,
+                qbittorrentManager: container.qbittorrentManager,
+                apiService: container.qbittorrentService
+            )
+            TorrentDetailView(result: result, viewModel: viewModel)
         }
     }
     
@@ -53,20 +59,5 @@ struct TorrentResultRow: View {
         formatter.allowedUnits = [.useAll]
         formatter.countStyle = .file
         return formatter.string(fromByteCount: size)
-    }
-}
-
-private struct StatItem: View {
-    let icon: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundColor(color)
-            Text(value)
-                .foregroundColor(.primary)
-        }
     }
 }

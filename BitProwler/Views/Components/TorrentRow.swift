@@ -2,7 +2,7 @@ import SwiftUI
 
 struct TorrentRow: View {
     let torrent: QBittorrentTorrent
-    @State private var showingActionSheet = false
+    @State private var showingActions = false
     @EnvironmentObject var container: AppContainer
     
     var body: some View {
@@ -47,10 +47,10 @@ struct TorrentRow: View {
         .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
         .contentShape(Rectangle())
         .onTapGesture {
-            showingActionSheet = true
+            showingActions = true
         }
-        .sheet(isPresented: $showingActionSheet) {
-            TorrentDetailActionSheet(
+        .sheet(isPresented: $showingActions) {
+            TorrentActionsView(
                 torrent: torrent,
                 manager: container.qbittorrentManager,
                 apiService: container.qbittorrentService
@@ -70,21 +70,6 @@ struct TorrentRow: View {
         formatter.allowedUnits = [.useMB, .useKB]
         formatter.countStyle = .decimal
         return "\(formatter.string(fromByteCount: speed))/s"
-    }
-}
-
-private struct StatItem: View {
-    let icon: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        HStack(spacing: 2) {
-            Image(systemName: icon)
-                .foregroundColor(color)
-            Text(value)
-                .foregroundColor(.primary)
-        }
     }
 }
 

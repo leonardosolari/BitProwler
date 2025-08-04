@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/Settings/FilterManagementView.swift
-
 import SwiftUI
 
 struct FilterManagementView: View {

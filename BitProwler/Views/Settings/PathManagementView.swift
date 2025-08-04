@@ -1,5 +1,3 @@
-// File: /ProwlarriOS/Views/Settings/PathManagementView.swift
-
 import SwiftUI
 
 struct PathManagementView: View {

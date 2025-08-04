@@ -1,6 +1,6 @@
 import Foundation
 
-enum TorrentSortOption: String, CaseIterable, Identifiable {
+enum TorrentSortOption: String, CaseIterable, Identifiable, SortOptionable {
     case name = "Nome"
     case progress = "Progresso"
     case downloadSpeed = "Velocità Download"

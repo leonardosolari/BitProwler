@@ -29,7 +29,7 @@ fileprivate struct TorrentsContentView: View {
             .searchable(text: $viewModel.searchText, prompt: "Cerca per nome...")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    SortMenu(viewModel: viewModel)
+                    SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Ordina per")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -114,22 +114,6 @@ fileprivate struct TorrentsContentView: View {
                 }
                 .padding()
             }
-        }
-    }
-}
-
-private struct SortMenu: View {
-    @ObservedObject var viewModel: TorrentsViewModel
-    
-    var body: some View {
-        Menu {
-            Picker("Ordina per", selection: $viewModel.activeSortOption) {
-                ForEach(TorrentSortOption.allCases) { option in
-                    Label(option.rawValue, systemImage: option.systemImage).tag(option)
-                }
-            }
-        } label: {
-            Image(systemName: "arrow.up.arrow.down.circle")
         }
     }
 }

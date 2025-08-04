@@ -1,20 +1,22 @@
 import SwiftUI
 
 struct TorrentDetailView: View {
-    let result: TorrentResult
+    @StateObject private var viewModel: TorrentDetailViewModel
     
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var container: AppContainer
-    
     @State private var showingCopiedAlert = false
-    @State private var downloadError: String?
-    @State private var isDownloading = false
+    
+    private let result: TorrentResult
+    
+    init(result: TorrentResult, viewModel: TorrentDetailViewModel) {
+        self.result = result
+        _viewModel = StateObject(wrappedValue: viewModel)
+    }
     
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
                 headerSection
-                
                 contentScrollView
             }
             .background(Color(.systemGroupedBackground))
@@ -28,18 +30,18 @@ struct TorrentDetailView: View {
             .alert("Link Copiato!", isPresented: $showingCopiedAlert) {
                 Button("OK", role: .cancel) {}
             }
-            .alert(downloadError == nil ? "Download Avviato" : "Errore", isPresented: Binding(
-                get: { downloadError != nil || isDownloading },
-                set: { if !$0 { downloadError = nil; isDownloading = false } }
-            )) {
+            .alert("Download Avviato", isPresented: $viewModel.showSuccessAlert) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text(downloadError ?? "Il torrent è stato aggiunto con successo a qBittorrent.")
+                Text("Il torrent è stato aggiunto con successo a qBittorrent.")
             }
+            .alert("Errore", isPresented: .constant(viewModel.error != nil), actions: {
+                Button("OK", role: .cancel) { viewModel.error = nil }
+            }, message: {
+                Text(viewModel.error?.errorDescription ?? "Si è verificato un errore sconosciuto.")
+            })
         }
     }
-    
-    // MARK: - View Components
     
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -51,12 +53,11 @@ struct TorrentDetailView: View {
             
             if result.downloadUrl != nil {
                 Button(action: {
-                    Task { await downloadTorrent() }
+                    Task { await viewModel.downloadTorrent() }
                 }) {
                     HStack {
-                        if isDownloading {
-                            ProgressView()
-                                .tint(.white)
+                        if viewModel.isDownloading {
+                            ProgressView().tint(.white)
                         } else {
                             Image(systemName: "arrow.down.circle.fill")
                             Text("Aggiungi a qBittorrent")
@@ -68,7 +69,7 @@ struct TorrentDetailView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .tint(.accentColor)
-                .disabled(isDownloading || container.qbittorrentManager.activeServer == nil)
+                .disabled(viewModel.isDownloading)
             }
         }
         .padding()
@@ -142,40 +143,8 @@ struct TorrentDetailView: View {
         }
     }
     
-    // MARK: - Logic
-    
-    private func downloadTorrent() async {
-        guard let server = container.qbittorrentManager.activeServer, let url = result.downloadUrl else {
-            handleDownloadError(AppError.serverNotConfigured)
-            return
-        }
-        
-        isDownloading = true
-        
-        do {
-            try await container.qbittorrentService.addTorrent(url: url, on: server)
-            handleDownloadSuccess()
-        } catch {
-            handleDownloadError(error)
-        }
-    }
-    
-    private func handleDownloadSuccess() {
-        self.downloadError = nil
-    }
-    
-    private func handleDownloadError(_ error: Error) {
-        self.downloadError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-        self.isDownloading = false
-    }
-    
-    // MARK: - Helpers
-    
     private func formatSize(_ size: Int64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: size)
+        ByteCountFormatter.string(fromByteCount: size, countStyle: .file)
     }
     
     private func formatDate(_ dateString: String) -> String {
@@ -186,8 +155,6 @@ struct TorrentDetailView: View {
         return dateString
     }
 }
-
-// MARK: - Reusable Subviews
 
 private struct LinkRow: View {
     let label: String
@@ -231,20 +198,5 @@ private struct LinkRow: View {
             }
         }
         .padding(.vertical, 8)
-    }
-}
-
-private struct StatItem: View {
-    let icon: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .foregroundColor(color)
-            Text(value)
-                .foregroundColor(.primary)
-        }
     }
 }

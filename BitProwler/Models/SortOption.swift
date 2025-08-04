@@ -1,6 +1,6 @@
 import Foundation
 
-enum SortOption: String, CaseIterable, Identifiable {
+enum SortOption: String, CaseIterable, Identifiable, SortOptionable {
     case `default` = "Default"
     case seeders = "Seeders"
     case size = "Dimensione"

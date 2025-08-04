@@ -222,37 +222,13 @@ extension SearchView {
                 HStack {
                     FilterMenuWrapper(isNavigating: $isNavigatingToFilterManagement)
                     Spacer()
-                    SortMenu(viewModel: viewModel)
+                    SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Ordina per")
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 8)
             }
         }
         .background(Color.systemGroupedBackground)
-    }
-}
-
-private struct SortMenu: View {
-    @ObservedObject var viewModel: SearchViewModel
-    
-    var body: some View {
-        Menu {
-            Picker("Ordina per", selection: $viewModel.activeSortOption) {
-                ForEach(SortOption.allCases) { option in
-                    Label(option.rawValue, systemImage: option.systemImage).tag(option)
-                }
-            }
-        } label: {
-            HStack(spacing: 4) {
-                Image(systemName: viewModel.activeSortOption.systemImage)
-                Text(viewModel.activeSortOption.rawValue)
-            }
-            .font(.subheadline)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(Color.accentColor.opacity(0.1))
-            .cornerRadius(8)
-        }
     }
 }
 
