@@ -8,7 +8,7 @@ class TorrentActionsViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     private let torrent: QBittorrentTorrent
-    private let qbittorrentManager: QBittorrentServerManager
+    private let qbittorrentManager: GenericServerManager<QBittorrentServer>
     private let apiService: QBittorrentAPIService
     
     var isPaused: Bool {
@@ -19,14 +19,14 @@ class TorrentActionsViewModel: ObservableObject {
         TorrentState(from: torrent.state).isForced
     }
     
-    init(torrent: QBittorrentTorrent, manager: QBittorrentServerManager, apiService: QBittorrentAPIService) {
+    init(torrent: QBittorrentTorrent, manager: GenericServerManager<QBittorrentServer>, apiService: QBittorrentAPIService) {
         self.torrent = torrent
         self.qbittorrentManager = manager
         self.apiService = apiService
     }
     
     func performAction(_ action: TorrentAction, location: String? = nil, deleteFiles: Bool = false, forceStart: Bool? = nil, completion: @escaping () -> Void) async {
-        guard let server = qbittorrentManager.activeQBittorrentServer else {
+        guard let server = qbittorrentManager.activeServer else {
             handleError(AppError.serverNotConfigured)
             return
         }

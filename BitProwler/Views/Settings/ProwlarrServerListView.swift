@@ -1,9 +1,7 @@
-// File: /ProwlarriOS/Views/Settings/ProwlarrServerListView.swift
-
 import SwiftUI
 
 struct ProwlarrServerListView: View {
-    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
+    @EnvironmentObject var prowlarrManager: GenericServerManager<ProwlarrServer>
     @State private var showingAddServer = false
     
     var body: some View {
@@ -14,31 +12,23 @@ struct ProwlarrServerListView: View {
                 }
             }
             
-            if !prowlarrManager.prowlarrServers.isEmpty {
+            if !prowlarrManager.servers.isEmpty {
                 Section("Server Configurati") {
-                    ForEach(prowlarrManager.prowlarrServers) { server in
-                        // Usa NavigationLink per la modifica
+                    ForEach(prowlarrManager.servers) { server in
                         NavigationLink(destination: AddProwlarrServerView(serverToEdit: server)) {
                             ServerRow(
                                 name: server.name,
-                                isActive: prowlarrManager.activeProwlarrServerId == server.id,
-                                onSelect: { prowlarrManager.activeProwlarrServerId = server.id }
+                                isActive: prowlarrManager.activeServerId == server.id,
+                                onSelect: { prowlarrManager.activeServerId = server.id }
                             )
                         }
-                        .swipeActions {
-                            Button(role: .destructive) {
-                                prowlarrManager.deleteProwlarrServer(server)
-                            } label: {
-                                Label("Elimina", systemImage: "trash")
-                            }
-                        }
                     }
+                    .onDelete(perform: prowlarrManager.deleteServer)
                 }
             }
         }
         .navigationTitle("Server Prowlarr")
         .sheet(isPresented: $showingAddServer) {
-            // La sheet apre la vista in modalità "Aggiungi" (serverToEdit è nil)
             AddProwlarrServerView()
         }
     }

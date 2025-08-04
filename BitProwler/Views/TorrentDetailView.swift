@@ -68,7 +68,7 @@ struct TorrentDetailView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
                 .tint(.accentColor)
-                .disabled(isDownloading || container.qbittorrentManager.activeQBittorrentServer == nil)
+                .disabled(isDownloading || container.qbittorrentManager.activeServer == nil)
             }
         }
         .padding()
@@ -145,7 +145,7 @@ struct TorrentDetailView: View {
     // MARK: - Logic
     
     private func downloadTorrent() async {
-        guard let server = container.qbittorrentManager.activeQBittorrentServer, let url = result.downloadUrl else {
+        guard let server = container.qbittorrentManager.activeServer, let url = result.downloadUrl else {
             handleDownloadError(AppError.serverNotConfigured)
             return
         }

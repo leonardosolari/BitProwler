@@ -1,11 +1,18 @@
 import Foundation
 
-struct QBittorrentServer: Identifiable, Codable, Equatable {
+struct QBittorrentServer: Server {
     let id: UUID
     var name: String
     var url: String
     var username: String
     var password: String
+    
+    var secret: String {
+        get { password }
+        set { password = newValue }
+    }
+    
+    static let serversKey = "qbittorrentServers"
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -28,7 +35,6 @@ struct QBittorrentServer: Identifiable, Codable, Equatable {
         self.name = try container.decode(String.self, forKey: .name)
         self.url = try container.decode(String.self, forKey: .url)
         self.username = try container.decode(String.self, forKey: .username)
-        // Inizializziamo la password come stringa vuota. Verrà popolata dal Keychain.
         self.password = ""
     }
     

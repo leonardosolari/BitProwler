@@ -5,15 +5,15 @@ final class AppContainer: ObservableObject {
     let prowlarrService: ProwlarrAPIService = ProwlarrService()
     let qbittorrentService: QBittorrentAPIService = QBittorrentService()
 
-    let prowlarrManager: ProwlarrServerManager
-    let qbittorrentManager: QBittorrentServerManager
+    let prowlarrManager: GenericServerManager<ProwlarrServer>
+    let qbittorrentManager: GenericServerManager<QBittorrentServer>
     let recentPathsManager = RecentPathsManager()
     let searchHistoryManager = SearchHistoryManager()
     
     let filterViewModel = FilterViewModel()
     
     init() {
-        self.prowlarrManager = ProwlarrServerManager()
-        self.qbittorrentManager = QBittorrentServerManager()
+        self.prowlarrManager = GenericServerManager<ProwlarrServer>()
+        self.qbittorrentManager = GenericServerManager<QBittorrentServer>()
     }
 }

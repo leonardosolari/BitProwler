@@ -1,9 +1,7 @@
-// File: /ProwlarriOS/Views/Settings/QBittorrentServerListView.swift
-
 import SwiftUI
 
 struct QBittorrentServerListView: View {
-    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    @EnvironmentObject var qbittorrentManager: GenericServerManager<QBittorrentServer>
     @State private var showingAddServer = false
     
     var body: some View {
@@ -14,31 +12,23 @@ struct QBittorrentServerListView: View {
                 }
             }
             
-            if !qbittorrentManager.qbittorrentServers.isEmpty {
+            if !qbittorrentManager.servers.isEmpty {
                 Section("Server Configurati") {
-                    ForEach(qbittorrentManager.qbittorrentServers) { server in
-                        // Usa NavigationLink per la modifica
+                    ForEach(qbittorrentManager.servers) { server in
                         NavigationLink(destination: AddQBittorrentServerView(serverToEdit: server)) {
                             ServerRow(
                                 name: server.name,
-                                isActive: qbittorrentManager.activeQBittorrentServerId == server.id,
-                                onSelect: { qbittorrentManager.activeQBittorrentServerId = server.id }
+                                isActive: qbittorrentManager.activeServerId == server.id,
+                                onSelect: { qbittorrentManager.activeServerId = server.id }
                             )
                         }
-                        .swipeActions {
-                            Button(role: .destructive) {
-                                qbittorrentManager.deleteQBittorrentServer(server)
-                            } label: {
-                                Label("Elimina", systemImage: "trash")
-                            }
-                        }
                     }
+                    .onDelete(perform: qbittorrentManager.deleteServer)
                 }
             }
         }
         .navigationTitle("Server qBittorrent")
         .sheet(isPresented: $showingAddServer) {
-            // La sheet apre la vista in modalità "Aggiungi" (serverToEdit è nil)
             AddQBittorrentServerView()
         }
     }

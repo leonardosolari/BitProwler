@@ -11,7 +11,7 @@ class SearchViewModel: ObservableObject {
     @Published var activeSortOption: SortOption = .default
     
     private let apiService: ProwlarrAPIService
-    private let prowlarrManager: ProwlarrServerManager
+    private let prowlarrManager: GenericServerManager<ProwlarrServer>
     let searchHistoryManager: SearchHistoryManager
     
     private var originalResults: [TorrentResult] = []
@@ -19,7 +19,7 @@ class SearchViewModel: ObservableObject {
     
     init(
         apiService: ProwlarrAPIService,
-        prowlarrManager: ProwlarrServerManager,
+        prowlarrManager: GenericServerManager<ProwlarrServer>,
         searchHistoryManager: SearchHistoryManager
     ) {
         self.apiService = apiService

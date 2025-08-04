@@ -1,10 +1,17 @@
 import Foundation
 
-struct ProwlarrServer: Identifiable, Codable, Equatable {
+struct ProwlarrServer: Server {
     let id: UUID
     var name: String
     var url: String
     var apiKey: String
+    
+    var secret: String {
+        get { apiKey }
+        set { apiKey = newValue }
+    }
+    
+    static let serversKey = "prowlarrServers"
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -24,7 +31,6 @@ struct ProwlarrServer: Identifiable, Codable, Equatable {
         self.id = try container.decode(UUID.self, forKey: .id)
         self.name = try container.decode(String.self, forKey: .name)
         self.url = try container.decode(String.self, forKey: .url)
-        // Inizializziamo apiKey come stringa vuota. Verrà popolata dal Keychain in un secondo momento.
         self.apiKey = ""
     }
     

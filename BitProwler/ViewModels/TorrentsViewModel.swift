@@ -18,7 +18,7 @@ class TorrentsViewModel: ObservableObject {
     
     private var timer: Timer?
     private let updateInterval: TimeInterval = 2.0
-    private var qbittorrentManager: QBittorrentServerManager?
+    private var qbittorrentManager: GenericServerManager<QBittorrentServer>?
     
     private let apiService: QBittorrentAPIService
     
@@ -26,7 +26,7 @@ class TorrentsViewModel: ObservableObject {
         self.apiService = apiService
     }
     
-    func setup(with manager: QBittorrentServerManager) {
+    func setup(with manager: GenericServerManager<QBittorrentServer>) {
         self.qbittorrentManager = manager
         Task { await fetchTorrents() }
         startTimer()
@@ -45,7 +45,7 @@ class TorrentsViewModel: ObservableObject {
     }
     
     func fetchTorrents(silent: Bool = false) async {
-        guard let server = qbittorrentManager?.activeQBittorrentServer else {
+        guard let server = qbittorrentManager?.activeServer else {
             self.error = AppError.serverNotConfigured.errorDescription
             return
         }

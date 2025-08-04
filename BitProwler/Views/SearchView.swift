@@ -16,7 +16,7 @@ struct SearchView: View {
     @StateObject private var viewModel: SearchViewModel
     @EnvironmentObject private var filterViewModel: FilterViewModel
     
-    @ObservedObject var prowlarrManager: ProwlarrServerManager
+    @ObservedObject var prowlarrManager: GenericServerManager<ProwlarrServer>
     @ObservedObject var searchHistoryManager: SearchHistoryManager
     
     @State private var searchText = ""
@@ -28,7 +28,7 @@ struct SearchView: View {
         return filterViewModel.filterResults(viewModel.searchResults)
     }
     
-    init(prowlarrManager: ProwlarrServerManager, searchHistoryManager: SearchHistoryManager, apiService: ProwlarrAPIService) {
+    init(prowlarrManager: GenericServerManager<ProwlarrServer>, searchHistoryManager: SearchHistoryManager, apiService: ProwlarrAPIService) {
         self.prowlarrManager = prowlarrManager
         self.searchHistoryManager = searchHistoryManager
         _viewModel = StateObject(wrappedValue: SearchViewModel(

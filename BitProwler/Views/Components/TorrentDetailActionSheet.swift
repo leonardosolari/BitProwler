@@ -13,7 +13,7 @@ struct TorrentDetailActionSheet: View {
     
     private let torrent: QBittorrentTorrent
     
-    init(torrent: QBittorrentTorrent, manager: QBittorrentServerManager, apiService: QBittorrentAPIService) {
+    init(torrent: QBittorrentTorrent, manager: GenericServerManager<QBittorrentServer>, apiService: QBittorrentAPIService) {
         self.torrent = torrent
         _viewModel = StateObject(wrappedValue: TorrentActionsViewModel(torrent: torrent, manager: manager, apiService: apiService))
     }
@@ -181,7 +181,6 @@ private struct ActionButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {
-                // Cerchio con icona
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.15))
@@ -191,7 +190,6 @@ private struct ActionButton: View {
                 }
                 .frame(width: 56, height: 56)
                 
-                // Testo sotto l'icona
                 Text(title)
                     .font(.caption)
                     .foregroundColor(.secondary)

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AddQBittorrentServerView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var qbittorrentManager: QBittorrentServerManager
+    @EnvironmentObject var qbittorrentManager: GenericServerManager<QBittorrentServer>
     @EnvironmentObject var container: AppContainer
     
     var serverToEdit: QBittorrentServer?
@@ -103,7 +103,7 @@ struct AddQBittorrentServerView: View {
             updatedServer.url = url.asSanitizedURL()
             updatedServer.username = username.trimmingCharacters(in: .whitespacesAndNewlines)
             updatedServer.password = password
-            qbittorrentManager.updateQBittorrentServer(updatedServer)
+            qbittorrentManager.updateServer(updatedServer)
         } else {
             let newServer = QBittorrentServer(
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -111,7 +111,7 @@ struct AddQBittorrentServerView: View {
                 username: username.trimmingCharacters(in: .whitespacesAndNewlines),
                 password: password
             )
-            qbittorrentManager.addQBittorrentServer(newServer)
+            qbittorrentManager.addServer(newServer)
         }
         dismiss()
     }

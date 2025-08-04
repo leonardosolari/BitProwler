@@ -18,13 +18,13 @@ class AddTorrentViewModel: ObservableObject {
     @Published var shouldDismiss = false
     
     // MARK: - Dependencies
-    private let qbittorrentManager: QBittorrentServerManager
+    private let qbittorrentManager: GenericServerManager<QBittorrentServer>
     private let recentPathsManager: RecentPathsManager
     private let apiService: QBittorrentAPIService
     
     // MARK: - Computed Properties
     var canAddTorrent: Bool {
-        guard qbittorrentManager.activeQBittorrentServer != nil, !downloadPath.isEmpty else { return false }
+        guard qbittorrentManager.activeServer != nil, !downloadPath.isEmpty else { return false }
         
         if isMagnetLink {
             return !magnetUrl.isEmpty
@@ -34,7 +34,7 @@ class AddTorrentViewModel: ObservableObject {
     }
     
     // MARK: - Initializer
-    init(qbittorrentManager: QBittorrentServerManager, recentPathsManager: RecentPathsManager, apiService: QBittorrentAPIService) {
+    init(qbittorrentManager: GenericServerManager<QBittorrentServer>, recentPathsManager: RecentPathsManager, apiService: QBittorrentAPIService) {
         self.qbittorrentManager = qbittorrentManager
         self.recentPathsManager = recentPathsManager
         self.apiService = apiService
@@ -44,7 +44,7 @@ class AddTorrentViewModel: ObservableObject {
     // MARK: - Public Methods (Actions)
     
     func addTorrent() async {
-        guard let server = qbittorrentManager.activeQBittorrentServer else {
+        guard let server = qbittorrentManager.activeServer else {
             handleError(AppError.serverNotConfigured)
             return
         }
@@ -55,7 +55,7 @@ class AddTorrentViewModel: ObservableObject {
         } else if let fileData = torrentFile, let fileName = selectedFileName {
             source = .file(data: fileData, filename: fileName)
         } else {
-            handleError(AppError.unknownError) // O un errore più specifico
+            handleError(AppError.unknownError)
             return
         }
         
@@ -77,7 +77,7 @@ class AddTorrentViewModel: ObservableObject {
             guard let url = urls.first else { return }
             do {
                 guard url.startAccessingSecurityScopedResource() else {
-                    throw AppError.unknownError // O un errore più specifico per l'accesso al file
+                    throw AppError.unknownError
                 }
                 defer { url.stopAccessingSecurityScopedResource() }
                 

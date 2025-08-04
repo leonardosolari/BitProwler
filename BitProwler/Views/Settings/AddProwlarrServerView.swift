@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AddProwlarrServerView: View {
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var prowlarrManager: ProwlarrServerManager
+    @EnvironmentObject var prowlarrManager: GenericServerManager<ProwlarrServer>
     @EnvironmentObject var container: AppContainer
     
     var serverToEdit: ProwlarrServer?
@@ -97,14 +97,14 @@ struct AddProwlarrServerView: View {
             updatedServer.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
             updatedServer.url = url.asSanitizedURL()
             updatedServer.apiKey = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
-            prowlarrManager.updateProwlarrServer(updatedServer)
+            prowlarrManager.updateServer(updatedServer)
         } else {
             let newServer = ProwlarrServer(
                 name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                 url: url.asSanitizedURL(),
                 apiKey: apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
             )
-            prowlarrManager.addProwlarrServer(newServer)
+            prowlarrManager.addServer(newServer)
         }
         dismiss()
     }

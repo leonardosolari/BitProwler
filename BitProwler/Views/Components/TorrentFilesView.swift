@@ -39,7 +39,7 @@ struct TorrentFilesView: View {
     }
     
     private func fetchFiles() async {
-        guard let server = container.qbittorrentManager.activeQBittorrentServer else { return }
+        guard let server = container.qbittorrentManager.activeServer else { return }
         
         isLoading = true
         defer { isLoading = false }
@@ -69,7 +69,7 @@ struct TorrentFileRow: View {
                 
                 Text(file.name)
                     .font(.body)
-                    .lineLimit(isExpanded ? nil : 1) // Logica di espansione
+                    .lineLimit(isExpanded ? nil : 1)
                 
                 Spacer()
                 
