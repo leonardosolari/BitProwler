@@ -8,14 +8,19 @@ class SearchViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var hasSearched = false
     
-    @Published var activeSortOption: SortOption = .default
+    @Published var activeSortOption: SortOption {
+        didSet {
+            applySorting()
+            saveSortOption()
+        }
+    }
     
     private let apiService: ProwlarrAPIService
     private let prowlarrManager: GenericServerManager<ProwlarrServer>
     let searchHistoryManager: SearchHistoryManager
     
     private var originalResults: [TorrentResult] = []
-    
+    private let sortOptionKey = "searchViewSortOption"
     
     init(
         apiService: ProwlarrAPIService,
@@ -25,6 +30,13 @@ class SearchViewModel: ObservableObject {
         self.apiService = apiService
         self.prowlarrManager = prowlarrManager
         self.searchHistoryManager = searchHistoryManager
+        
+        if let savedSortOptionRaw = UserDefaults.standard.string(forKey: sortOptionKey),
+           let savedSortOption = SortOption(rawValue: savedSortOptionRaw) {
+            self.activeSortOption = savedSortOption
+        } else {
+            self.activeSortOption = .default
+        }
     }
     
     func search(query: String) async {
@@ -79,5 +91,9 @@ class SearchViewModel: ObservableObject {
         self.errorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         self.showError = true
         self.isLoading = false
+    }
+    
+    private func saveSortOption() {
+        UserDefaults.standard.set(activeSortOption.rawValue, forKey: sortOptionKey)
     }
 }

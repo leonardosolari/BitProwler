@@ -10,8 +10,12 @@ class TorrentsViewModel: ObservableObject {
     @Published var searchText = "" {
         didSet { applyFiltersAndSorting() }
     }
-    @Published var activeSortOption: TorrentSortOption = .progress {
-        didSet { applyFiltersAndSorting() }
+    
+    @Published var activeSortOption: TorrentSortOption {
+        didSet {
+            applyFiltersAndSorting()
+            saveSortOption()
+        }
     }
     
     private var allTorrents: [QBittorrentTorrent] = []
@@ -21,9 +25,17 @@ class TorrentsViewModel: ObservableObject {
     private var qbittorrentManager: GenericServerManager<QBittorrentServer>?
     
     private let apiService: QBittorrentAPIService
+    private let sortOptionKey = "torrentsViewSortOption"
     
     init(apiService: QBittorrentAPIService) {
         self.apiService = apiService
+        
+        if let savedSortOptionRaw = UserDefaults.standard.string(forKey: sortOptionKey),
+           let savedSortOption = TorrentSortOption(rawValue: savedSortOptionRaw) {
+            self.activeSortOption = savedSortOption
+        } else {
+            self.activeSortOption = .progress
+        }
     }
     
     func setup(with manager: GenericServerManager<QBittorrentServer>) {
@@ -89,5 +101,9 @@ class TorrentsViewModel: ObservableObject {
         }
         
         self.filteredTorrents = processedTorrents
+    }
+    
+    private func saveSortOption() {
+        UserDefaults.standard.set(activeSortOption.rawValue, forKey: sortOptionKey)
     }
 }
