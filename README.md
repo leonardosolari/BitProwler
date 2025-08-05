@@ -105,11 +105,7 @@ BitProwler/
 └── Views/              # All SwiftUI views, organized by feature
     ├── Components/     # Reusable view components (rows, buttons, menus)
     ├── Settings/       # Views related to the settings tab
-    ├── TorrentActions/ # Views for the torrent actions sheet
-    ├── ContentView.swift
-    ├── SearchView.swift
-    ├── TorrentDetailView.swift
-    └── TorrentsView.swift
+    └── TorrentActions/ # Views for the torrent actions sheet
 ```
 
 ## 🤝 How to Contribute
