@@ -263,6 +263,16 @@
         }
       }
     },
+    "Default" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "it" : {
@@ -320,6 +330,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Percorso di download"
+          }
+        }
+      }
+    },
+    "Download Speed" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velocità Donwload"
           }
         }
       }
@@ -676,6 +696,16 @@
         }
       }
     },
+    "Most Recent" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Più Recenti"
+          }
+        }
+      }
+    },
     "Move" : {
       "localizations" : {
         "it" : {
@@ -918,6 +948,16 @@
         }
       }
     },
+    "Progress" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Progresso"
+          }
+        }
+      }
+    },
     "Prowlarr Servers" : {
       "localizations" : {
         "it" : {
@@ -1108,6 +1148,16 @@
         }
       }
     },
+    "Seeders" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seeders"
+          }
+        }
+      }
+    },
     "Select File" : {
       "localizations" : {
         "it" : {
@@ -1190,6 +1240,16 @@
         }
       }
     },
+    "Size" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dimensione"
+          }
+        }
+      }
+    },
     "Stalled (DL)" : {
       "localizations" : {
         "it" : {
@@ -1206,6 +1266,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stallo (UP)"
+          }
+        }
+      }
+    },
+    "State" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stato"
           }
         }
       }
@@ -1367,6 +1437,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Errore Sconosiuto"
+          }
+        }
+      }
+    },
+    "Upload Speed" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velocità Upload"
           }
         }
       }

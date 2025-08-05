@@ -28,7 +28,20 @@ enum TorrentSortOption: String, CaseIterable, Identifiable, SortOptionable {
         }
     }
     
-    var localized: LocalizedStringKey {
-        return LocalizedStringKey(self.rawValue)
+    var localizedLabel: Text {
+        switch self {
+        case .name:
+            return Text("Name")
+        case .progress:
+            return Text("Progress")
+        case .downloadSpeed:
+            return Text("Download Speed")
+        case .uploadSpeed:
+            return Text("Upload Speed")
+        case .size:
+            return Text("Size")
+        case .state:
+            return Text("State")
+        }
     }
 }

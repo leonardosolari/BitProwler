@@ -22,7 +22,16 @@ enum SortOption: String, CaseIterable, Identifiable, SortOptionable {
         }
     }
     
-    var localized: LocalizedStringKey {
-        return LocalizedStringKey(self.rawValue)
+    var localizedLabel: Text {
+        switch self {
+        case .default:
+            return Text("Default")
+        case .seeders:
+            return Text("Seeders")
+        case .size:
+            return Text("Size")
+        case .recent:
+            return Text("Most Recent")
+        }
     }
 }
