@@ -14,395 +14,1314 @@
             "state" : "new",
             "value" : "%1$lld%% of %2$@"
           }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld%% di %2$@"
+          }
         }
       }
     },
     "Add Filter" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi Filtro"
+          }
+        }
+      }
     },
     "Add Server" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi Server"
+          }
+        }
+      }
     },
     "Add to qBittorrent" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi a qBittorrent"
+          }
+        }
+      }
     },
     "Add Torrent" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiungi Torrent"
+          }
+        }
+      }
     },
     "An unknown error occurred." : {
-      "comment" : "Error message for an unexpected or unknown error"
+      "comment" : "Error message for an unexpected or unknown error",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Si è verificato un errore sconosciuto"
+          }
+        }
+      }
     },
     "API Key" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiave API"
+          }
+        }
+      }
     },
     "Authentication failed." : {
-      "comment" : "Error message for a generic authentication failure"
+      "comment" : "Error message for a generic authentication failure",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autenticazione fallita"
+          }
+        }
+      }
     },
     "Authentication failed. Check your credentials or API key." : {
-      "comment" : "Error message for HTTP 401/403 authentication failure"
+      "comment" : "Error message for HTTP 401/403 authentication failure",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autenticazione fallita. Controlla le tue credenziali o la chiave API"
+          }
+        }
+      }
     },
     "Cancel" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annulla"
+          }
+        }
+      }
     },
     "Change" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambia"
+          }
+        }
+      }
     },
     "Checking (DL)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controllo (DL)"
+          }
+        }
+      }
     },
     "Checking (UP)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controllo (UP)"
+          }
+        }
+      }
     },
     "Clear" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pulisci"
+          }
+        }
+      }
     },
     "Close" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiudi"
+          }
+        }
+      }
     },
     "Completed" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Completato"
+          }
+        }
+      }
     },
     "Configuration Required" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurazione necessaria"
+          }
+        }
+      }
     },
     "Configured Filters" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtri Configurati"
+          }
+        }
+      }
     },
     "Configured Servers" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server Configurati"
+          }
+        }
+      }
     },
     "Connection Error" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore di Connessione"
+          }
+        }
+      }
     },
     "Copied!" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copiato!"
+          }
+        }
+      }
     },
     "Copy File Name" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copia Nome File"
+          }
+        }
+      }
     },
     "Could not find the files for this torrent" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile trovare i file per questo torrent"
+          }
+        }
+      }
     },
     "Danger Zone" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zona Pericolo"
+          }
+        }
+      }
     },
     "Delete" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina"
+          }
+        }
+      }
     },
     "Delete Torrent" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina Torrent"
+          }
+        }
+      }
     },
     "Delete Torrent and Data" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina Torrent e Dati"
+          }
+        }
+      }
     },
     "Do you want to delete this torrent? The downloaded data will not be removed" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vuoi eliminare questo torrent? I dati scaricati non saranno rimossi"
+          }
+        }
+      }
     },
     "Download Path" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Percorso di download"
+          }
+        }
+      }
     },
     "Download Started" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download Iniziato"
+          }
+        }
+      }
     },
     "Downloading" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scaricamento"
+          }
+        }
+      }
     },
     "Downloading Metadata" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download Metadati"
+          }
+        }
+      }
     },
     "Edit Server" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifica Server"
+          }
+        }
+      }
     },
     "Enter a term and press Search" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inserisci un termine e premi Cerca"
+          }
+        }
+      }
     },
     "Enter magnet Link" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inserisci il link magnet"
+          }
+        }
+      }
     },
     "Error" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore"
+          }
+        }
+      }
     },
     "Error reading the server response." : {
-      "comment" : "Error message for a data decoding/parsing failure"
+      "comment" : "Error message for a data decoding/parsing failure",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore di lettura della risposta del Server"
+          }
+        }
+      }
     },
     "Filter Details" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dettagli Filtro"
+          }
+        }
+      }
     },
     "Filter Logic" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logica Filtri"
+          }
+        }
+      }
     },
     "Filter Management" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestione Filtri"
+          }
+        }
+      }
     },
     "Filter Settings" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni Filtri"
+          }
+        }
+      }
     },
     "Filters" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtri"
+          }
+        }
+      }
     },
     "Forced (DL)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forzato (DL)"
+          }
+        }
+      }
     },
     "Forced (UP)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forzato (UP)"
+          }
+        }
+      }
     },
     "Full Path" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Percorso Completo"
+          }
+        }
+      }
     },
     "Go to settings to configure a Prowlarr server" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vai alle impostazioni per configurare un server Prowlarr"
+          }
+        }
+      }
     },
     "Indexer" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indexer"
+          }
+        }
+      }
     },
     "Informations" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni"
+          }
+        }
+      }
     },
     "Key" : {
-      "extractionState" : "manual"
+      "extractionState" : "manual",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Key"
+          }
+        }
+      }
     },
     "Keyword" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keyword"
+          }
+        }
+      }
     },
     "Last Used: %@" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilizzato il: %@"
+          }
+        }
+      }
     },
     "Link" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link"
+          }
+        }
+      }
     },
     "Link Copied!" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link Copiato!"
+          }
+        }
+      }
     },
     "Loading files..." : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caricamento File…"
+          }
+        }
+      }
     },
     "Loading..." : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Caricamento..."
+          }
+        }
+      }
     },
     "Magnet Link" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link Magnet"
+          }
+        }
+      }
     },
     "Manage Filters" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestisci Filtri"
+          }
+        }
+      }
     },
     "Manage Paths" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestisci Percorsi"
+          }
+        }
+      }
     },
     "Management" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestione"
+          }
+        }
+      }
     },
     "Match all filters" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutti i filtri corrispondono"
+          }
+        }
+      }
     },
     "Match any filter" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uno o più filtri corrispondono"
+          }
+        }
+      }
     },
     "Method" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metodo"
+          }
+        }
+      }
     },
     "Missing Files" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File Mancanti"
+          }
+        }
+      }
     },
     "Move" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sposta"
+          }
+        }
+      }
     },
     "Move Torrent" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sposta Torrent"
+          }
+        }
+      }
     },
     "Moving" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spostamento"
+          }
+        }
+      }
     },
     "Name" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nome"
+          }
+        }
+      }
     },
     "Network error: %@" : {
-      "comment" : "Error message for a generic network error. The placeholder is for the specific error description."
+      "comment" : "Error message for a generic network error. The placeholder is for the specific error description.",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore di rete: %@"
+          }
+        }
+      }
     },
     "New Filter" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuovo Filtro"
+          }
+        }
+      }
     },
     "New Location" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuova Posizione"
+          }
+        }
+      }
     },
     "New Prowlarr Server" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuovo Server Prowlarr"
+          }
+        }
+      }
     },
     "New qBittorrent Server" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuovo Server qBittorrent"
+          }
+        }
+      }
     },
     "No active server configured." : {
-      "comment" : "Error message when no server is selected or configured"
+      "comment" : "Error message when no server is selected or configured",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun Server attivo configurato"
+          }
+        }
+      }
     },
     "No Files" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun file"
+          }
+        }
+      }
     },
     "No filter configured" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun filtro configurato"
+          }
+        }
+      }
     },
     "No Paths" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun Percorso"
+          }
+        }
+      }
     },
     "No Results" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun Risultato"
+          }
+        }
+      }
     },
     "No results match the active filters" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun risultato corrisponde ai filtri selezionati"
+          }
+        }
+      }
     },
     "No Torrents" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun Torrent"
+          }
+        }
+      }
     },
     "No torrents found for '%@'" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun torrent trovato per ‘%@’"
+          }
+        }
+      }
     },
     "OK" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
     },
     "Password" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password"
+          }
+        }
+      }
     },
     "Path" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Percorso"
+          }
+        }
+      }
     },
     "Path Management" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestione Percorsi"
+          }
+        }
+      }
     },
     "Paused (DL)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausa (DL)"
+          }
+        }
+      }
     },
     "Paused (UP)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausa (UP)"
+          }
+        }
+      }
     },
     "Prowlarr Servers" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server Prowlarr"
+          }
+        }
+      }
     },
     "Publish Date" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data di pubblicazione"
+          }
+        }
+      }
     },
     "qBittorrent servers" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server qBittorrent"
+          }
+        }
+      }
     },
     "qBittorrent Servers" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server qBittorrent"
+          }
+        }
+      }
     },
     "Queued (DL)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In coda (DL)"
+          }
+        }
+      }
     },
     "Queued (UP)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In coda (UP)"
+          }
+        }
+      }
     },
     "Quick Filters" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filtri Rapidi"
+          }
+        }
+      }
     },
     "Recent Searches" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ricerca Recenti"
+          }
+        }
+      }
     },
     "Results must contain all of the active filter keywords" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il risultato deve contenere tutte le keyword dei filtri attivi"
+          }
+        }
+      }
     },
     "Results must contain at least one of the active filter keywords" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il risultato deve contenere almeno una delle keyword dei filtri attivi"
+          }
+        }
+      }
     },
     "Save" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva"
+          }
+        }
+      }
     },
     "Search" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca"
+          }
+        }
+      }
     },
     "Search by name..." : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca per nome"
+          }
+        }
+      }
     },
     "Search Error" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore di ricerca"
+          }
+        }
+      }
     },
     "Search Torrents" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca torrent"
+          }
+        }
+      }
     },
     "Search..." : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca..."
+          }
+        }
+      }
     },
     "Searching..." : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cercando…"
+          }
+        }
+      }
     },
     "Select File" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleziona file"
+          }
+        }
+      }
     },
     "Server error (Status: %d)." : {
-      "comment" : "Error message for other HTTP errors. The placeholder is for the status code."
+      "comment" : "Error message for other HTTP errors. The placeholder is for the status code.",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore del server (Stato: %d)"
+          }
+        }
+      }
     },
     "Server Informations" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni del Server"
+          }
+        }
+      }
     },
     "Server not found (404). Check the URL." : {
-      "comment" : "Error message for HTTP 404 not found"
+      "comment" : "Error message for HTTP 404 not found",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server non trovato (404). Controlla l’URL"
+          }
+        }
+      }
     },
     "Server Prowlarr" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server Prowlarr"
+          }
+        }
+      }
     },
     "Server URL" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL del Server"
+          }
+        }
+      }
     },
     "Settings" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impostazioni"
+          }
+        }
+      }
     },
     "Show Files" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra FIle"
+          }
+        }
+      }
     },
     "Stalled (DL)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stallo (DL)"
+          }
+        }
+      }
     },
     "Stalled (UP)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stallo (UP)"
+          }
+        }
+      }
     },
     "Stats" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statistiche"
+          }
+        }
+      }
     },
     "Stopped (DL)" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoppato (DL)"
+          }
+        }
+      }
     },
     "Success" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Successo"
+          }
+        }
+      }
     },
     "Test Connection" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Testa Connessione"
+          }
+        }
+      }
     },
     "The paths you use for downloads will appear here" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I percorsi che usi per i download appariranno qui"
+          }
+        }
+      }
     },
     "The server URL is invalid." : {
-      "comment" : "Error message for an invalid server URL"
+      "comment" : "Error message for an invalid server URL",
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’URL del server non è valido"
+          }
+        }
+      }
     },
     "The torrent has been successfully added to qBittorrent" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il torrent è stato aggiunto con successo a qBittorrent"
+          }
+        }
+      }
     },
     "There are no active torrents at the moment" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non ci sono torrent attivi al momento"
+          }
+        }
+      }
     },
     "Torrent" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torrent"
+          }
+        }
+      }
     },
     "Torrent Details" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dettagli Torrent"
+          }
+        }
+      }
     },
     "Torrent File" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File Torrent"
+          }
+        }
+      }
     },
     "Torrent Files" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File del Torrent"
+          }
+        }
+      }
     },
     "Try Again" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prova di nuovo"
+          }
+        }
+      }
     },
     "Unknown" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sconosciuto"
+          }
+        }
+      }
     },
     "Unknown Error" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Errore Sconosiuto"
+          }
+        }
+      }
     },
     "Uploading" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uploading"
+          }
+        }
+      }
     },
     "Username" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Username"
+          }
+        }
+      }
     },
     "WARNING: This action is irreversible. Do you want to delete this torrent and all its downloaded data?" : {
 
