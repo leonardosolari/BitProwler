@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum TorrentSortOption: String, CaseIterable, Identifiable, SortOptionable {
     case name = "Name"
@@ -25,5 +26,9 @@ enum TorrentSortOption: String, CaseIterable, Identifiable, SortOptionable {
         case .state:
             return "tag.fill"
         }
+    }
+    
+    var localized: LocalizedStringKey {
+        return LocalizedStringKey(self.rawValue)
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TorrentActionButton: View {
-    let title: String
+    let title: LocalizedStringKey
     let icon: String
     let color: Color
     let action: () -> Void

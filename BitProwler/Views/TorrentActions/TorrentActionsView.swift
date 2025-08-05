@@ -44,7 +44,7 @@ struct TorrentActionsView: View {
                     Task { await viewModel.performAction(.delete) { dismiss() } }
                 }
             }, message: {
-                Text("Do you want to delete this torrent? The downloaded data will not be removed")
+                Text("Do you want to delete this torrent? The downloaded data will not be removed.")
             })
             .alert("Delete Torrent and Data", isPresented: $showingDeleteWithDataAlert, actions: {
                 Button("Cancel", role: .cancel) {}
@@ -57,7 +57,7 @@ struct TorrentActionsView: View {
             .alert("Error", isPresented: $viewModel.showError, actions: {
                 Button("OK", role: .cancel) {}
             }, message: {
-                Text(viewModel.errorMessage ?? "An Unknown Errror occurred")
+                Text(viewModel.errorMessage ?? "An unknown error occurred.")
             })
             .sheet(isPresented: $showingLocationPicker) {
                 LocationPickerView(viewModel: viewModel)
@@ -79,9 +79,12 @@ struct TorrentActionsView: View {
     private var primaryActionsGrid: some View {
         let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
         
+        let pauseResumeTitle: LocalizedStringKey = viewModel.isPaused ? "Resume" : "Pause"
+        let forceTitle: LocalizedStringKey = viewModel.isForced ? "Unforce" : "Force"
+        
         return LazyVGrid(columns: columns, spacing: 16) {
             TorrentActionButton(
-                title: viewModel.isPaused ? "Resume" : "Pause",
+                title: pauseResumeTitle,
                 icon: viewModel.isPaused ? "play.fill" : "pause.fill",
                 color: viewModel.isPaused ? .green : .orange
             ) {
@@ -89,14 +92,14 @@ struct TorrentActionsView: View {
             }
             
             TorrentActionButton(
-                title: viewModel.isForced ? "Annulla" : "Forza",
+                title: forceTitle,
                 icon: viewModel.isForced ? "bolt.slash.fill" : "bolt.fill",
                 color: .purple
             ) {
                 Task { await viewModel.performAction(.forceStart, forceStart: !viewModel.isForced) { dismiss() } }
             }
             
-            TorrentActionButton(title: "Ricontrolla", icon: "arrow.triangle.2.circlepath", color: .blue) {
+            TorrentActionButton(title: "Recheck", icon: "arrow.triangle.2.circlepath", color: .blue) {
                 Task { await viewModel.performAction(.recheck) { dismiss() } }
             }
             

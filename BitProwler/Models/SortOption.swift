@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum SortOption: String, CaseIterable, Identifiable, SortOptionable {
     case `default` = "Default"
@@ -19,5 +20,9 @@ enum SortOption: String, CaseIterable, Identifiable, SortOptionable {
         case .recent:
             return "calendar"
         }
+    }
+    
+    var localized: LocalizedStringKey {
+        return LocalizedStringKey(self.rawValue)
     }
 }

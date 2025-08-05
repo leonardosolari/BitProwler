@@ -2,6 +2,7 @@ import SwiftUI
 
 protocol SortOptionable: RawRepresentable, CaseIterable, Identifiable, Hashable where RawValue == String {
     var systemImage: String { get }
+    var localized: LocalizedStringKey { get }
 }
 
 struct SortMenu<T: SortOptionable>: View {
@@ -12,13 +13,13 @@ struct SortMenu<T: SortOptionable>: View {
         Menu {
             Picker(title, selection: $activeSortOption) {
                 ForEach(Array(T.allCases), id: \.self) { option in
-                    Label(option.rawValue, systemImage: option.systemImage).tag(option)
+                    Label(option.localized, systemImage: option.systemImage).tag(option)
                 }
             }
         } label: {
             HStack(spacing: 4) {
                 Image(systemName: activeSortOption.systemImage)
-                Text(activeSortOption.rawValue)
+                Text(activeSortOption.localized)
             }
             .font(.subheadline)
             .padding(.horizontal, 10)
