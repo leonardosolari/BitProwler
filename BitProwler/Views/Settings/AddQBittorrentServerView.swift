@@ -87,7 +87,7 @@ struct AddQBittorrentServerView: View {
         Task {
             let success = await container.qbittorrentService.testConnection(to: serverToTest)
             if success {
-                testResult = .success("Connessione al server qBittorrent riuscita!")
+                testResult = .success("Connection to qBittorrent server successful!")
             } else {
                 testResult = .failure(.authenticationFailed)
             }

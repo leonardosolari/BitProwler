@@ -1,12 +1,12 @@
 import Foundation
 
 enum TorrentSortOption: String, CaseIterable, Identifiable, SortOptionable {
-    case name = "Nome"
-    case progress = "Progresso"
-    case downloadSpeed = "Velocità Download"
-    case uploadSpeed = "Velocità Upload"
-    case size = "Dimensione"
-    case state = "Stato"
+    case name = "Name"
+    case progress = "Progress"
+    case downloadSpeed = "Download Speed"
+    case uploadSpeed = "Upload Speed"
+    case size = "Size"
+    case state = "State"
     
     var id: String { self.rawValue }
     

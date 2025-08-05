@@ -82,7 +82,7 @@ struct AddProwlarrServerView: View {
         Task {
             let success = await container.prowlarrService.testConnection(to: serverToTest)
             if success {
-                testResult = .success("Connessione al server Prowlarr riuscita!")
+                testResult = .success("Connection to Prowlarr server successful!")
             } else {
                 testResult = .failure(.authenticationFailed)
             }

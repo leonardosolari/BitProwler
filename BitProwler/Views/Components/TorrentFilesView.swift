@@ -16,7 +16,7 @@ struct TorrentFilesView: View {
                 if isLoading {
                     ProgressView("Loading files...")
                 } else if files.isEmpty {
-                    ContentUnavailableView("No Files", systemImage: "doc.questionmark", description: Text("Non è stato possibile trovare i file per questo torrent."))
+                    ContentUnavailableView("No Files", systemImage: "doc.questionmark", description: Text("Could not find the files for this torrent"))
                 } else {
                     List {
                         ForEach(files) { file in

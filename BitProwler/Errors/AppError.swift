@@ -12,26 +12,34 @@ enum AppError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidURL:
-            return "L'URL del server non è valido."
+            return NSLocalizedString("The server URL is invalid.", comment: "Error message for an invalid server URL")
+            
         case .networkError(let error):
-            return "Errore di rete: \(error.localizedDescription)"
+            let format = NSLocalizedString("Network error: %@", comment: "Error message for a generic network error. The placeholder is for the specific error description.")
+            return String(format: format, error.localizedDescription)
+            
         case .httpError(let statusCode):
             switch statusCode {
             case 401, 403:
-                return "Autenticazione fallita. Controlla le credenziali o la chiave API."
+                return NSLocalizedString("Authentication failed. Check your credentials or API key.", comment: "Error message for HTTP 401/403 authentication failure")
             case 404:
-                return "Server non trovato (404). Controlla l'URL."
+                return NSLocalizedString("Server not found (404). Check the URL.", comment: "Error message for HTTP 404 not found")
             default:
-                return "Errore del server (Status: \(statusCode))."
+                let format = NSLocalizedString("Server error (Status: %d).", comment: "Error message for other HTTP errors. The placeholder is for the status code.")
+                return String(format: format, statusCode)
             }
+            
         case .decodingError:
-            return "Errore nella lettura della risposta del server."
+            return NSLocalizedString("Error reading the server response.", comment: "Error message for a data decoding/parsing failure")
+            
         case .authenticationFailed:
-            return "Autenticazione fallita."
+            return NSLocalizedString("Authentication failed.", comment: "Error message for a generic authentication failure")
+            
         case .serverNotConfigured:
-            return "Nessun server attivo configurato."
+            return NSLocalizedString("No active server configured.", comment: "Error message when no server is selected or configured")
+            
         case .unknownError:
-            return "Si è verificato un errore sconosciuto."
+            return NSLocalizedString("An unknown error occurred.", comment: "Error message for an unexpected or unknown error")
         }
     }
 }

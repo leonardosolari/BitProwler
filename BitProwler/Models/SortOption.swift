@@ -3,8 +3,8 @@ import Foundation
 enum SortOption: String, CaseIterable, Identifiable, SortOptionable {
     case `default` = "Default"
     case seeders = "Seeders"
-    case size = "Dimensione"
-    case recent = "Più Recente"
+    case size = "Size"
+    case recent = "Most Recent"
     
     var id: String { self.rawValue }
     

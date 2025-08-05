@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum TorrentState: String {
     case downloading = "downloading"
@@ -33,27 +34,27 @@ enum TorrentState: String {
         self == .forcedDL || self == .forcedUP
     }
     
-    var displayName: String {
+    var displayName: LocalizedStringKey {
         switch self {
-        case .downloading: return "Download"
-        case .uploading: return "Upload"
-        case .pausedDL: return "In Pausa (DL)"
-        case .pausedUP: return "In Pausa (UP)"
+        case .downloading: return "Downloading"
+        case .uploading: return "Uploading"
+        case .pausedDL: return "Paused (DL)"
+        case .pausedUP: return "Paused (UP)"
         case .stalledDL: return "Stalled (DL)"
         case .stalledUP: return "Stalled (UP)"
-        case .stoppedDL: return "Arrestato (DL)"
-        case .stoppedUP: return "Completato"
-        case .error: return "Errore"
-        case .missingFiles: return "File Mancanti"
-        case .queuedDL: return "In Coda (DL)"
-        case .queuedUP: return "In Coda (UP)"
-        case .moving: return "Spostamento"
+        case .stoppedDL: return "Stopped (DL)"
+        case .stoppedUP: return "Completed"
+        case .error: return "Error"
+        case .missingFiles: return "Missing Files"
+        case .queuedDL: return "Queued (DL)"
+        case .queuedUP: return "Queued (UP)"
+        case .moving: return "Moving"
         case .checkingUP: return "Checking (UP)"
         case .checkingDL: return "Checking (DL)"
-        case .metaDL: return "Download Metadati"
-        case .forcedUP: return "Forzato (UP)"
-        case .forcedDL: return "Forzato (DL)"
-        case .unknown: return "Sconosciuto"
+        case .metaDL: return "Downloading Metadata"
+        case .forcedUP: return "Forced (UP)"
+        case .forcedDL: return "Forced (DL)"
+        case .unknown: return "Unknown"
         }
     }
 }

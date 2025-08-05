@@ -48,7 +48,7 @@ struct TorrentActionsView: View {
             })
             .alert("Delete Torrent and Data", isPresented: $showingDeleteWithDataAlert, actions: {
                 Button("Cancel", role: .cancel) {}
-                Button("Elimina", role: .destructive) {
+                Button("Delete", role: .destructive) {
                     Task { await viewModel.performAction(.delete, deleteFiles: true) { dismiss() } }
                 }
             }, message: {
@@ -57,7 +57,7 @@ struct TorrentActionsView: View {
             .alert("Error", isPresented: $viewModel.showError, actions: {
                 Button("OK", role: .cancel) {}
             }, message: {
-                Text(viewModel.errorMessage ?? "Si è verificato un errore sconosciuto.")
+                Text(viewModel.errorMessage ?? "An Unknown Errror occurred")
             })
             .sheet(isPresented: $showingLocationPicker) {
                 LocationPickerView(viewModel: viewModel)
@@ -81,7 +81,7 @@ struct TorrentActionsView: View {
         
         return LazyVGrid(columns: columns, spacing: 16) {
             TorrentActionButton(
-                title: viewModel.isPaused ? "Riprendi" : "Pausa",
+                title: viewModel.isPaused ? "Resume" : "Pause",
                 icon: viewModel.isPaused ? "play.fill" : "pause.fill",
                 color: viewModel.isPaused ? .green : .orange
             ) {
@@ -100,7 +100,7 @@ struct TorrentActionsView: View {
                 Task { await viewModel.performAction(.recheck) { dismiss() } }
             }
             
-            TorrentActionButton(title: "Sposta", icon: "folder.fill", color: .cyan) {
+            TorrentActionButton(title: "Move", icon: "folder.fill", color: .cyan) {
                 showingLocationPicker = true
             }
         }

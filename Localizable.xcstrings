@@ -29,8 +29,17 @@
     "Add Torrent" : {
 
     },
+    "An unknown error occurred." : {
+      "comment" : "Error message for an unexpected or unknown error"
+    },
     "API Key" : {
 
+    },
+    "Authentication failed." : {
+      "comment" : "Error message for a generic authentication failure"
+    },
+    "Authentication failed. Check your credentials or API key." : {
+      "comment" : "Error message for HTTP 401/403 authentication failure"
     },
     "Cancel" : {
 
@@ -38,10 +47,19 @@
     "Change" : {
 
     },
+    "Checking (DL)" : {
+
+    },
+    "Checking (UP)" : {
+
+    },
     "Clear" : {
 
     },
     "Close" : {
+
+    },
+    "Completed" : {
 
     },
     "Configuration Required" : {
@@ -86,6 +104,12 @@
     "Download Started" : {
 
     },
+    "Downloading" : {
+
+    },
+    "Downloading Metadata" : {
+
+    },
     "Edit Server" : {
 
     },
@@ -104,6 +128,9 @@
     "Error" : {
 
     },
+    "Error reading the server response." : {
+      "comment" : "Error message for a data decoding/parsing failure"
+    },
     "Filter Details" : {
 
     },
@@ -117,6 +144,12 @@
 
     },
     "Filters" : {
+
+    },
+    "Forced (DL)" : {
+
+    },
+    "Forced (UP)" : {
 
     },
     "Full Path" : {
@@ -173,14 +206,23 @@
     "Method" : {
 
     },
+    "Missing Files" : {
+
+    },
     "Move" : {
 
     },
     "Move Torrent" : {
 
     },
+    "Moving" : {
+
+    },
     "Name" : {
 
+    },
+    "Network error: %@" : {
+      "comment" : "Error message for a generic network error. The placeholder is for the specific error description."
     },
     "New Filter" : {
 
@@ -193,6 +235,9 @@
     },
     "New qBittorrent Server" : {
 
+    },
+    "No active server configured." : {
+      "comment" : "Error message when no server is selected or configured"
     },
     "No Files" : {
 
@@ -230,6 +275,12 @@
     "Path Management" : {
 
     },
+    "Paused (DL)" : {
+
+    },
+    "Paused (UP)" : {
+
+    },
     "Prowlarr Servers" : {
 
     },
@@ -240,6 +291,12 @@
 
     },
     "qBittorrent Servers" : {
+
+    },
+    "Queued (DL)" : {
+
+    },
+    "Queued (UP)" : {
 
     },
     "Quick Filters" : {
@@ -278,8 +335,14 @@
     "Select File" : {
 
     },
+    "Server error (Status: %d)." : {
+      "comment" : "Error message for other HTTP errors. The placeholder is for the status code."
+    },
     "Server Informations" : {
 
+    },
+    "Server not found (404). Check the URL." : {
+      "comment" : "Error message for HTTP 404 not found"
     },
     "Server Prowlarr" : {
 
@@ -293,7 +356,16 @@
     "Show Files" : {
 
     },
+    "Stalled (DL)" : {
+
+    },
+    "Stalled (UP)" : {
+
+    },
     "Stats" : {
+
+    },
+    "Stopped (DL)" : {
 
     },
     "Success" : {
@@ -304,6 +376,9 @@
     },
     "The paths you use for downloads will appear here" : {
 
+    },
+    "The server URL is invalid." : {
+      "comment" : "Error message for an invalid server URL"
     },
     "The torrent has been successfully added to qBittorrent" : {
 
@@ -326,7 +401,13 @@
     "Try Again" : {
 
     },
+    "Unknown" : {
+
+    },
     "Unknown Error" : {
+
+    },
+    "Uploading" : {
 
     },
     "Username" : {

@@ -29,7 +29,7 @@ fileprivate struct TorrentsContentView: View {
             .searchable(text: $viewModel.searchText, prompt: "Search by name...")
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Ordina per")
+                    SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Sort by...")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
