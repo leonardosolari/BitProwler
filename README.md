@@ -16,7 +16,11 @@ BitProwler is a sleek, native iOS application designed to be the ultimate mobile
 
 | Search View | Torrents List | Torrent Actions |
 | :---: |:---:|:---:|
-| <img src="" width="250"> | <img src="" width="250"> | <img src="" width="250"> |
+| <img src=".github/assets/search.png" width="250"> | <img src=".github/assets/torrents.png" width="250"> | <img src=".github/assets/torrent_detail.png" width="250"> |
+
+| Add from link | Add from Prowlarr |
+| :---: | :---: |
+| <img src=".github/assets/add_file.png" width="250"> | <img src=".github/assets/add.png" width="250"> |
 
 ## ✨ Features
 
@@ -128,4 +132,3 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 -   The teams behind [Prowlarr](https://prowlarr.com/) and [qBittorrent](https://www.qbittorrent.org/) for creating such powerful tools.
 -   [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) for a simple and secure way to interact with the iOS Keychain.
-```
