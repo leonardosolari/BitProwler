@@ -7,7 +7,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             List {
-                Section {
+                Section("Server") {
                     NavigationLink(destination: ProwlarrServerListView()) {
                         HStack {
                             Label("Server Prowlarr", systemImage: "server.rack")
@@ -31,6 +31,15 @@ struct SettingsView: View {
                     }
                 }
                 
+                Section("Management") {
+                    NavigationLink(destination: FilterManagementView()) {
+                        Label("Manage Filters", systemImage: "line.3.horizontal.decrease.circle")
+                    }
+                    NavigationLink(destination: PathManagementView()) {
+                        Label("Manage Paths", systemImage: "folder")
+                    }
+                }
+                
                 Section {
                 } footer: {
                     HStack {
@@ -50,7 +59,8 @@ struct SettingsView: View {
 }
 
 #Preview {
-    SettingsView()
-        .environmentObject(GenericServerManager<ProwlarrServer>())
-        .environmentObject(GenericServerManager<QBittorrentServer>())
+    let container = AppContainer()
+    return SettingsView()
+        .environmentObject(container.prowlarrManager)
+        .environmentObject(container.qbittorrentManager)
 }

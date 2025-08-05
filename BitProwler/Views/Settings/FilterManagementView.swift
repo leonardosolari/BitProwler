@@ -3,7 +3,6 @@ import SwiftUI
 struct FilterManagementView: View {
     @EnvironmentObject private var filterViewModel: FilterViewModel
     
-    @Environment(\.dismiss) var dismiss
     @State private var showingAddFilter = false
     
     var body: some View {

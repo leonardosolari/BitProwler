@@ -1168,6 +1168,16 @@
         }
       }
     },
+    "Server" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Server"
+          }
+        }
+      }
+    },
     "Server error (Status: %d)." : {
       "comment" : "Error message for other HTTP errors. The placeholder is for the status code.",
       "localizations" : {
