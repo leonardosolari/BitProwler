@@ -38,7 +38,7 @@ struct TorrentActionsView: View {
                     Button("Close") { dismiss() }
                 }
             }
-            .alert("Elimina Torrent", isPresented: $showingDeleteAlert, actions: {
+            .alert("Delete Torrent", isPresented: $showingDeleteAlert, actions: {
                 Button("Cancel", role: .cancel) {}
                 Button("Delete", role: .destructive) {
                     Task { await viewModel.performAction(.delete) { dismiss() } }

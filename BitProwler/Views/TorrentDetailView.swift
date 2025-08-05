@@ -20,7 +20,7 @@ struct TorrentDetailView: View {
                 contentScrollView
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("Dettagli Torrent")
+            .navigationTitle("Torrent Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

@@ -80,6 +80,9 @@
     "Copy File Name" : {
 
     },
+    "Could not find the files for this torrent" : {
+
+    },
     "Danger Zone" : {
 
     },
@@ -90,9 +93,6 @@
 
     },
     "Delete Torrent and Data" : {
-
-    },
-    "Dettagli Torrent" : {
 
     },
     "Do you want to delete this torrent? The downloaded data will not be removed" : {
@@ -111,12 +111,6 @@
 
     },
     "Edit Server" : {
-
-    },
-    "Elimina" : {
-
-    },
-    "Elimina Torrent" : {
 
     },
     "Enter a term and press Search" : {
@@ -258,9 +252,6 @@
 
     },
     "No torrents found for '%@'" : {
-
-    },
-    "Non è stato possibile trovare i file per questo torrent." : {
 
     },
     "OK" : {
