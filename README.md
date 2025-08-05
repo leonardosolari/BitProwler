@@ -19,8 +19,8 @@ BitProwler is a sleek, native iOS application designed to be the ultimate mobile
 | <img src=".github/assets/search.png" width="250"> | <img src=".github/assets/torrents.png" width="250"> | <img src=".github/assets/torrent_detail.png" width="250"> |
 
 | Add from link | Add from Prowlarr |
-| :---: | :---: |
-| <img src=".github/assets/add_file.png" width="250"> | <img src=".github/assets/add.png" width="250"> |
+| :---: | :---: | :---: |
+| <img src=".github/assets/add_file.png" width="250"> | <img src=".github/assets/add.png" width="250"> | <img src=".github/assets/settings.png" width="250"> |
 
 ## ✨ Features
 
