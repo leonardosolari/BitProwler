@@ -5,7 +5,7 @@ class KeychainService {
     private let keychain: Keychain
     
     init() {
-        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.leosolari.utm.ProwlarriOS"
+        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.leosolari.utm.BitProwler"
         self.keychain = Keychain(service: bundleIdentifier)
     }
     

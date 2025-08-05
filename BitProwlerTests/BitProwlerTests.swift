@@ -1,10 +1,3 @@
-//
-//  ProwlarriOSTests.swift
-//  ProwlarriOSTests
-//
-//  Created by Leonardo Solari on 26/11/24.
-//
-
 import Testing
 @testable import BitProwler
 

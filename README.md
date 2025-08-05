@@ -56,11 +56,11 @@ BitProwler is packed with features to streamline your workflow.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/ProwlarriOS.git
-    cd ProwlarriOS
+    git clone https://github.com/your-username/BitProwler.git
+    cd BitProwler
     ```
 2.  **Open the project:**
-    Open `ProwlarriOS.xcodeproj` in Xcode. The project uses Swift Package Manager to handle dependencies, which will be resolved automatically.
+    Open `BitProwler.xcodeproj` in Xcode. The project uses Swift Package Manager to handle dependencies, which will be resolved automatically.
 
 3.  **Build and Run:**
     Select your device or a simulator and press `Cmd+R` to build and run the app.
@@ -85,7 +85,7 @@ BitProwler is built with modern Apple technologies and follows a clean, MVVM-ins
 The project structure is organized for clarity and scalability:
 
 ```
-ProwlarriOS/
+BitProwler/
 ├── App/                # Main app entry point
 ├── Assets.xcassets/    # App icons, colors, etc.
 ├── Errors/             # Custom error types (AppError)

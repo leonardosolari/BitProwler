@@ -1,10 +1,3 @@
-//
-//  ProwlarriOSUITests.swift
-//  ProwlarriOSUITests
-//
-//  Created by Leonardo Solari on 26/11/24.
-//
-
 import XCTest
 
 final class BitProwlerUITests: XCTestCase {
