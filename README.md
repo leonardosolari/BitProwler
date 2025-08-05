@@ -24,12 +24,12 @@ BitProwler is packed with features to streamline your workflow.
 
 #### Prowlarr Integration
 - **Unified Search**: Seamlessly search across all your Prowlarr-configured indexers with a single query.
-- **Advanced Sorting**: Sort search results by seeders, size, or publish date to find exactly what you need.
+- **Advanced Sorting**: Sort search results by seeders, size, or publish date to find exactly what you need. Your choice is saved across app launches.
 - **Smart Filtering**: Create and manage custom keyword filters to include or exclude results based on your criteria. Apply filters with AND/OR logic.
 - **Search History**: Quickly access your recent searches.
 
 #### qBittorrent Management
-- **Live Torrent List**: View and monitor all your active torrents with real-time updates on progress, speed, and status.
+- **Live Torrent List**: View and monitor all your active torrents with real-time updates on progress, speed, and status. Sorting preferences are saved.
 - **Comprehensive Actions**:
     - Pause, resume, and force start torrents.
     - Delete torrents (with or without downloaded data).
@@ -45,6 +45,7 @@ BitProwler is packed with features to streamline your workflow.
 - **Multi-Server Support**: Configure and switch between multiple Prowlarr and qBittorrent servers.
 - **Secure**: Server credentials and API keys are stored securely in the device's Keychain.
 - **Light & Dark Mode**: Fully supports system-wide appearance settings.
+- **Full Italian Localization**: The app is fully translated and ready for more languages.
 
 ## 📋 Requirements
 - **iOS 18.1** or later.
@@ -79,25 +80,28 @@ BitProwler is built with modern Apple technologies and follows a clean, MVVM-ins
 
 -   **UI**: SwiftUI
 -   **Concurrency**: Swift Concurrency (`async`/`await`)
--   **Networking**: `URLSession`
+-   **Networking**: `URLSession` with a protocol-oriented service layer.
 -   **Data Persistence**: `UserDefaults` for settings, `KeychainAccess` for secure credentials.
+-   **Architecture**: The project uses a centralized `AppContainer` for Dependency Injection, ensuring a decoupled and testable codebase. Server management is handled elegantly via a `GenericServerManager` to reduce code duplication.
 
 The project structure is organized for clarity and scalability:
 
 ```
 BitProwler/
-├── App/                # Main app entry point
+├── App/                # Main app entry point (@main)
 ├── Assets.xcassets/    # App icons, colors, etc.
 ├── Errors/             # Custom error types (AppError)
 ├── Extensions/         # Swift extensions for core types
-├── Managers/           # Global state managers (Server, History)
-├── Models/             # Data models (TorrentResult, QBittorrentTorrent)
-├── Networking/         # API services and network layer
+├── Managers/           # Global state managers (GenericServerManager, SearchHistoryManager)
+├── Models/             # Data models (TorrentResult, QBittorrentTorrent, Server)
+├── Networking/         # API services and network layer (ProwlarrService, QBittorrentService)
 ├── Preview Content/    # Assets for SwiftUI Previews
-├── Utils/              # Utility code
+├── Services/           # Dependency injection container (AppContainer)
+├── Utils/              # Utility code (AppInfo)
 └── Views/              # All SwiftUI views, organized by feature
-    ├── Components/     # Reusable view components (rows, buttons)
+    ├── Components/     # Reusable view components (rows, buttons, menus)
     ├── Settings/       # Views related to the settings tab
+    ├── TorrentActions/ # Views for the torrent actions sheet
     ├── ContentView.swift
     ├── SearchView.swift
     ├── TorrentDetailView.swift
@@ -124,3 +128,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 -   The teams behind [Prowlarr](https://prowlarr.com/) and [qBittorrent](https://www.qbittorrent.org/) for creating such powerful tools.
 -   [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) for a simple and secure way to interact with the iOS Keychain.
+```
