@@ -5,7 +5,14 @@
 
     },
     "—" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "—"
+          }
+        }
+      }
     },
     "(%lld)" : {
       "localizations" : {
@@ -302,17 +309,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elimina Torrent e Dati"
-          }
-        }
-      }
-    },
-    "Do you want to delete this torrent? The downloaded data will not be removed" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vuoi eliminare questo torrent? I dati scaricati non saranno rimossi"
           }
         }
       }
@@ -981,17 +977,6 @@
         }
       }
     },
-    "qBittorrent servers" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Server qBittorrent"
-          }
-        }
-      }
-    },
     "qBittorrent Servers" : {
       "localizations" : {
         "it" : {
@@ -1265,7 +1250,14 @@
       }
     },
     "Speed" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velocità"
+          }
+        }
+      }
     },
     "Stalled (DL)" : {
       "localizations" : {
@@ -1303,17 +1295,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Statistiche"
-          }
-        }
-      }
-    },
-    "Stopped (DL)" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stoppato (DL)"
           }
         }
       }
@@ -1380,7 +1361,14 @@
       }
     },
     "Time Remaining" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tempo Rimanente"
+          }
+        }
+      }
     },
     "Torrent" : {
       "localizations" : {
