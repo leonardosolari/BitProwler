@@ -4,6 +4,9 @@
     "" : {
 
     },
+    "—" : {
+
+    },
     "(%lld)" : {
       "localizations" : {
         "it" : {
@@ -1260,6 +1263,9 @@
         }
       }
     },
+    "Speed" : {
+
+    },
     "Stalled (DL)" : {
       "localizations" : {
         "it" : {
@@ -1371,6 +1377,9 @@
           }
         }
       }
+    },
+    "Time Remaining" : {
+
     },
     "Torrent" : {
       "localizations" : {
