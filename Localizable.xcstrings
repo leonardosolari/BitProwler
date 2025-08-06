@@ -982,6 +982,7 @@
       }
     },
     "qBittorrent servers" : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
