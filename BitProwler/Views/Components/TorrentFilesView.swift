@@ -73,7 +73,7 @@ struct TorrentFileRow: View {
                 
                 Spacer()
                 
-                Text(formatSize(file.size))
+                Text(Formatters.formatSize(file.size))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.leading, 4)
@@ -96,12 +96,5 @@ struct TorrentFileRow: View {
                 Label("Copy File Name", systemImage: "doc.on.doc")
             }
         }
-    }
-    
-    private func formatSize(_ size: Int64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: size)
     }
 }
