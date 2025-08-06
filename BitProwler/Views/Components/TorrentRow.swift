@@ -1,3 +1,5 @@
+// BitProwler/Views/Components/TorrentRow.swift
+
 import SwiftUI
 
 struct TorrentRow: View {
@@ -21,15 +23,15 @@ struct TorrentRow: View {
                     .tint(StatusBadge.getBackgroundColor(for: torrent.state))
                 
                 HStack {
-                    Text("\(Int(torrent.progress * 100))% of \(formatSize(torrent.size))")
+                    Text("\(Int(torrent.progress * 100))% of \(Formatters.formatSize(torrent.size))")
                     
                     Spacer()
                     
                     if torrent.downloadSpeed > 0 {
-                        StatItem(icon: "arrow.down", value: formatSpeed(torrent.downloadSpeed), color: .green)
+                        StatItem(icon: "arrow.down", value: Formatters.formatSpeed(torrent.downloadSpeed), color: .green)
                     }
                     if torrent.uploadSpeed > 0 {
-                        StatItem(icon: "arrow.up", value: formatSpeed(torrent.uploadSpeed), color: .blue)
+                        StatItem(icon: "arrow.up", value: Formatters.formatSpeed(torrent.uploadSpeed), color: .blue)
                     }
                     
                     StatItem(icon: "person.2.fill", value: "\(torrent.numSeeds)", color: .green)
@@ -57,20 +59,6 @@ struct TorrentRow: View {
             )
         }
     }
-    
-    private func formatSize(_ size: Int64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: size)
-    }
-    
-    private func formatSpeed(_ speed: Int64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useMB, .useKB]
-        formatter.countStyle = .decimal
-        return "\(formatter.string(fromByteCount: speed))/s"
-    }
 }
 
 struct StatusBadge: View {
@@ -92,8 +80,8 @@ struct StatusBadge: View {
         switch torrentState {
         case .downloading: return .blue
         case .uploading, .stoppedUP: return .green
-        case .pausedDL, .pausedUP: return .gray
-        case .stalledDL, .stalledUP: return .orange
+        case .pausedDL, .pausedUP, .stoppedDL: return .orange
+        case .stalledDL, .stalledUP: return .yellow
         case .error, .missingFiles: return .red
         case .queuedDL, .queuedUP: return .indigo
         default: return .purple

@@ -27,7 +27,12 @@ enum TorrentState: String {
     }
     
     var isPaused: Bool {
-        self == .pausedDL || self == .pausedUP
+        switch self {
+        case .pausedDL, .pausedUP, .stoppedDL, .stoppedUP:
+            return true
+        default:
+            return false
+        }
     }
     
     var isForced: Bool {
@@ -42,7 +47,7 @@ enum TorrentState: String {
         case .pausedUP: return "Paused (UP)"
         case .stalledDL: return "Stalled (DL)"
         case .stalledUP: return "Stalled (UP)"
-        case .stoppedDL: return "Stopped (DL)"
+        case .stoppedDL: return "Paused (DL)"
         case .stoppedUP: return "Completed"
         case .error: return "Error"
         case .missingFiles: return "Missing Files"

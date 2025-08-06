@@ -1,3 +1,5 @@
+// BitProwler/Networking/BaseNetworkService.swift
+
 import Foundation
 
 class BaseNetworkService {
@@ -12,18 +14,27 @@ class BaseNetworkService {
     }
     
     internal func buildURL(from baseURL: String, path: String, queryItems: [URLQueryItem]? = nil) throws -> URL {
-        guard var urlComponents = URLComponents(string: baseURL) else {
+        guard let base = URL(string: baseURL) else {
             throw AppError.invalidURL
         }
         
-        urlComponents.path = (urlComponents.path as NSString).appendingPathComponent(path)
-        
-        if let queryItems = queryItems {
-            urlComponents.queryItems = queryItems
+        guard let finalURL = URL(string: path, relativeTo: base) else {
+            throw AppError.invalidURL
         }
         
-        guard let finalURL = urlComponents.url else {
-            throw AppError.invalidURL
+        if let queryItems = queryItems, !queryItems.isEmpty {
+            guard var components = URLComponents(url: finalURL, resolvingAgainstBaseURL: true) else {
+                throw AppError.invalidURL
+            }
+            
+            var allQueryItems = components.queryItems ?? []
+            allQueryItems.append(contentsOf: queryItems)
+            components.queryItems = allQueryItems
+            
+            guard let urlWithQuery = components.url else {
+                throw AppError.invalidURL
+            }
+            return urlWithQuery
         }
         
         return finalURL

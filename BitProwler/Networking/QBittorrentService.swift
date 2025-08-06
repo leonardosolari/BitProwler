@@ -1,3 +1,5 @@
+// BitProwler/Networking/QBittorrentService.swift
+
 import Foundation
 
 class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
@@ -56,29 +58,30 @@ class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
     }
     
     func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws {
-        var endpoint: String
+        let path: String
         var bodyParams: [String: String] = ["hashes": torrent.hash]
         
         switch action {
         case .togglePauseResume:
             let state = TorrentState(from: torrent.state)
-            endpoint = state.isPaused ? "resume" : "pause"
+            let endpoint = state.isPaused ? "start" : "stop"
+            path = "api/v2/torrents/\(endpoint)"
         case .delete:
-            endpoint = "delete"
+            path = "api/v2/torrents/delete"
             bodyParams["deleteFiles"] = String(deleteFiles)
         case .move:
             guard let location = location else { throw AppError.unknownError }
-            endpoint = "setLocation"
+            path = "api/v2/torrents/setLocation"
             bodyParams["location"] = location
         case .forceStart:
             guard let enable = forceStart else { throw AppError.unknownError }
-            endpoint = "setForceStart"
+            path = "api/v2/torrents/setForceStart"
             bodyParams["value"] = String(enable)
         case .recheck:
-            endpoint = "recheck"
+            path = "api/v2/torrents/recheck"
         }
         
-        let url = try buildURL(from: server.url, path: "api/v2/torrents/\(endpoint)")
+        let url = try buildURL(from: server.url, path: path)
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

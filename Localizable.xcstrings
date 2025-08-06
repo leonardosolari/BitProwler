@@ -1301,6 +1301,7 @@
       }
     },
     "Stopped (DL)" : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
