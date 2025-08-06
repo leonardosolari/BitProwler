@@ -12,11 +12,16 @@ struct TorrentActionsHeaderView: View {
                 .multilineTextAlignment(.center)
             
             HStack {
-                StatItem(icon: "tray.full.fill", value: formatSize(torrent.size), color: .secondary)
+                StatItem(icon: "tray.full.fill", value: Formatters.formatSize(torrent.size), color: .secondary)
                 Spacer()
+                
+                if torrent.downloadSpeed > 0 {
+                    StatItem(icon: "hourglass", value: Formatters.formatETA(torrent.eta), color: .cyan)
+                    Spacer()
+                }
+                
                 StatusBadge(state: torrent.state)
                 Spacer()
-                // CORREZIONE QUI: Aggiunto il parametro 'color'
                 StatItem(icon: "arrow.up.arrow.down.circle.fill", value: String(format: "%.2f", torrent.ratio), color: .secondary)
             }
             
@@ -25,12 +30,5 @@ struct TorrentActionsHeaderView: View {
         }
         .padding()
         .background(.regularMaterial)
-    }
-    
-    private func formatSize(_ size: Int64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: size)
     }
 }

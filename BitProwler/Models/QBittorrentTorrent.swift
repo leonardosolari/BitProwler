@@ -11,11 +11,12 @@ struct QBittorrentTorrent: Identifiable, Codable {
     let numSeeds: Int
     let numLeechs: Int
     let ratio: Double
+    let eta: Int
     
     var id: String { hash }
     
     enum CodingKeys: String, CodingKey {
-        case name, size, progress, state, hash, ratio
+        case name, size, progress, state, hash, ratio, eta
         case downloadSpeed = "dlspeed"
         case uploadSpeed = "upspeed"
         case numSeeds = "num_seeds"
