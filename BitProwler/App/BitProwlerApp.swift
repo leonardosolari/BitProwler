@@ -2,7 +2,7 @@ import SwiftUI
 
 @main
 struct BitProwlerApp: App {
-    @StateObject private var container = AppContainer()
+    @StateObject private var container = AppContainer.shared
 
     var body: some Scene {
         WindowGroup {

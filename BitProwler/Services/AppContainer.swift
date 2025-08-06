@@ -2,6 +2,9 @@ import Foundation
 
 @MainActor
 final class AppContainer: ObservableObject {
+
+    static let shared = AppContainer()
+
     let prowlarrService: ProwlarrAPIService = ProwlarrService()
     let qbittorrentService: QBittorrentAPIService = QBittorrentService()
 
