@@ -121,6 +121,7 @@ class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
         do {
             let testSession = URLSession(configuration: .ephemeral)
             try await login(to: server, using: testSession)
+            try await getApiVersion(on: server, using: testSession)
             return true
         } catch {
             return false
@@ -128,6 +129,11 @@ class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
     }
     
     // MARK: - Private QBittorrent Helpers
+    
+    private func getApiVersion(on server: QBittorrentServer, using session: URLSession) async throws {
+        let url = try buildURL(from: server.url, path: "api/v2/app/version")
+        _ = try await performRequest(URLRequest(url: url), using: session)
+    }
     
     private func login(to server: QBittorrentServer, using session: URLSession? = nil) async throws {
         let url = try buildURL(from: server.url, path: "api/v2/auth/login")
