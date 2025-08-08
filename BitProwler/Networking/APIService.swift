@@ -6,7 +6,7 @@ protocol ProwlarrAPIService {
 }
 
 protocol QBittorrentAPIService {
-    func getTorrents(on server: QBittorrentServer) async throws -> [QBittorrentTorrent]
+    func getTorrents(on server: QBittorrentServer, filter: String?, sort: String?) async throws -> [QBittorrentTorrent]
     func addTorrent(url: String, on server: QBittorrentServer) async throws
     func addTorrent(from source: TorrentSource, savePath: String, on server: QBittorrentServer) async throws
     func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws

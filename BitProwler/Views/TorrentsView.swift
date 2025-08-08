@@ -57,7 +57,7 @@ fileprivate struct TorrentsContentView: View {
     
     @ViewBuilder
     private var content: some View {
-        if viewModel.isLoading && viewModel.filteredTorrents.isEmpty {
+        if viewModel.isLoading && viewModel.torrents.isEmpty {
             ProgressView("Loading...")
         } else if let error = viewModel.error {
             ContentUnavailableView {
@@ -70,7 +70,7 @@ fileprivate struct TorrentsContentView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
-        } else if viewModel.filteredTorrents.isEmpty {
+        } else if viewModel.torrents.isEmpty {
             if !viewModel.searchText.isEmpty {
                 ContentUnavailableView.search(text: viewModel.searchText)
             } else {
@@ -81,7 +81,7 @@ fileprivate struct TorrentsContentView: View {
                 )
             }
         } else {
-            List(viewModel.filteredTorrents) { torrent in
+            List(viewModel.torrents) { torrent in
                 TorrentRow(torrent: torrent)
             }
             .listStyle(.plain)

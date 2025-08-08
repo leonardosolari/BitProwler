@@ -1,11 +1,20 @@
-// BitProwler/Networking/QBittorrentService.swift
-
 import Foundation
 
 class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
     
-    func getTorrents(on server: QBittorrentServer) async throws -> [QBittorrentTorrent] {
-        let url = try buildURL(from: server.url, path: "api/v2/torrents/info")
+    func getTorrents(on server: QBittorrentServer, filter: String? = nil, sort: String? = nil) async throws -> [QBittorrentTorrent] {
+        var queryItems = [URLQueryItem]()
+        
+        if let filter = filter, !filter.isEmpty {
+            queryItems.append(URLQueryItem(name: "filter", value: "all"))
+            queryItems.append(URLQueryItem(name: "query", value: filter))
+        }
+        
+        if let sort = sort {
+            queryItems.append(URLQueryItem(name: "sort", value: sort))
+        }
+        
+        let url = try buildURL(from: server.url, path: "api/v2/torrents/info", queryItems: queryItems)
         let (data, _) = try await performQBittorrentRequest(URLRequest(url: url), on: server)
         
         do {

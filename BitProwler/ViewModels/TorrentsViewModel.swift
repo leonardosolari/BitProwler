@@ -3,22 +3,18 @@ import Combine
 
 @MainActor
 class TorrentsViewModel: ObservableObject {
-    @Published var filteredTorrents: [QBittorrentTorrent] = []
+    @Published var torrents: [QBittorrentTorrent] = []
     @Published var isLoading = false
     @Published var error: String?
     
-    @Published var searchText = "" {
-        didSet { applyFiltersAndSorting() }
-    }
+    @Published var searchText = ""
     
     @Published var activeSortOption: TorrentSortOption {
         didSet {
-            applyFiltersAndSorting()
             saveSortOption()
+            Task { await fetchTorrents() }
         }
     }
-    
-    private var allTorrents: [QBittorrentTorrent] = []
     
     private var timer: Timer?
     private let updateInterval: TimeInterval = 2.0
@@ -26,6 +22,8 @@ class TorrentsViewModel: ObservableObject {
     
     private let apiService: QBittorrentAPIService
     private let sortOptionKey = "torrentsViewSortOption"
+    
+    private var searchDebounceTimer: AnyCancellable?
     
     init(apiService: QBittorrentAPIService) {
         self.apiService = apiService
@@ -36,6 +34,12 @@ class TorrentsViewModel: ObservableObject {
         } else {
             self.activeSortOption = .progress
         }
+        
+        searchDebounceTimer = $searchText
+            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                Task { await self?.fetchTorrents() }
+            }
     }
     
     func setup(with manager: GenericServerManager<QBittorrentServer>) {
@@ -62,45 +66,21 @@ class TorrentsViewModel: ObservableObject {
             return
         }
         
-        if !silent && allTorrents.isEmpty { isLoading = true }
+        if !silent && torrents.isEmpty { isLoading = true }
         
         do {
-            let fetchedTorrents = try await apiService.getTorrents(on: server)
-            self.allTorrents = fetchedTorrents
-            self.applyFiltersAndSorting()
+            let fetchedTorrents = try await apiService.getTorrents(
+                on: server,
+                filter: searchText,
+                sort: activeSortOption.apiKey
+            )
+            self.torrents = fetchedTorrents
             self.error = nil
         } catch {
             self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }
         
         if !silent { isLoading = false }
-    }
-    
-    private func applyFiltersAndSorting() {
-        var processedTorrents = allTorrents
-        
-        if !searchText.isEmpty {
-            processedTorrents = processedTorrents.filter {
-                $0.name.localizedCaseInsensitiveContains(searchText)
-            }
-        }
-        
-        switch activeSortOption {
-        case .name:
-            processedTorrents.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-        case .progress:
-            processedTorrents.sort { $0.progress > $1.progress }
-        case .downloadSpeed:
-            processedTorrents.sort { $0.downloadSpeed > $1.downloadSpeed }
-        case .uploadSpeed:
-            processedTorrents.sort { $0.uploadSpeed > $1.uploadSpeed }
-        case .size:
-            processedTorrents.sort { $0.size > $1.size }
-        case .state:
-            processedTorrents.sort { $0.state < $1.state }
-        }
-        
-        self.filteredTorrents = processedTorrents
     }
     
     private func saveSortOption() {

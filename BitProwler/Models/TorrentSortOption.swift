@@ -11,6 +11,17 @@ enum TorrentSortOption: String, CaseIterable, Identifiable, SortOptionable {
     
     var id: String { self.rawValue }
     
+    var apiKey: String {
+        switch self {
+        case .name: return "name"
+        case .progress: return "progress"
+        case .downloadSpeed: return "dlspeed"
+        case .uploadSpeed: return "upspeed"
+        case .size: return "size"
+        case .state: return "state"
+        }
+    }
+    
     var systemImage: String {
         switch self {
         case .name:
