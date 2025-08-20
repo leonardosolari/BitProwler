@@ -10,8 +10,15 @@ class SearchViewModel: ObservableObject {
     
     @Published var activeSortOption: SortOption {
         didSet {
-            applySorting()
+            applyFiltersAndSorting()
             saveSortOption()
+        }
+    }
+    
+    @Published var allIndexers: [String] = []
+    @Published var selectedIndexerIDs: Set<String> = [] {
+        didSet {
+            applyFiltersAndSorting()
         }
     }
     
@@ -48,7 +55,9 @@ class SearchViewModel: ObservableObject {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else {
             self.originalResults = []
-            self.applySorting()
+            self.allIndexers = []
+            self.selectedIndexerIDs = []
+            self.applyFiltersAndSorting()
             self.hasSearched = false
             return
         }
@@ -59,7 +68,9 @@ class SearchViewModel: ObservableObject {
         do {
             let results = try await apiService.search(query: trimmedQuery, on: prowlarrServer)
             self.originalResults = results
-            self.applySorting()
+            self.allIndexers = Array(Set(results.map { $0.indexer })).sorted()
+            self.selectedIndexerIDs = []
+            self.applyFiltersAndSorting()
             self.searchHistoryManager.addSearch(trimmedQuery)
             self.isLoading = false
         } catch {
@@ -67,27 +78,37 @@ class SearchViewModel: ObservableObject {
         }
     }
     
-    func applySorting() {
+    func applyFiltersAndSorting() {
+        var processedResults = originalResults
+        
         switch activeSortOption {
         case .default:
-            searchResults = originalResults
+            break
         case .seeders:
-            searchResults = originalResults.sorted { $0.seeders > $1.seeders }
+            processedResults.sort { $0.seeders > $1.seeders }
         case .size:
-            searchResults = originalResults.sorted { $0.size > $1.size }
+            processedResults.sort { $0.size > $1.size }
         case .recent:
             let formatter = ISO8601DateFormatter()
-            searchResults = originalResults.sorted {
+            processedResults.sort {
                 let date1 = formatter.date(from: $0.publishDate) ?? .distantPast
                 let date2 = formatter.date(from: $1.publishDate) ?? .distantPast
                 return date1 > date2
             }
         }
+        
+        if !selectedIndexerIDs.isEmpty {
+            processedResults = processedResults.filter { selectedIndexerIDs.contains($0.indexer) }
+        }
+        
+        searchResults = processedResults
     }
     
     private func handleError(_ error: Error) {
         self.originalResults = []
-        self.applySorting()
+        self.allIndexers = []
+        self.selectedIndexerIDs = []
+        self.applyFiltersAndSorting()
         self.errorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         self.showError = true
         self.isLoading = false

@@ -66,7 +66,7 @@ struct SearchView: View {
                 }
             }
             .onChange(of: viewModel.activeSortOption) {
-                viewModel.applySorting()
+                viewModel.applyFiltersAndSorting()
             }
         }
     }
@@ -193,6 +193,55 @@ private struct FilterMenuWrapper: View {
     }
 }
 
+private struct IndexerFilterMenu: View {
+    @ObservedObject var viewModel: SearchViewModel
+    
+    var body: some View {
+        Menu {
+            Button("Select All") {
+                viewModel.selectedIndexerIDs = Set(viewModel.allIndexers)
+            }
+            Button("Deselect All") {
+                viewModel.selectedIndexerIDs.removeAll()
+            }
+            
+            Divider()
+            
+            ForEach(viewModel.allIndexers, id: \.self) { indexer in
+                Button(action: {
+                    if viewModel.selectedIndexerIDs.contains(indexer) {
+                        viewModel.selectedIndexerIDs.remove(indexer)
+                    } else {
+                        viewModel.selectedIndexerIDs.insert(indexer)
+                    }
+                }) {
+                    HStack {
+                        if viewModel.selectedIndexerIDs.contains(indexer) {
+                            Image(systemName: "checkmark")
+                        }
+                        Text(indexer)
+                    }
+                }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: "square.stack.3d.up")
+                Text("Indexer")
+                if !viewModel.selectedIndexerIDs.isEmpty {
+                    Text("(\(viewModel.selectedIndexerIDs.count))")
+                        .fontWeight(.bold)
+                }
+            }
+            .font(.subheadline)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(Color.accentColor.opacity(0.1))
+            .cornerRadius(8)
+            .foregroundColor(.accentColor)
+        }
+    }
+}
+
 extension SearchView {
     var searchAndFilterBar: some View {
         VStack(spacing: 0) {
@@ -219,12 +268,19 @@ extension SearchView {
             .padding(.top)
             
             if !viewModel.searchResults.isEmpty {
-                HStack {
-                    FilterMenuWrapper(isNavigating: $isNavigatingToFilterManagement)
-                    Spacer()
-                    SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Ordina per")
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack {
+                        FilterMenuWrapper(isNavigating: $isNavigatingToFilterManagement)
+                        
+                        if !viewModel.allIndexers.isEmpty {
+                            IndexerFilterMenu(viewModel: viewModel)
+                        }
+                        
+                        Spacer()
+                        SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Ordina per")
+                    }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
                 .padding(.vertical, 8)
             }
         }
