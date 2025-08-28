@@ -51,7 +51,7 @@ struct TorrentDetailView: View {
                 .lineLimit(3)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            if result.downloadUrl != nil {
+            if result.isDownloadable {
                 Button(action: {
                     Task { await viewModel.downloadTorrent() }
                 }) {
@@ -123,23 +123,32 @@ struct TorrentDetailView: View {
         }
     }
     
+    @ViewBuilder
     private var linksSection: some View {
-        VStack(alignment: .leading) {
-            Text("Link")
-                .font(.headline)
-                .padding(.bottom, 4)
-            
-            VStack(spacing: 0) {
-                LinkRow(label: "GUID", value: result.id, canOpen: true)
-                if result.downloadUrl != nil {
-                    Divider()
-                    LinkRow(label: "Download Link", value: result.downloadUrl!, canOpen: false)
+        if result.releaseUrl != nil || result.effectiveMagnetUrl != nil {
+            VStack(alignment: .leading) {
+                Text("Link")
+                    .font(.headline)
+                    .padding(.bottom, 4)
+                
+                VStack(spacing: 0) {
+                    if let releaseUrl = result.releaseUrl {
+                        LinkRow(label: "Release Link", value: releaseUrl, canOpen: true)
+                    }
+                    
+                    if result.releaseUrl != nil && result.effectiveMagnetUrl != nil {
+                        Divider()
+                    }
+                    
+                    if let magnetUrl = result.effectiveMagnetUrl {
+                        LinkRow(label: "Magnet Link", value: magnetUrl, canOpen: false)
+                    }
                 }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color(.secondarySystemGroupedBackground))
+                .cornerRadius(10)
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-            .background(Color(.secondarySystemGroupedBackground))
-            .cornerRadius(10)
         }
     }
     
@@ -157,7 +166,7 @@ struct TorrentDetailView: View {
 }
 
 private struct LinkRow: View {
-    let label: String
+    let label: LocalizedStringKey
     let value: String
     let canOpen: Bool
     

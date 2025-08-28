@@ -17,7 +17,7 @@ class TorrentDetailViewModel: ObservableObject {
     }
 
     func downloadTorrent() async {
-        guard let server = qbittorrentManager.activeServer, let url = result.downloadUrl else {
+        guard let server = qbittorrentManager.activeServer, let url = result.primaryDownloadLink else {
             self.error = .serverNotConfigured
             return
         }

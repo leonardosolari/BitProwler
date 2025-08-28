@@ -7,8 +7,36 @@ struct TorrentResult: Identifiable, Codable {
     let seeders: Int
     let leechers: Int
     let downloadUrl: String?
+    let magnetUrl: String?
     let indexer: String
     let publishDate: String
+    
+    // MARK: - Computed Properties for UI Logic
+    
+    var isDownloadable: Bool {
+        return primaryDownloadLink != nil
+    }
+    
+    var primaryDownloadLink: String? {
+        return effectiveMagnetUrl ?? downloadUrl
+    }
+    
+    var releaseUrl: String? {
+        if id.starts(with: "http://") || id.starts(with: "https://") {
+            return id
+        }
+        return nil
+    }
+    
+    var effectiveMagnetUrl: String? {
+        if let magnet = magnetUrl, magnet.starts(with: "magnet:") {
+            return magnet
+        }
+        if id.starts(with: "magnet:") {
+            return id
+        }
+        return nil
+    }
     
     enum CodingKeys: String, CodingKey {
         case id = "guid"
@@ -17,6 +45,7 @@ struct TorrentResult: Identifiable, Codable {
         case seeders
         case leechers
         case downloadUrl
+        case magnetUrl
         case indexer
         case publishDate
     }
@@ -54,7 +83,8 @@ struct TorrentResult: Identifiable, Codable {
             leechers = 0
         }
         
-        downloadUrl = try? container.decode(String.self, forKey: .downloadUrl)
+        downloadUrl = try container.decodeIfPresent(String.self, forKey: .downloadUrl)
+        magnetUrl = try container.decodeIfPresent(String.self, forKey: .magnetUrl)
         indexer = try container.decode(String.self, forKey: .indexer)
         publishDate = try container.decode(String.self, forKey: .publishDate)
     }
