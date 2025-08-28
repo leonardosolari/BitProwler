@@ -1048,7 +1048,14 @@
       }
     },
     "Release Link" : {
-
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link Release"
+          }
+        }
+      }
     },
     "Results must contain all of the active filter keywords" : {
       "localizations" : {
