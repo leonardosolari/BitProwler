@@ -8,6 +8,7 @@ struct TorrentResult: Identifiable, Codable {
     let leechers: Int
     let downloadUrl: String?
     let magnetUrl: String?
+    let infoUrl: String?
     let indexer: String
     let publishDate: String
     
@@ -22,6 +23,9 @@ struct TorrentResult: Identifiable, Codable {
     }
     
     var releaseUrl: String? {
+        if let info = infoUrl, !info.isEmpty {
+            return info
+        }
         if id.starts(with: "http://") || id.starts(with: "https://") {
             return id
         }
@@ -46,6 +50,7 @@ struct TorrentResult: Identifiable, Codable {
         case leechers
         case downloadUrl
         case magnetUrl
+        case infoUrl
         case indexer
         case publishDate
     }
@@ -85,6 +90,7 @@ struct TorrentResult: Identifiable, Codable {
         
         downloadUrl = try container.decodeIfPresent(String.self, forKey: .downloadUrl)
         magnetUrl = try container.decodeIfPresent(String.self, forKey: .magnetUrl)
+        infoUrl = try container.decodeIfPresent(String.self, forKey: .infoUrl)
         indexer = try container.decode(String.self, forKey: .indexer)
         publishDate = try container.decode(String.self, forKey: .publishDate)
     }
