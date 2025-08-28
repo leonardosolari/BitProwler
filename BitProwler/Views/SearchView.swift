@@ -65,9 +65,6 @@ struct SearchView: View {
                         .shadow(radius: 10)
                 }
             }
-            .onChange(of: viewModel.activeSortOption) {
-                viewModel.applyFiltersAndSorting()
-            }
         }
     }
         
@@ -277,7 +274,7 @@ extension SearchView {
                         }
                         
                         Spacer()
-                        SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Ordina per")
+                        SearchResultSortMenu(viewModel: viewModel)
                     }
                     .padding(.horizontal)
                 }

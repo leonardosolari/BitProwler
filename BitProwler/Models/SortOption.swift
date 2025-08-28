@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-enum SortOption: String, CaseIterable, Identifiable, SortOptionable {
+enum SortOption: String, CaseIterable, Identifiable, SortOptionable, Codable {
     case `default` = "Default"
     case seeders = "Seeders"
     case size = "Size"

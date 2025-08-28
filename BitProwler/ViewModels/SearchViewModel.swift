@@ -8,10 +8,10 @@ class SearchViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var hasSearched = false
     
-    @Published var activeSortOption: SortOption {
+    @Published var activeSortDescriptor: SortDescriptor<SortOption> {
         didSet {
             applyFiltersAndSorting()
-            saveSortOption()
+            saveSortDescriptor()
         }
     }
     
@@ -27,7 +27,7 @@ class SearchViewModel: ObservableObject {
     let searchHistoryManager: SearchHistoryManager
     
     private var originalResults: [TorrentResult] = []
-    private let sortOptionKey = "searchViewSortOption"
+    private let sortDescriptorKey = "searchViewSortDescriptor"
     
     init(
         apiService: ProwlarrAPIService,
@@ -38,11 +38,11 @@ class SearchViewModel: ObservableObject {
         self.prowlarrManager = prowlarrManager
         self.searchHistoryManager = searchHistoryManager
         
-        if let savedSortOptionRaw = UserDefaults.standard.string(forKey: sortOptionKey),
-           let savedSortOption = SortOption(rawValue: savedSortOptionRaw) {
-            self.activeSortOption = savedSortOption
+        if let data = UserDefaults.standard.data(forKey: sortDescriptorKey),
+           let decodedDescriptor = try? JSONDecoder().decode(SortDescriptor<SortOption>.self, from: data) {
+            self.activeSortDescriptor = decodedDescriptor
         } else {
-            self.activeSortOption = .default
+            self.activeSortDescriptor = SortDescriptor(option: .seeders, direction: .descending)
         }
     }
     
@@ -78,22 +78,37 @@ class SearchViewModel: ObservableObject {
         }
     }
     
+    func selectSortOption(_ option: SortOption) {
+        if activeSortDescriptor.option == option {
+            activeSortDescriptor.direction.toggle()
+        } else {
+            activeSortDescriptor.option = option
+            activeSortDescriptor.direction = .descending
+        }
+    }
+    
     func applyFiltersAndSorting() {
         var processedResults = originalResults
         
-        switch activeSortOption {
+        let sortDirection = activeSortDescriptor.direction
+        
+        switch activeSortDescriptor.option {
         case .default:
             break
         case .seeders:
-            processedResults.sort { $0.seeders > $1.seeders }
+            processedResults.sort {
+                sortDirection == .descending ? $0.seeders > $1.seeders : $0.seeders < $1.seeders
+            }
         case .size:
-            processedResults.sort { $0.size > $1.size }
+            processedResults.sort {
+                sortDirection == .descending ? $0.size > $1.size : $0.size < $1.size
+            }
         case .recent:
             let formatter = ISO8601DateFormatter()
             processedResults.sort {
                 let date1 = formatter.date(from: $0.publishDate) ?? .distantPast
                 let date2 = formatter.date(from: $1.publishDate) ?? .distantPast
-                return date1 > date2
+                return sortDirection == .descending ? date1 > date2 : date1 < date2
             }
         }
         
@@ -114,7 +129,9 @@ class SearchViewModel: ObservableObject {
         self.isLoading = false
     }
     
-    private func saveSortOption() {
-        UserDefaults.standard.set(activeSortOption.rawValue, forKey: sortOptionKey)
+    private func saveSortDescriptor() {
+        if let data = try? JSONEncoder().encode(activeSortDescriptor) {
+            UserDefaults.standard.set(data, forKey: sortDescriptorKey)
+        }
     }
 }

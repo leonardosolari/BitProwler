@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-enum TorrentSortOption: String, CaseIterable, Identifiable, SortOptionable {
+enum TorrentSortOption: String, CaseIterable, Identifiable, SortOptionable, Codable {
     case name = "Name"
     case progress = "Progress"
     case downloadSpeed = "Download Speed"
