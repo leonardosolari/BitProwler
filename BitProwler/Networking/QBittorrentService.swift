@@ -102,6 +102,29 @@ class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
         _ = try await performQBittorrentRequest(request, on: server)
     }
     
+    func setFilePriority(for torrent: QBittorrentTorrent, on server: QBittorrentServer, fileIds: [String], priority: Int) async throws {
+        guard !fileIds.isEmpty else { return }
+        
+        let path = "api/v2/torrents/setFilePriority"
+        let url = try buildURL(from: server.url, path: path)
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        
+        let idsString = fileIds.joined(separator: "|")
+        let bodyParams: [String: String] = [
+            "hash": torrent.hash,
+            "id": idsString,
+            "priority": String(priority)
+        ]
+        
+        let bodyString = bodyParams.map { "\($0.key)=\($0.value)" }.joined(separator: "&")
+        request.httpBody = bodyString.data(using: .utf8)
+        
+        _ = try await performQBittorrentRequest(request, on: server)
+    }
+    
     func getFiles(for torrent: QBittorrentTorrent, on server: QBittorrentServer) async throws -> [TorrentFile] {
         let url = try buildURL(from: server.url, path: "api/v2/torrents/files", queryItems: [
             URLQueryItem(name: "hash", value: torrent.hash)

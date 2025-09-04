@@ -3,52 +3,75 @@ import SwiftUI
 struct TorrentFilesView: View {
     let torrent: QBittorrentTorrent
     @Environment(\.dismiss) var dismiss
-    @EnvironmentObject var container: AppContainer
     
-    @State private var files: [TorrentFile] = []
-    @State private var isLoading = false
+    @StateObject private var viewModel: TorrentFilesViewModel
     
     @State private var expandedFile: TorrentFile?
+    
+    init(torrent: QBittorrentTorrent, container: AppContainer) {
+        self.torrent = torrent
+        _viewModel = StateObject(wrappedValue: TorrentFilesViewModel(
+            torrent: torrent,
+            qbittorrentManager: container.qbittorrentManager,
+            apiService: container.qbittorrentService
+        ))
+    }
     
     var body: some View {
         NavigationView {
             Group {
-                if isLoading {
+                if viewModel.isLoading && viewModel.files.isEmpty {
                     ProgressView("Loading files...")
-                } else if files.isEmpty {
+                } else if let error = viewModel.error {
+                    ContentUnavailableView("Error", systemImage: "xmark.octagon", description: Text(error))
+                } else if viewModel.files.isEmpty {
                     ContentUnavailableView("No Files", systemImage: "doc.questionmark", description: Text("Could not find the files for this torrent"))
                 } else {
                     List {
-                        ForEach(files) { file in
-                            TorrentFileRow(file: file, expandedFile: $expandedFile)
+                        ForEach(Array(viewModel.files.enumerated()), id: \.element.id) { index, file in
+                            TorrentFileRow(
+                                file: file,
+                                isSelected: file.priority != 0,
+                                onToggle: { viewModel.toggleFileSelection(at: index) },
+                                expandedFile: $expandedFile
+                            )
                         }
                     }
                 }
             }
             .navigationTitle("Torrent Files")
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Error", isPresented: .constant(viewModel.error != nil), actions: {
+                Button("OK", role: .cancel) { viewModel.error = nil }
+            }, message: {
+                Text(viewModel.error ?? "An unknown error occurred.")
+            })
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
                 }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task {
+                            if await viewModel.saveChanges() {
+                                dismiss()
+                            }
+                        }
+                    }
+                    .disabled(viewModel.isLoading)
+                }
             }
             .task {
-                await fetchFiles()
+                await viewModel.fetchFiles()
             }
-        }
-    }
-    
-    private func fetchFiles() async {
-        guard let server = container.qbittorrentManager.activeServer else { return }
-        
-        isLoading = true
-        defer { isLoading = false }
-        
-        do {
-            let fetchedFiles = try await container.qbittorrentService.getFiles(for: torrent, on: server)
-            self.files = fetchedFiles
-        } catch {
-            print("Error fetching files: \(error.localizedDescription)")
+            .overlay {
+                if viewModel.isLoading && !viewModel.files.isEmpty {
+                    ProgressView()
+                        .padding()
+                        .background(.thinMaterial)
+                        .cornerRadius(10)
+                }
+            }
         }
     }
 }
@@ -56,6 +79,8 @@ struct TorrentFilesView: View {
 
 struct TorrentFileRow: View {
     let file: TorrentFile
+    let isSelected: Bool
+    let onToggle: () -> Void
     @Binding var expandedFile: TorrentFile?
     
     private var isExpanded: Bool {
@@ -65,6 +90,14 @@ struct TorrentFileRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
+                Button(action: onToggle) {
+                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(isSelected ? .accentColor : .secondary)
+                        .font(.title2)
+                        .frame(width: 30)
+                }
+                .buttonStyle(.plain)
+                
                 FileIconView(filename: file.name)
                 
                 Text(file.name)
@@ -85,7 +118,7 @@ struct TorrentFileRow: View {
         .padding(.vertical, 6)
         .contentShape(Rectangle())
         .onTapGesture {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                 expandedFile = isExpanded ? nil : file
             }
         }

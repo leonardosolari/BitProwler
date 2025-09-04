@@ -10,6 +10,7 @@ protocol QBittorrentAPIService {
     func addTorrent(url: String, on server: QBittorrentServer) async throws
     func addTorrent(from source: TorrentSource, savePath: String, on server: QBittorrentServer) async throws
     func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws
+    func setFilePriority(for torrent: QBittorrentTorrent, on server: QBittorrentServer, fileIds: [String], priority: Int) async throws
     func getFiles(for torrent: QBittorrentTorrent, on server: QBittorrentServer) async throws -> [TorrentFile]
     func testConnection(to server: QBittorrentServer) async -> Bool
 }

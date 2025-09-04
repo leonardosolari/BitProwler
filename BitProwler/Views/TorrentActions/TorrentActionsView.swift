@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TorrentActionsView: View {
     @StateObject private var viewModel: TorrentActionsViewModel
+    @EnvironmentObject var container: AppContainer
     
     @Environment(\.dismiss) var dismiss
     
@@ -63,7 +64,7 @@ struct TorrentActionsView: View {
                 LocationPickerView(viewModel: viewModel)
             }
             .sheet(isPresented: $showingFileList) {
-                TorrentFilesView(torrent: torrent)
+                TorrentFilesView(torrent: torrent, container: container)
             }
             .overlay {
                 if viewModel.isLoading {
