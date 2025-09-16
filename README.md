@@ -2,7 +2,7 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-iOS-lightgrey.svg)
-![iOS](https://img.shields.io/badge/iOS-18.1+-green.svg)
+![iOS](https://img.shields.io/badge/iOS-17.0+-green.svg)
 ![Swift](https://img.shields.io/badge/Swift-5.10+-orange.svg)
 ![Xcode](https://img.shields.io/badge/Xcode-16.1+-blue.svg)
 
