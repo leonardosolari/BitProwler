@@ -54,26 +54,27 @@ class TorrentFilesViewModel: ObservableObject {
             return false
         }
         
-        let filesToSkip = files.indices.filter {
-            files[$0].priority == 0 && originalFiles[$0].priority != 0
-        }.map { String(files[$0].index) }
-
-        let filesToDownload = files.indices.filter {
-            files[$0].priority != 0 && originalFiles[$0].priority == 0
-        }.map { String(files[$0].index) }
+        var changesByPriority: [Int: [String]] = [:]
         
-        guard !filesToSkip.isEmpty || !filesToDownload.isEmpty else {
+        for i in 0..<files.count {
+            let newPriority = files[i].priority
+            let originalPriority = originalFiles[i].priority
+            
+            if newPriority != originalPriority {
+                let fileId = String(files[i].index)
+                changesByPriority[newPriority, default: []].append(fileId)
+            }
+        }
+        
+        guard !changesByPriority.isEmpty else {
             return true
         }
 
         isLoading = true
         
         do {
-            if !filesToSkip.isEmpty {
-                try await apiService.setFilePriority(for: torrent, on: server, fileIds: filesToSkip, priority: 0)
-            }
-            if !filesToDownload.isEmpty {
-                try await apiService.setFilePriority(for: torrent, on: server, fileIds: filesToDownload, priority: 1)
+            for (priority, fileIds) in changesByPriority {
+                try await apiService.setFilePriority(for: torrent, on: server, fileIds: fileIds, priority: priority)
             }
             isLoading = false
             return true

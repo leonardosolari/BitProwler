@@ -96,8 +96,9 @@ class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
-        let bodyString = bodyParams.map { "\($0.key)=\($0.value)" }.joined(separator: "&")
-        request.httpBody = bodyString.data(using: .utf8)
+        var components = URLComponents()
+        components.queryItems = bodyParams.map { URLQueryItem(name: $0.key, value: $0.value) }
+        request.httpBody = components.percentEncodedQuery?.data(using: .utf8)
         
         _ = try await performQBittorrentRequest(request, on: server)
     }
@@ -105,22 +106,23 @@ class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
     func setFilePriority(for torrent: QBittorrentTorrent, on server: QBittorrentServer, fileIds: [String], priority: Int) async throws {
         guard !fileIds.isEmpty else { return }
         
-        let path = "api/v2/torrents/setFilePriority"
-        let url = try buildURL(from: server.url, path: path)
+        let url = try buildURL(from: server.url, path: "api/v2/torrents/filePrio")
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
         let idsString = fileIds.joined(separator: "|")
+        
         let bodyParams: [String: String] = [
             "hash": torrent.hash,
             "id": idsString,
             "priority": String(priority)
         ]
         
-        let bodyString = bodyParams.map { "\($0.key)=\($0.value)" }.joined(separator: "&")
-        request.httpBody = bodyString.data(using: .utf8)
+        var components = URLComponents()
+        components.queryItems = bodyParams.map { URLQueryItem(name: $0.key, value: $0.value) }
+        request.httpBody = components.percentEncodedQuery?.data(using: .utf8)
         
         _ = try await performQBittorrentRequest(request, on: server)
     }

@@ -14,33 +14,48 @@ class BaseNetworkService {
     }
     
     internal func buildURL(from baseURL: String, path: String, queryItems: [URLQueryItem]? = nil) throws -> URL {
-        guard let base = URL(string: baseURL) else {
+        let sanitizedBaseURL = baseURL.asSanitizedURL()
+        
+        guard let base = URL(string: sanitizedBaseURL) else {
             throw AppError.invalidURL
         }
         
-        guard let finalURL = URL(string: path, relativeTo: base) else {
+        guard var components = URLComponents(string: path) else {
             throw AppError.invalidURL
         }
         
         if let queryItems = queryItems, !queryItems.isEmpty {
-            guard var components = URLComponents(url: finalURL, resolvingAgainstBaseURL: true) else {
-                throw AppError.invalidURL
-            }
-            
-            var allQueryItems = components.queryItems ?? []
-            allQueryItems.append(contentsOf: queryItems)
-            components.queryItems = allQueryItems
-            
-            guard let urlWithQuery = components.url else {
-                throw AppError.invalidURL
-            }
-            return urlWithQuery
+            components.queryItems = (components.queryItems ?? []) + queryItems
+        }
+        
+        // Usiamo il costruttore che unisce un percorso relativo a un URL base.
+        guard let finalURL = components.url(relativeTo: base) else {
+            throw AppError.invalidURL
         }
         
         return finalURL
     }
     
+    private func logRequest(_ request: URLRequest) {
+        print("\n--- [NETWORK REQUEST] ---")
+        if let url = request.url {
+            print("URL: \(url.absoluteString)")
+        }
+        if let method = request.httpMethod {
+            print("Method: \(method)")
+        }
+        if let headers = request.allHTTPHeaderFields, !headers.isEmpty {
+            print("Headers: \(headers)")
+        }
+        if let body = request.httpBody, let bodyString = String(data: body, encoding: .utf8) {
+            print("Body: \(bodyString)")
+        }
+        print("--- [END REQUEST] ---\n")
+    }
+    
     internal func performRequest(_ request: URLRequest, using session: URLSession? = nil) async throws -> (Data, HTTPURLResponse) {
+        logRequest(request) // Aggiungiamo il log della richiesta
+        
         do {
             let sessionToUse = session ?? self.urlSession
             let (data, response) = try await sessionToUse.data(for: request)
@@ -48,6 +63,10 @@ class BaseNetworkService {
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw AppError.unknownError
             }
+            
+            print("\n--- [NETWORK RESPONSE] ---")
+            print("Status Code: \(httpResponse.statusCode)")
+            print("--- [END RESPONSE] ---\n")
             
             guard (200...299).contains(httpResponse.statusCode) else {
                 throw AppError.httpError(statusCode: httpResponse.statusCode)

@@ -1,6 +1,6 @@
 import Foundation
 
-enum AppError: Error, LocalizedError {
+enum AppError: Error, LocalizedError, Equatable {
     case invalidURL
     case networkError(underlyingError: Error)
     case httpError(statusCode: Int)
@@ -40,6 +40,27 @@ enum AppError: Error, LocalizedError {
             
         case .unknownError:
             return NSLocalizedString("An unknown error occurred.", comment: "Error message for an unexpected or unknown error")
+        }
+    }
+    
+    static func == (lhs: AppError, rhs: AppError) -> Bool {
+        switch (lhs, rhs) {
+        case (.invalidURL, .invalidURL):
+            return true
+        case (.networkError(let lhsError), .networkError(let rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        case (.httpError(let lhsCode), .httpError(let rhsCode)):
+            return lhsCode == rhsCode
+        case (.decodingError(let lhsError), .decodingError(let rhsError)):
+            return lhsError.localizedDescription == rhsError.localizedDescription
+        case (.authenticationFailed, .authenticationFailed):
+            return true
+        case (.serverNotConfigured, .serverNotConfigured):
+            return true
+        case (.unknownError, .unknownError):
+            return true
+        default:
+            return false
         }
     }
 }

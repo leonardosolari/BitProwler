@@ -5,6 +5,7 @@ struct TorrentDetailView: View {
     
     @Environment(\.dismiss) var dismiss
     @State private var showingCopiedAlert = false
+    @State private var isShowingErrorAlert = false
     
     private let result: TorrentResult
     
@@ -35,7 +36,12 @@ struct TorrentDetailView: View {
             } message: {
                 Text("The torrent has been successfully added to qBittorrent")
             }
-            .alert("Error", isPresented: .constant(viewModel.error != nil), actions: {
+            .onChange(of: viewModel.error) { error in
+                if error != nil {
+                    isShowingErrorAlert = true
+                }
+            }
+            .alert("Error", isPresented: $isShowingErrorAlert, actions: {
                 Button("OK", role: .cancel) { viewModel.error = nil }
             }, message: {
                 Text(viewModel.error?.errorDescription ?? "Si è verificato un errore sconosciuto.")
