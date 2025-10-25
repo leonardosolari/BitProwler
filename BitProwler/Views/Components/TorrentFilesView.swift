@@ -7,6 +7,7 @@ struct TorrentFilesView: View {
     @StateObject private var viewModel: TorrentFilesViewModel
     
     @State private var expandedFile: TorrentFile?
+    @State private var isShowingErrorAlert = false
     
     init(torrent: QBittorrentTorrent, container: AppContainer) {
         self.torrent = torrent
@@ -41,7 +42,12 @@ struct TorrentFilesView: View {
             }
             .navigationTitle("Torrent Files")
             .navigationBarTitleDisplayMode(.inline)
-            .alert("Error", isPresented: .constant(viewModel.error != nil), actions: {
+            .onChange(of: viewModel.error) { error in
+                if error != nil {
+                    isShowingErrorAlert = true
+                }
+            }
+            .alert("Error", isPresented: $isShowingErrorAlert, actions: {
                 Button("OK", role: .cancel) { viewModel.error = nil }
             }, message: {
                 Text(viewModel.error ?? "An unknown error occurred.")
