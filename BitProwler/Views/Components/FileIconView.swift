@@ -2,6 +2,12 @@ import SwiftUI
 
 struct FileIconView: View {
     let filename: String
+    let isDirectory: Bool
+
+    init(filename: String, isDirectory: Bool = false) {
+        self.filename = filename
+        self.isDirectory = isDirectory
+    }
     
     var body: some View {
         Image(systemName: iconNameForFile())
@@ -11,6 +17,10 @@ struct FileIconView: View {
     }
     
     private func iconNameForFile() -> String {
+        if isDirectory {
+            return "folder.fill"
+        }
+        
         let fileExtension = (filename as NSString).pathExtension.lowercased()
         
         switch fileExtension {

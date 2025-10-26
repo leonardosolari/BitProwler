@@ -36,25 +36,7 @@ class BaseNetworkService {
         return finalURL
     }
     
-    private func logRequest(_ request: URLRequest) {
-        print("\n--- [NETWORK REQUEST] ---")
-        if let url = request.url {
-            print("URL: \(url.absoluteString)")
-        }
-        if let method = request.httpMethod {
-            print("Method: \(method)")
-        }
-        if let headers = request.allHTTPHeaderFields, !headers.isEmpty {
-            print("Headers: \(headers)")
-        }
-        if let body = request.httpBody, let bodyString = String(data: body, encoding: .utf8) {
-            print("Body: \(bodyString)")
-        }
-        print("--- [END REQUEST] ---\n")
-    }
-    
     internal func performRequest(_ request: URLRequest, using session: URLSession? = nil) async throws -> (Data, HTTPURLResponse) {
-        logRequest(request) // Aggiungiamo il log della richiesta
         
         do {
             let sessionToUse = session ?? self.urlSession

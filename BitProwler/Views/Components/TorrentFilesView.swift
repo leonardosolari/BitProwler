@@ -6,7 +6,6 @@ struct TorrentFilesView: View {
     
     @StateObject private var viewModel: TorrentFilesViewModel
     
-    @State private var expandedFile: TorrentFile?
     @State private var isShowingErrorAlert = false
     
     init(torrent: QBittorrentTorrent, container: AppContainer) {
@@ -21,22 +20,17 @@ struct TorrentFilesView: View {
     var body: some View {
         NavigationView {
             Group {
-                if viewModel.isLoading && viewModel.files.isEmpty {
+                if viewModel.isLoading && viewModel.fileTree.isEmpty {
                     ProgressView("Loading files...")
                 } else if let error = viewModel.error {
                     ContentUnavailableView("Error", systemImage: "xmark.octagon", description: Text(error))
-                } else if viewModel.files.isEmpty {
+                } else if viewModel.fileTree.isEmpty {
                     ContentUnavailableView("No Files", systemImage: "doc.questionmark", description: Text("Could not find the files for this torrent"))
                 } else {
-                    List {
-                        ForEach(Array(viewModel.files.enumerated()), id: \.element.id) { index, file in
-                            TorrentFileRow(
-                                file: file,
-                                isSelected: file.priority != 0,
-                                onToggle: { viewModel.toggleFileSelection(at: index) },
-                                expandedFile: $expandedFile
-                            )
-                        }
+                    List(viewModel.fileTree, id: \.self, children: \.children) { node in
+                        TorrentFileNodeRow(node: node, onToggle: {
+                            viewModel.toggleNodeSelection(node)
+                        })
                     }
                 }
             }
@@ -71,7 +65,7 @@ struct TorrentFilesView: View {
                 await viewModel.fetchFiles()
             }
             .overlay {
-                if viewModel.isLoading && !viewModel.files.isEmpty {
+                if viewModel.isLoading && !viewModel.fileTree.isEmpty {
                     ProgressView()
                         .padding()
                         .background(.thinMaterial)
@@ -82,57 +76,46 @@ struct TorrentFilesView: View {
     }
 }
 
-
-struct TorrentFileRow: View {
-    let file: TorrentFile
-    let isSelected: Bool
+struct TorrentFileNodeRow: View {
+    let node: TorrentFileNode
     let onToggle: () -> Void
-    @Binding var expandedFile: TorrentFile?
     
-    private var isExpanded: Bool {
-        expandedFile == file
-    }
-    
+    @State private var isExpanded: Bool = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
+            HStack(alignment: .center) {
                 Button(action: onToggle) {
-                    Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(isSelected ? .accentColor : .secondary)
+                    Image(systemName: node.isSelected ? "checkmark.circle.fill" : "circle")
+                        .foregroundColor(node.isSelected ? .accentColor : .secondary)
                         .font(.title2)
                         .frame(width: 30)
                 }
                 .buttonStyle(.plain)
                 
-                FileIconView(filename: file.name)
+                FileIconView(filename: node.name, isDirectory: node.children != nil)
                 
-                Text(file.name)
+                Text(node.name)
                     .font(.body)
-                    .lineLimit(isExpanded ? nil : 1)
+                    .lineLimit(1)
                 
                 Spacer()
                 
-                Text(Formatters.formatSize(file.size))
+                Text(Formatters.formatSize(node.totalSize))
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .padding(.leading, 4)
             }
             
-            ProgressView(value: file.progress)
-                .tint(file.progress >= 1.0 ? .green : .blue)
+            ProgressView(value: node.totalProgress)
+                .tint(node.totalProgress >= 1.0 ? .green : .blue)
         }
         .padding(.vertical, 6)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                expandedFile = isExpanded ? nil : file
-            }
-        }
         .contextMenu {
             Button(action: {
-                UIPasteboard.general.string = file.name
+                UIPasteboard.general.string = node.name
             }) {
-                Label("Copy File Name", systemImage: "doc.on.doc")
+                Label("Copy Name", systemImage: "doc.on.doc")
             }
         }
     }

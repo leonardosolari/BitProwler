@@ -244,6 +244,7 @@
       }
     },
     "Copy File Name" : {
+      "extractionState" : "stale",
       "localizations" : {
         "it" : {
           "stringUnit" : {
@@ -252,6 +253,9 @@
           }
         }
       }
+    },
+    "Copy Name" : {
+
     },
     "Could not find the files for this torrent" : {
       "localizations" : {
