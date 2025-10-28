@@ -39,7 +39,7 @@ struct AddTorrentView: View {
                 .sheet(isPresented: $showingPathManager) {
                     PathManagementView()
                 }
-                .onChange(of: viewModel.shouldDismiss) { shouldDismiss in
+                .onChange(of: viewModel.shouldDismiss) { _, shouldDismiss in
                     if shouldDismiss {
                         dismiss()
                     }

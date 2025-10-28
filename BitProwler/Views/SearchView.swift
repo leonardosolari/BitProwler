@@ -39,17 +39,14 @@ struct SearchView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 0) {
                 searchAndFilterBar
                 mainContent
             }
-            .background(
-                NavigationLink(
-                    destination: FilterManagementView(),
-                    isActive: $isNavigatingToFilterManagement
-                ) { EmptyView() }
-            )
+            .navigationDestination(isPresented: $isNavigatingToFilterManagement) {
+                FilterManagementView()
+            }
             .navigationTitle("Search Torrents")
             .alert("Error", isPresented: $viewModel.showError) {
                 Button("OK", role: .cancel) {}

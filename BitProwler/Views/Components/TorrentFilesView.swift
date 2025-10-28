@@ -36,7 +36,7 @@ struct TorrentFilesView: View {
             }
             .navigationTitle("Torrent Files")
             .navigationBarTitleDisplayMode(.inline)
-            .onChange(of: viewModel.error) { error in
+            .onChange(of: viewModel.error) { _, error in
                 if error != nil {
                     isShowingErrorAlert = true
                 }

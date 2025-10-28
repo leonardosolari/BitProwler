@@ -36,7 +36,7 @@ struct TorrentDetailView: View {
             } message: {
                 Text("The torrent has been successfully added to qBittorrent")
             }
-            .onChange(of: viewModel.error) { error in
+            .onChange(of: viewModel.error) { _, error in
                 if error != nil {
                     isShowingErrorAlert = true
                 }
