@@ -243,19 +243,15 @@
         }
       }
     },
-    "Copy File Name" : {
-      "extractionState" : "stale",
+    "Copy Name" : {
       "localizations" : {
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copia Nome File"
+            "value" : "Copia Nome"
           }
         }
       }
-    },
-    "Copy Name" : {
-
     },
     "Could not find the files for this torrent" : {
       "localizations" : {
@@ -1097,6 +1093,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Salva"
+          }
+        }
+      }
+    },
+    "Save Path" : {
+      "localizations" : {
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salva Percorso"
           }
         }
       }

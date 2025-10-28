@@ -12,6 +12,7 @@ struct QBittorrentTorrent: Identifiable, Codable {
     let numLeechs: Int
     let ratio: Double
     let eta: Int
+    let savePath: String
     
     var id: String { hash }
     
@@ -21,5 +22,6 @@ struct QBittorrentTorrent: Identifiable, Codable {
         case uploadSpeed = "upspeed"
         case numSeeds = "num_seeds"
         case numLeechs = "num_leechs"
+        case savePath = "save_path"
     }
 }

@@ -69,6 +69,18 @@ struct TorrentActionsHeaderView: View {
                         }
                     }
                 }
+                
+                GridRow(alignment: .top) {
+                    VStack(alignment: .leading) {
+                        Label("Save Path", systemImage: "folder.fill")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(torrent.savePath)
+                            .font(.footnote)
+                            .lineLimit(2)
+                    }
+                    .gridCellColumns(2)
+                }
             }
             .padding(.horizontal)
 

@@ -249,6 +249,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		598081262E3408FB006945D9 /* Increment Build Number */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
