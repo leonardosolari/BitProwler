@@ -46,10 +46,6 @@ class BaseNetworkService {
                 throw AppError.unknownError
             }
             
-            print("\n--- [NETWORK RESPONSE] ---")
-            print("Status Code: \(httpResponse.statusCode)")
-            print("--- [END RESPONSE] ---\n")
-            
             guard (200...299).contains(httpResponse.statusCode) else {
                 throw AppError.httpError(statusCode: httpResponse.statusCode)
             }
