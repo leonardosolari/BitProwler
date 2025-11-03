@@ -22,15 +22,11 @@ struct SortMenu<T: SortOptionable>: View {
                 }
             }
         } label: {
-            HStack(spacing: 4) {
-                Image(systemName: activeSortOption.systemImage)
+            Label {
                 activeSortOption.localizedLabel
+            } icon: {
+                Image(systemName: activeSortOption.systemImage)
             }
-            .font(.subheadline)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(Color.accentColor.opacity(0.1))
-            .cornerRadius(8)
         }
     }
 }
