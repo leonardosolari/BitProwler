@@ -8,11 +8,13 @@ struct TorrentsViewModelTests {
     var mockService: MockQBittorrentService
     var mockManager: GenericServerManager<QBittorrentServer>
     var viewModel: TorrentsViewModel
+    var testDefaults: UserDefaults // Teniamo un riferimento per verifica extra se necessario
     
     init() {
         mockService = MockQBittorrentService()
         
-        let testDefaults = UserDefaults(suiteName: "TorrentsViewModelTests")!
+        // Creiamo UserDefaults isolati per questo test suite
+        testDefaults = UserDefaults(suiteName: "TorrentsViewModelTests")!
         testDefaults.removePersistentDomain(forName: "TorrentsViewModelTests")
         
         let mockKeychain = MockKeychain()
@@ -24,7 +26,8 @@ struct TorrentsViewModelTests {
         let server = QBittorrentServer(name: "QB", url: "http://qb", username: "admin", password: "pw")
         mockManager.addServer(server)
         
-        viewModel = TorrentsViewModel(apiService: mockService)
+        // INIEZIONE IMPORTANTE: passiamo testDefaults qui
+        viewModel = TorrentsViewModel(apiService: mockService, userDefaults: testDefaults)
         viewModel.setup(with: mockManager)
     }
     
@@ -72,11 +75,14 @@ struct TorrentsViewModelTests {
     }
     
     @Test func sortOptionChangeTriggersFetch() async {
+        // Verify default (Dovrebbe essere .progress perché testDefaults è vuoto all'avvio)
         #expect(viewModel.activeSortOption == .progress)
         
+        // Change sort
         viewModel.activeSortOption = .downloadSpeed
         
-        
+        // Verify persistence
         #expect(viewModel.activeSortOption == .downloadSpeed)
+        #expect(testDefaults.string(forKey: "torrentsViewSortOption") == "Download Speed")
     }
 }

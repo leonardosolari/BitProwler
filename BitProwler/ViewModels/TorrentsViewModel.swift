@@ -21,14 +21,16 @@ class TorrentsViewModel: ObservableObject {
     private var qbittorrentManager: GenericServerManager<QBittorrentServer>?
     
     private let apiService: QBittorrentAPIService
+    private let userDefaults: UserDefaults
     private let sortOptionKey = "torrentsViewSortOption"
     
     private var searchDebounceTimer: AnyCancellable?
     
-    init(apiService: QBittorrentAPIService) {
+    init(apiService: QBittorrentAPIService, userDefaults: UserDefaults = .standard) {
         self.apiService = apiService
+        self.userDefaults = userDefaults
         
-        if let savedSortOptionRaw = UserDefaults.standard.string(forKey: sortOptionKey),
+        if let savedSortOptionRaw = userDefaults.string(forKey: sortOptionKey),
            let savedSortOption = TorrentSortOption(rawValue: savedSortOptionRaw) {
             self.activeSortOption = savedSortOption
         } else {
@@ -84,6 +86,6 @@ class TorrentsViewModel: ObservableObject {
     }
     
     private func saveSortOption() {
-        UserDefaults.standard.set(activeSortOption.rawValue, forKey: sortOptionKey)
+        userDefaults.set(activeSortOption.rawValue, forKey: sortOptionKey)
     }
 }
