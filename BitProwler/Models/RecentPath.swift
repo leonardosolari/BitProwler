@@ -12,7 +12,7 @@ struct RecentPath: Codable, Identifiable, Hashable {
     }
 }
 
-class RecentPathsManager: ObservableObject {
+final class RecentPathsManager: ObservableObject {
     @Published var paths: [RecentPath] {
         didSet {
             savePaths()
@@ -20,9 +20,11 @@ class RecentPathsManager: ObservableObject {
     }
     
     private let maxPaths = 15
+    private let userDefaults: UserDefaults
     
-    init() {
-        if let data = UserDefaults.standard.data(forKey: "recentPaths"),
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        if let data = userDefaults.data(forKey: "recentPaths"),
            let decoded = try? JSONDecoder().decode([RecentPath].self, from: data) {
             self.paths = decoded.sorted { $0.lastUsed > $1.lastUsed }
         } else {
@@ -32,7 +34,7 @@ class RecentPathsManager: ObservableObject {
     
     private func savePaths() {
         if let encoded = try? JSONEncoder().encode(paths) {
-            UserDefaults.standard.set(encoded, forKey: "recentPaths")
+            userDefaults.set(encoded, forKey: "recentPaths")
         }
     }
     

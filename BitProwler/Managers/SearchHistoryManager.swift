@@ -1,23 +1,24 @@
 import Foundation
 
-class SearchHistoryManager: ObservableObject {
+final class SearchHistoryManager: ObservableObject {
     @Published private(set) var searches: [String] = []
     
     private let historyKey = "searchHistory"
     private let maxHistoryCount = 15
+    private let userDefaults: UserDefaults
     
-    init() {
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
         loadSearches()
     }
     
     private func loadSearches() {
-        self.searches = UserDefaults.standard.stringArray(forKey: historyKey) ?? []
+        self.searches = userDefaults.stringArray(forKey: historyKey) ?? []
     }
     
     private func saveSearches() {
-        UserDefaults.standard.set(searches, forKey: historyKey)
+        userDefaults.set(searches, forKey: historyKey)
     }
-    
     
     func addSearch(_ term: String) {
         let trimmedTerm = term.trimmingCharacters(in: .whitespacesAndNewlines)

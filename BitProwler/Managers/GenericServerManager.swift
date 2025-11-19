@@ -1,14 +1,14 @@
 import Foundation
 import SwiftUI
 
-class GenericServerManager<T: Server>: ObservableObject {
+final class GenericServerManager<T: Server>: ObservableObject {
     @Published var servers: [T] {
         didSet { saveServers() }
     }
     
     @Published var activeServerId: UUID? {
         didSet {
-            UserDefaults.standard.set(activeServerId?.uuidString, forKey: activeServerKey)
+            userDefaults.set(activeServerId?.uuidString, forKey: activeServerKey)
         }
     }
     
@@ -26,15 +26,18 @@ class GenericServerManager<T: Server>: ObservableObject {
         return server
     }
     
-    private let keychainService = KeychainService()
+    private let keychainService: KeychainProtocol
+    private let userDefaults: UserDefaults
     private let activeServerKey: String
     
-    init() {
+    init(keychainService: KeychainProtocol = KeychainService(), userDefaults: UserDefaults = .standard) {
+        self.keychainService = keychainService
+        self.userDefaults = userDefaults
         self.activeServerKey = "active_\(T.serversKey)_id"
         self.servers = []
         loadServers()
         
-        if let idString = UserDefaults.standard.string(forKey: activeServerKey),
+        if let idString = userDefaults.string(forKey: activeServerKey),
            let id = UUID(uuidString: idString),
            servers.contains(where: { $0.id == id }) {
             self.activeServerId = id
@@ -44,7 +47,7 @@ class GenericServerManager<T: Server>: ObservableObject {
     }
     
     private func loadServers() {
-        guard let data = UserDefaults.standard.data(forKey: T.serversKey),
+        guard let data = userDefaults.data(forKey: T.serversKey),
               var loadedServers = try? JSONDecoder().decode([T].self, from: data) else {
             self.servers = []
             return
@@ -66,7 +69,7 @@ class GenericServerManager<T: Server>: ObservableObject {
         }
         
         if let encoded = try? JSONEncoder().encode(serversToSave) {
-            UserDefaults.standard.set(encoded, forKey: T.serversKey)
+            userDefaults.set(encoded, forKey: T.serversKey)
         }
     }
     
