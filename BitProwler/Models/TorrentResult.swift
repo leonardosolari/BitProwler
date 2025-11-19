@@ -41,6 +41,19 @@ struct TorrentResult: Identifiable, Codable {
         }
         return nil
     }
+
+    init(id: String, title: String, size: Int64, seeders: Int, leechers: Int, downloadUrl: String?, magnetUrl: String?, infoUrl: String?, indexer: String, publishDate: String) {
+        self.id = id
+        self.title = title
+        self.size = size
+        self.seeders = seeders
+        self.leechers = leechers
+        self.downloadUrl = downloadUrl
+        self.magnetUrl = magnetUrl
+        self.infoUrl = infoUrl
+        self.indexer = indexer
+        self.publishDate = publishDate
+    }
     
     enum CodingKeys: String, CodingKey {
         case id = "guid"
