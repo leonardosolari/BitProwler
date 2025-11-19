@@ -38,6 +38,6 @@ final class AppContainer: ObservableObject {
         self.recentPathsManager = RecentPathsManager(userDefaults: userDefaults)
         self.searchHistoryManager = SearchHistoryManager(userDefaults: userDefaults)
         
-        self.filterViewModel = FilterViewModel()
+        self.filterViewModel = FilterViewModel(userDefaults: userDefaults)
     }
 }

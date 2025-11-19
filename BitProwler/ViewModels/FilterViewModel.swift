@@ -14,19 +14,23 @@ final class FilterViewModel: ObservableObject {
     
     @Published var filterLogic: FilterLogic {
         didSet {
-            UserDefaults.standard.set(filterLogic.rawValue, forKey: "filterLogic")
+            userDefaults.set(filterLogic.rawValue, forKey: "filterLogic")
         }
     }
     
-    init() {
-        if let savedLogicRaw = UserDefaults.standard.string(forKey: "filterLogic"),
+    private let userDefaults: UserDefaults
+    
+    init(userDefaults: UserDefaults = .standard) {
+        self.userDefaults = userDefaults
+        
+        if let savedLogicRaw = userDefaults.string(forKey: "filterLogic"),
            let savedLogic = FilterLogic(rawValue: savedLogicRaw) {
             self.filterLogic = savedLogic
         } else {
             self.filterLogic = .and
         }
         
-        if let data = UserDefaults.standard.data(forKey: "torrentFilters"),
+        if let data = userDefaults.data(forKey: "torrentFilters"),
            let decodedFilters = try? JSONDecoder().decode([TorrentFilter].self, from: data) {
             self.filters = decodedFilters
         } else {
@@ -36,7 +40,7 @@ final class FilterViewModel: ObservableObject {
     
     private func saveFilters() {
         if let encoded = try? JSONEncoder().encode(filters) {
-            UserDefaults.standard.set(encoded, forKey: "torrentFilters")
+            userDefaults.set(encoded, forKey: "torrentFilters")
         }
     }
     
