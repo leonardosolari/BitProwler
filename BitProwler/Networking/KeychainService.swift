@@ -1,7 +1,13 @@
 import Foundation
 import KeychainAccess
 
-class KeychainService {
+protocol KeychainProtocol {
+    func save(key: String, value: String) throws
+    func get(key: String) -> String?
+    func delete(key: String) throws
+}
+
+final class KeychainService: KeychainProtocol {
     private let keychain: Keychain
     
     init() {
