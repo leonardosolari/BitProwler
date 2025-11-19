@@ -12,4 +12,12 @@ struct TorrentFile: Identifiable, Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case index, name, size, progress, priority
     }
+    
+    init(index: Int, name: String, size: Int64, progress: Double, priority: Int) {
+        self.index = index
+        self.name = name
+        self.size = size
+        self.progress = progress
+        self.priority = priority
+    }
 }
