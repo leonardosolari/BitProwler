@@ -2,6 +2,10 @@ import Foundation
 
 class ProwlarrService: BaseNetworkService, ProwlarrAPIService {
     
+    override init(urlSession: URLSession = .shared) {
+        super.init(urlSession: urlSession)
+    }
+    
     func search(query: String, on server: ProwlarrServer) async throws -> [TorrentResult] {
         let url = try buildURL(from: server.url, path: "api/v1/search", queryItems: [
             URLQueryItem(name: "query", value: query)

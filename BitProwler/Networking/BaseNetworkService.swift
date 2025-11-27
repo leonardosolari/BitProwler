@@ -1,16 +1,11 @@
-// BitProwler/Networking/BaseNetworkService.swift
-
 import Foundation
 
 class BaseNetworkService {
     
     internal let urlSession: URLSession
     
-    init() {
-        let configuration = URLSessionConfiguration.default
-        configuration.httpCookieAcceptPolicy = .always
-        configuration.httpCookieStorage = HTTPCookieStorage.shared
-        self.urlSession = URLSession(configuration: configuration)
+    init(urlSession: URLSession = .shared) {
+        self.urlSession = urlSession
     }
     
     internal func buildURL(from baseURL: String, path: String, queryItems: [URLQueryItem]? = nil) throws -> URL {
@@ -28,7 +23,6 @@ class BaseNetworkService {
             components.queryItems = (components.queryItems ?? []) + queryItems
         }
         
-        // Usiamo il costruttore che unisce un percorso relativo a un URL base.
         guard let finalURL = components.url(relativeTo: base) else {
             throw AppError.invalidURL
         }

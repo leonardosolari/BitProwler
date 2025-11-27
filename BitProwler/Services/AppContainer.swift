@@ -22,8 +22,8 @@ final class AppContainer: ObservableObject {
         self.keychainService = KeychainService()
         self.userDefaults = .standard
         
-        self.prowlarrService = ProwlarrService()
-        self.qbittorrentService = QBittorrentService()
+        self.prowlarrService = ProwlarrService(urlSession: .shared)
+        self.qbittorrentService = QBittorrentService(urlSession: .shared)
         
         self.prowlarrManager = GenericServerManager<ProwlarrServer>(
             keychainService: keychainService,

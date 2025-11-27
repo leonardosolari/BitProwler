@@ -2,6 +2,10 @@ import Foundation
 
 class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
     
+    override init(urlSession: URLSession = .shared) {
+        super.init(urlSession: urlSession)
+    }
+    
     func getTorrents(on server: QBittorrentServer, filter: String? = nil, sort: String? = nil) async throws -> [QBittorrentTorrent] {
         var queryItems = [URLQueryItem]()
         
@@ -152,8 +156,6 @@ class QBittorrentService: BaseNetworkService, QBittorrentAPIService {
             return false
         }
     }
-    
-    // MARK: - Private QBittorrent Helpers
     
     private func getApiVersion(on server: QBittorrentServer, using session: URLSession) async throws {
         let url = try buildURL(from: server.url, path: "api/v2/app/version")
