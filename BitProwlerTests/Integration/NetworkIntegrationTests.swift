@@ -166,4 +166,104 @@ struct NetworkIntegrationTests {
             return false
         }
     }
+    
+    @Test func qbittorrentAddTorrentRequestConstruction() async throws {
+        let magnetLink = "magnet:?xt=urn:btih:test"
+        
+        MockURLProtocol.requestHandler = { request in
+            guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/add") else {
+                throw URLError(.badURL)
+            }
+            
+            guard let bodyData = request.getBodyData(), let bodyString = String(data: bodyData, encoding: .utf8) else {
+                throw URLError(.zeroByteResource)
+            }
+            
+            if !bodyString.contains("Content-Disposition: form-data; name=\"urls\"") ||
+               !bodyString.contains(magnetLink) {
+                throw URLError(.cannotParseResponse)
+            }
+            
+            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, "Ok.".data(using: .utf8)!)
+        }
+        
+        let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
+        try await qbittorrentService.addTorrent(url: magnetLink, on: server)
+    }
+    
+    @Test func qbittorrentPerformActionRequestConstruction() async throws {
+        let torrent = QBittorrentTorrent(name: "Test", size: 0, progress: 0, downloadSpeed: 0, uploadSpeed: 0, state: "dl", hash: "hash123", numSeeds: 0, numLeechs: 0, ratio: 0, eta: 0, savePath: "")
+        
+        MockURLProtocol.requestHandler = { request in
+            guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/delete") else {
+                throw URLError(.badURL)
+            }
+            
+            guard let bodyData = request.getBodyData(), let bodyString = String(data: bodyData, encoding: .utf8) else {
+                throw URLError(.zeroByteResource)
+            }
+            
+            if !bodyString.contains("hashes=hash123") || !bodyString.contains("deleteFiles=true") {
+                throw URLError(.cannotParseResponse)
+            }
+            
+            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, Data())
+        }
+        
+        let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
+        try await qbittorrentService.performAction(.delete, for: torrent, on: server, location: nil, deleteFiles: true, forceStart: nil)
+    }
+
+    @Test func qbittorrentAddFileRequestConstruction() async throws {
+        let fileData = "dummy_file_content".data(using: .utf8)!
+        let fileName = "test.torrent"
+        
+        MockURLProtocol.requestHandler = { request in
+            guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/add") else {
+                throw URLError(.badURL)
+            }
+            
+            guard let bodyData = request.getBodyData(), let bodyString = String(data: bodyData, encoding: .utf8) else {
+                throw URLError(.zeroByteResource)
+            }
+            
+            if !bodyString.contains("Content-Disposition: form-data; name=\"torrents\"; filename=\"\(fileName)\"") ||
+               !bodyString.contains("Content-Type: application/x-bittorrent") ||
+               !bodyString.contains("dummy_file_content") {
+                throw URLError(.cannotParseResponse)
+            }
+            
+            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, "Ok.".data(using: .utf8)!)
+        }
+        
+        let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
+        
+        let source = TorrentSource.file(data: fileData, filename: fileName)
+        try await qbittorrentService.addTorrent(from: source, savePath: "/downloads", on: server)
+    }
+}
+
+fileprivate extension URLRequest {
+    func getBodyData() -> Data? {
+        if let body = self.httpBody { return body }
+        guard let stream = self.httpBodyStream else { return nil }
+        
+        stream.open()
+        defer { stream.close() }
+        
+        var data = Data()
+        let bufferSize = 1024
+        var buffer = [UInt8](repeating: 0, count: bufferSize)
+        
+        while true {
+            let bytesRead = stream.read(&buffer, maxLength: bufferSize)
+            if bytesRead <= 0 { break }
+            data.append(buffer, count: bytesRead)
+        }
+        
+        return data
+    }
 }
