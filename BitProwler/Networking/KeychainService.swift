@@ -5,14 +5,16 @@ protocol KeychainProtocol {
     func save(key: String, value: String) throws
     func get(key: String) -> String?
     func delete(key: String) throws
+    func clearAll() throws
 }
 
 final class KeychainService: KeychainProtocol {
     private let keychain: Keychain
     
-    init() {
+    init(service: String? = nil) {
         let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.leosolari.utm.BitProwler"
-        self.keychain = Keychain(service: bundleIdentifier)
+        let serviceName = service ?? bundleIdentifier
+        self.keychain = Keychain(service: serviceName)
     }
     
     func save(key: String, value: String) throws {
@@ -25,5 +27,9 @@ final class KeychainService: KeychainProtocol {
     
     func delete(key: String) throws {
         try keychain.remove(key)
+    }
+    
+    func clearAll() throws {
+        try keychain.removeAll()
     }
 }

@@ -22,4 +22,11 @@ final class MockKeychain: KeychainProtocol {
         }
         storage.removeValue(forKey: key)
     }
+    
+    func clearAll() throws {
+        if shouldThrowError {
+            throw AppError.unknownError
+        }
+        storage.removeAll()
+    }
 }
