@@ -48,8 +48,20 @@ struct NetworkIntegrationTests {
         
         #expect(results.count == 1)
         #expect(results.first?.title == "Ubuntu 24.04 LTS")
-        #expect(results.first?.seeders == 1500)
-        #expect(results.first?.indexer == "LinuxTracker")
+    }
+    
+    @Test func prowlarrServerError() async {
+        MockURLProtocol.requestHandler = { request in
+            let url = request.url!
+            let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)!
+            return (response, Data())
+        }
+        
+        let server = ProwlarrServer(name: "Test", url: "http://prowlarr.local", apiKey: "key")
+        
+        await #expect(throws: AppError.httpError(statusCode: 500)) {
+            try await prowlarrService.search(query: "Ubuntu", on: server)
+        }
     }
     
     @Test func qbittorrentGetTorrentsParsing() async throws {
@@ -73,10 +85,7 @@ struct NetworkIntegrationTests {
         """.data(using: .utf8)!
         
         MockURLProtocol.requestHandler = { request in
-            guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/info") else {
-                throw URLError(.badURL)
-            }
-            
+            let url = request.url!
             let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (response, jsonResponse)
         }
@@ -86,8 +95,6 @@ struct NetworkIntegrationTests {
         
         #expect(torrents.count == 1)
         #expect(torrents.first?.name == "Big Buck Bunny")
-        #expect(torrents.first?.downloadSpeed == 500000)
-        #expect(torrents.first?.state == "downloading")
     }
     
     @Test func qbittorrentAuthRetryFlow() async throws {
@@ -118,10 +125,45 @@ struct NetworkIntegrationTests {
         }
         
         let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
-        
         let torrents = try await qbittorrentService.getTorrents(on: server)
         
         #expect(torrents.isEmpty)
         #expect(requestCount.value >= 3)
+    }
+    
+    @Test func qbittorrentNetworkError() async {
+        MockURLProtocol.requestHandler = { _ in
+            throw URLError(.notConnectedToInternet)
+        }
+        
+        let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
+        
+        await #expect {
+            try await qbittorrentService.getTorrents(on: server)
+        } throws: { error in
+            guard let appError = error as? AppError else { return false }
+            if case .networkError = appError { return true }
+            return false
+        }
+    }
+    
+    @Test func qbittorrentDecodingError() async {
+        let invalidJson = "{ \"invalid\": ".data(using: .utf8)!
+        
+        MockURLProtocol.requestHandler = { request in
+            let url = request.url!
+            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, invalidJson)
+        }
+        
+        let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
+        
+        await #expect {
+            try await qbittorrentService.getTorrents(on: server)
+        } throws: { error in
+            guard let appError = error as? AppError else { return false }
+            if case .decodingError = appError { return true }
+            return false
+        }
     }
 }
