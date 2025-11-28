@@ -4,67 +4,19 @@ import Foundation
 
 @MainActor
 @Suite(.serialized)
-struct NetworkIntegrationTests {
+struct QBittorrentIntegrationTests {
     
-    let prowlarrService: ProwlarrService
     let qbittorrentService: QBittorrentService
     
     init() {
         let configuration = URLSessionConfiguration.ephemeral
-        configuration.protocolClasses = [MockURLProtocol.self]
+        configuration.protocolClasses = [QBittorrentMockURLProtocol.self]
         let mockSession = URLSession(configuration: configuration)
         
-        self.prowlarrService = ProwlarrService(urlSession: mockSession)
         self.qbittorrentService = QBittorrentService(urlSession: mockSession)
     }
     
-    @Test func prowlarrSearchParsing() async throws {
-        let jsonResponse = """
-        [
-            {
-                "guid": "magnet:?xt=urn:btih:123456",
-                "title": "Ubuntu 24.04 LTS",
-                "size": 4500000000,
-                "seeders": 1500,
-                "leechers": 50,
-                "indexer": "LinuxTracker",
-                "publishDate": "2025-01-01T12:00:00Z",
-                "infoUrl": "https://linux.org"
-            }
-        ]
-        """.data(using: .utf8)!
-        
-        MockURLProtocol.requestHandler = { request in
-            guard let url = request.url, url.absoluteString.contains("/api/v1/search") else {
-                throw URLError(.badURL)
-            }
-            
-            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
-            return (response, jsonResponse)
-        }
-        
-        let server = ProwlarrServer(name: "Test", url: "http://prowlarr.local", apiKey: "key")
-        let results = try await prowlarrService.search(query: "Ubuntu", on: server)
-        
-        #expect(results.count == 1)
-        #expect(results.first?.title == "Ubuntu 24.04 LTS")
-    }
-    
-    @Test func prowlarrServerError() async {
-        MockURLProtocol.requestHandler = { request in
-            let url = request.url!
-            let response = HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)!
-            return (response, Data())
-        }
-        
-        let server = ProwlarrServer(name: "Test", url: "http://prowlarr.local", apiKey: "key")
-        
-        await #expect(throws: AppError.httpError(statusCode: 500)) {
-            try await prowlarrService.search(query: "Ubuntu", on: server)
-        }
-    }
-    
-    @Test func qbittorrentGetTorrentsParsing() async throws {
+    @Test func getTorrentsParsing() async throws {
         let jsonResponse = """
         [
             {
@@ -84,7 +36,7 @@ struct NetworkIntegrationTests {
         ]
         """.data(using: .utf8)!
         
-        MockURLProtocol.requestHandler = { request in
+        QBittorrentMockURLProtocol.requestHandler = { request in
             let url = request.url!
             let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (response, jsonResponse)
@@ -97,11 +49,11 @@ struct NetworkIntegrationTests {
         #expect(torrents.first?.name == "Big Buck Bunny")
     }
     
-    @Test func qbittorrentAuthRetryFlow() async throws {
+    @Test func authRetryFlow() async throws {
         class Counter { var value = 0 }
         let requestCount = Counter()
         
-        MockURLProtocol.requestHandler = { request in
+        QBittorrentMockURLProtocol.requestHandler = { request in
             requestCount.value += 1
             let url = request.url!
             
@@ -131,8 +83,8 @@ struct NetworkIntegrationTests {
         #expect(requestCount.value >= 3)
     }
     
-    @Test func qbittorrentNetworkError() async {
-        MockURLProtocol.requestHandler = { _ in
+    @Test func networkError() async {
+        QBittorrentMockURLProtocol.requestHandler = { _ in
             throw URLError(.notConnectedToInternet)
         }
         
@@ -147,10 +99,10 @@ struct NetworkIntegrationTests {
         }
     }
     
-    @Test func qbittorrentDecodingError() async {
+    @Test func decodingError() async {
         let invalidJson = "{ \"invalid\": ".data(using: .utf8)!
         
-        MockURLProtocol.requestHandler = { request in
+        QBittorrentMockURLProtocol.requestHandler = { request in
             let url = request.url!
             let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
             return (response, invalidJson)
@@ -167,10 +119,10 @@ struct NetworkIntegrationTests {
         }
     }
     
-    @Test func qbittorrentAddTorrentRequestConstruction() async throws {
+    @Test func addTorrentMagnetRequestConstruction() async throws {
         let magnetLink = "magnet:?xt=urn:btih:test"
         
-        MockURLProtocol.requestHandler = { request in
+        QBittorrentMockURLProtocol.requestHandler = { request in
             guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/add") else {
                 throw URLError(.badURL)
             }
@@ -179,7 +131,6 @@ struct NetworkIntegrationTests {
                 throw URLError(.zeroByteResource)
             }
             
-            // Multipart form data check remains string-based as parsing it is complex without helpers
             if !bodyString.contains("Content-Disposition: form-data; name=\"urls\"") ||
                !bodyString.contains(magnetLink) {
                 throw URLError(.cannotParseResponse)
@@ -193,10 +144,39 @@ struct NetworkIntegrationTests {
         try await qbittorrentService.addTorrent(url: magnetLink, on: server)
     }
     
-    @Test func qbittorrentDeleteActionRequestConstruction() async throws {
+    @Test func addTorrentFileRequestConstruction() async throws {
+        let fileData = "dummy_file_content".data(using: .utf8)!
+        let fileName = "test.torrent"
+        
+        QBittorrentMockURLProtocol.requestHandler = { request in
+            guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/add") else {
+                throw URLError(.badURL)
+            }
+            
+            guard let bodyData = request.getBodyData(), let bodyString = String(data: bodyData, encoding: .utf8) else {
+                throw URLError(.zeroByteResource)
+            }
+            
+            if !bodyString.contains("Content-Disposition: form-data; name=\"torrents\"; filename=\"\(fileName)\"") ||
+               !bodyString.contains("Content-Type: application/x-bittorrent") ||
+               !bodyString.contains("dummy_file_content") {
+                throw URLError(.cannotParseResponse)
+            }
+            
+            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+            return (response, "Ok.".data(using: .utf8)!)
+        }
+        
+        let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
+        
+        let source = TorrentSource.file(data: fileData, filename: fileName)
+        try await qbittorrentService.addTorrent(from: source, savePath: "/downloads", on: server)
+    }
+    
+    @Test func deleteActionRequestConstruction() async throws {
         let torrent = QBittorrentTorrent(name: "Test", size: 0, progress: 0, downloadSpeed: 0, uploadSpeed: 0, state: "dl", hash: "hash123", numSeeds: 0, numLeechs: 0, ratio: 0, eta: 0, savePath: "")
         
-        MockURLProtocol.requestHandler = { request in
+        QBittorrentMockURLProtocol.requestHandler = { request in
             guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/delete") else {
                 throw URLError(.badURL)
             }
@@ -205,7 +185,6 @@ struct NetworkIntegrationTests {
                 throw URLError(.zeroByteResource)
             }
             
-            // Parse body parameters
             var components = URLComponents()
             components.percentEncodedQuery = bodyString
             let queryItems = components.queryItems ?? []
@@ -225,10 +204,10 @@ struct NetworkIntegrationTests {
         try await qbittorrentService.performAction(.delete, for: torrent, on: server, location: nil, deleteFiles: true, forceStart: nil)
     }
     
-    @Test func qbittorrentTogglePauseRequestConstruction() async throws {
+    @Test func togglePauseRequestConstruction() async throws {
         let torrent = QBittorrentTorrent(name: "Test", size: 0, progress: 0, downloadSpeed: 0, uploadSpeed: 0, state: "downloading", hash: "hash123", numSeeds: 0, numLeechs: 0, ratio: 0, eta: 0, savePath: "")
         
-        MockURLProtocol.requestHandler = { request in
+        QBittorrentMockURLProtocol.requestHandler = { request in
             guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/stop") else {
                 throw URLError(.badURL)
             }
@@ -253,11 +232,11 @@ struct NetworkIntegrationTests {
         try await qbittorrentService.performAction(.togglePauseResume, for: torrent, on: server, location: nil, deleteFiles: false, forceStart: nil)
     }
     
-    @Test func qbittorrentSetLocationRequestConstruction() async throws {
+    @Test func setLocationRequestConstruction() async throws {
         let torrent = QBittorrentTorrent(name: "Test", size: 0, progress: 0, downloadSpeed: 0, uploadSpeed: 0, state: "dl", hash: "hash123", numSeeds: 0, numLeechs: 0, ratio: 0, eta: 0, savePath: "")
         let newLocation = "/new/path"
         
-        MockURLProtocol.requestHandler = { request in
+        QBittorrentMockURLProtocol.requestHandler = { request in
             guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/setLocation") else {
                 throw URLError(.badURL)
             }
@@ -266,7 +245,6 @@ struct NetworkIntegrationTests {
                 throw URLError(.zeroByteResource)
             }
             
-            // Parse body parameters to be robust against order and encoding
             var components = URLComponents()
             components.percentEncodedQuery = bodyString
             let queryItems = components.queryItems ?? []
@@ -274,7 +252,6 @@ struct NetworkIntegrationTests {
             let hashes = queryItems.first(where: { $0.name == "hashes" })?.value
             let location = queryItems.first(where: { $0.name == "location" })?.value
             
-            // Note: URLComponents automatically decodes percent-encoded values (e.g. %2F -> /)
             if hashes != "hash123" || location != "/new/path" {
                 throw URLError(.cannotParseResponse)
             }
@@ -287,12 +264,12 @@ struct NetworkIntegrationTests {
         try await qbittorrentService.performAction(.move, for: torrent, on: server, location: newLocation, deleteFiles: false, forceStart: nil)
     }
     
-    @Test func qbittorrentSetFilePriorityRequestConstruction() async throws {
+    @Test func setFilePriorityRequestConstruction() async throws {
         let torrent = QBittorrentTorrent(name: "Test", size: 0, progress: 0, downloadSpeed: 0, uploadSpeed: 0, state: "dl", hash: "hash123", numSeeds: 0, numLeechs: 0, ratio: 0, eta: 0, savePath: "")
         let fileIds = ["1", "2", "5"]
         let priority = 7
         
-        MockURLProtocol.requestHandler = { request in
+        QBittorrentMockURLProtocol.requestHandler = { request in
             guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/filePrio") else {
                 throw URLError(.badURL)
             }
@@ -319,56 +296,5 @@ struct NetworkIntegrationTests {
         
         let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
         try await qbittorrentService.setFilePriority(for: torrent, on: server, fileIds: fileIds, priority: priority)
-    }
-
-    @Test func qbittorrentAddFileRequestConstruction() async throws {
-        let fileData = "dummy_file_content".data(using: .utf8)!
-        let fileName = "test.torrent"
-        
-        MockURLProtocol.requestHandler = { request in
-            guard let url = request.url, url.absoluteString.contains("/api/v2/torrents/add") else {
-                throw URLError(.badURL)
-            }
-            
-            guard let bodyData = request.getBodyData(), let bodyString = String(data: bodyData, encoding: .utf8) else {
-                throw URLError(.zeroByteResource)
-            }
-            
-            if !bodyString.contains("Content-Disposition: form-data; name=\"torrents\"; filename=\"\(fileName)\"") ||
-               !bodyString.contains("Content-Type: application/x-bittorrent") ||
-               !bodyString.contains("dummy_file_content") {
-                throw URLError(.cannotParseResponse)
-            }
-            
-            let response = HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
-            return (response, "Ok.".data(using: .utf8)!)
-        }
-        
-        let server = QBittorrentServer(name: "QB", url: "http://qb.local", username: "u", password: "p")
-        
-        let source = TorrentSource.file(data: fileData, filename: fileName)
-        try await qbittorrentService.addTorrent(from: source, savePath: "/downloads", on: server)
-    }
-}
-
-fileprivate extension URLRequest {
-    func getBodyData() -> Data? {
-        if let body = self.httpBody { return body }
-        guard let stream = self.httpBodyStream else { return nil }
-        
-        stream.open()
-        defer { stream.close() }
-        
-        var data = Data()
-        let bufferSize = 1024
-        var buffer = [UInt8](repeating: 0, count: bufferSize)
-        
-        while true {
-            let bytesRead = stream.read(&buffer, maxLength: bufferSize)
-            if bytesRead <= 0 { break }
-            data.append(buffer, count: bytesRead)
-        }
-        
-        return data
     }
 }
