@@ -76,6 +76,47 @@ struct TorrentFilesViewModelTests {
         let success = await viewModel.saveChanges()
         
         #expect(success == true)
-        // No API call should be made because priority didn't change
+    }
+    
+    @Test func toggleFolderSelectionUpdatesChildren() async {
+        let files = [
+            TorrentFile(index: 0, name: "Folder/A.txt", size: 10, progress: 0, priority: 0),
+            TorrentFile(index: 1, name: "Folder/B.txt", size: 10, progress: 0, priority: 0)
+        ]
+        mockService.filesToReturn = files
+        await viewModel.fetchFiles()
+        
+        guard let folderNode = viewModel.fileTree.first(where: { $0.name == "Folder" }) else {
+            #expect(Bool(false), "Folder node not found")
+            return
+        }
+        
+        viewModel.toggleNodeSelection(folderNode)
+        
+        let updatedFolderNode = viewModel.fileTree.first(where: { $0.name == "Folder" })
+        #expect(updatedFolderNode?.isSelected == true)
+        
+        if let children = updatedFolderNode?.children {
+            for child in children {
+                #expect(child.isSelected == true)
+            }
+        }
+    }
+    
+    @Test func saveChangesWithUpdates() async {
+        let file = TorrentFile(index: 0, name: "A.txt", size: 10, progress: 0, priority: 0)
+        mockService.filesToReturn = [file]
+        await viewModel.fetchFiles()
+        
+        guard let node = viewModel.fileTree.first else {
+            #expect(Bool(false), "Node not found")
+            return
+        }
+        
+        viewModel.toggleNodeSelection(node)
+        
+        let success = await viewModel.saveChanges()
+        
+        #expect(success == true)
     }
 }

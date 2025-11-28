@@ -1,8 +1,6 @@
 import Foundation
 
-class MockURLProtocol: URLProtocol {
-    static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
-    
+class BaseMockURLProtocol: URLProtocol {
     override class func canInit(with request: URLRequest) -> Bool {
         return true
     }
@@ -11,8 +9,10 @@ class MockURLProtocol: URLProtocol {
         return request
     }
     
-    override func startLoading() {
-        guard let handler = MockURLProtocol.requestHandler else {
+    override func stopLoading() {}
+    
+    func startLoading(with handler: ((URLRequest) throws -> (HTTPURLResponse, Data))?) {
+        guard let handler = handler else {
             client?.urlProtocol(self, didFailWithError: URLError(.badURL))
             return
         }
@@ -26,6 +26,20 @@ class MockURLProtocol: URLProtocol {
             client?.urlProtocol(self, didFailWithError: error)
         }
     }
+}
+
+final class ProwlarrMockURLProtocol: BaseMockURLProtocol {
+    static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
     
-    override func stopLoading() {}
+    override func startLoading() {
+        startLoading(with: ProwlarrMockURLProtocol.requestHandler)
+    }
+}
+
+final class QBittorrentMockURLProtocol: BaseMockURLProtocol {
+    static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
+    
+    override func startLoading() {
+        startLoading(with: QBittorrentMockURLProtocol.requestHandler)
+    }
 }
