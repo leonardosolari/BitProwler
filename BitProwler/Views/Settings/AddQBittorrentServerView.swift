@@ -44,7 +44,9 @@ struct AddQBittorrentServerView: View {
             TextField("Username", text: $username)
                 .autocapitalization(.none)
                 .autocorrectionDisabled()
+                .accessibilityIdentifier("server_username_field")
             SecureField("Password", text: $password)
+                .accessibilityIdentifier("server_password_field")
         }
     }
 }

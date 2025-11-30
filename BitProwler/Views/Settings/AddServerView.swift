@@ -14,11 +14,14 @@ struct AddServerView<T: Server, Content: View>: View {
             Form {
                 Section(header: Text("Server Informations")) {
                     TextField("Name", text: $viewModel.name)
+                        .accessibilityIdentifier("server_name_field")
+                    
                     TextField("Server URL", text: $viewModel.url)
                         .autocapitalization(.none)
                         .keyboardType(.URL)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
+                        .accessibilityIdentifier("server_url_field")
                     
                     specificFields()
                 }
@@ -32,9 +35,11 @@ struct AddServerView<T: Server, Content: View>: View {
                         }
                     }
                     .disabled(!viewModel.canSave || viewModel.isTesting)
+                    .accessibilityIdentifier("server_test_button")
                     
                     Button("Save", action: { onSave { dismiss() } })
                         .disabled(!viewModel.canSave)
+                        .accessibilityIdentifier("server_save_button")
                 }
             }
             .navigationTitle(title)

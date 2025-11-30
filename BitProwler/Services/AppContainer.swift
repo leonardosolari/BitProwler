@@ -19,11 +19,21 @@ final class AppContainer: ObservableObject {
     private let userDefaults: UserDefaults
     
     init() {
-        self.keychainService = KeychainService()
-        self.userDefaults = .standard
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("-UITesting")
         
-        self.prowlarrService = ProwlarrService(urlSession: .shared)
-        self.qbittorrentService = QBittorrentService(urlSession: .shared)
+        if isUITesting {
+            self.userDefaults = UserDefaults(suiteName: "UITestParams") ?? .standard
+            self.userDefaults.removePersistentDomain(forName: "UITestParams")
+            
+            self.keychainService = StubKeychain()
+            self.prowlarrService = StubProwlarrService()
+            self.qbittorrentService = StubQBittorrentService()
+        } else {
+            self.userDefaults = .standard
+            self.keychainService = KeychainService()
+            self.prowlarrService = ProwlarrService(urlSession: .shared)
+            self.qbittorrentService = QBittorrentService(urlSession: .shared)
+        }
         
         self.prowlarrManager = GenericServerManager<ProwlarrServer>(
             keychainService: keychainService,

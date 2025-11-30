@@ -60,6 +60,7 @@ struct SearchView: View {
                         .background(.thinMaterial)
                         .cornerRadius(10)
                         .shadow(radius: 10)
+                        .accessibilityIdentifier("loading_indicator")
                 }
             }
         }
@@ -73,6 +74,7 @@ struct SearchView: View {
             } description: {
                 Text("Go to settings to configure a Prowlarr server")
             }
+            .accessibilityIdentifier("search_empty_state_no_server")
         } else if viewModel.showError {
             ContentUnavailableView {
                 Label("Search Error", systemImage: "exclamationmark.triangle")
@@ -108,6 +110,7 @@ struct SearchView: View {
                     }
                 }
             }
+            .accessibilityIdentifier("search_history_list")
         } else if finalResults.isEmpty && viewModel.hasSearched {
             ContentUnavailableView(
                 "No Results",
@@ -116,6 +119,7 @@ struct SearchView: View {
                                "No torrents found for '\(searchText)'" :
                                "No results match the active filters")
             )
+            .accessibilityIdentifier("search_empty_state_no_results")
         } else if !viewModel.hasSearched {
             ContentUnavailableView(
                 "Search Torrents",
@@ -127,6 +131,7 @@ struct SearchView: View {
                 TorrentResultRow(result: result)
             }
             .listStyle(.plain)
+            .accessibilityIdentifier("search_results_list")
         }
     }
     
@@ -184,6 +189,7 @@ private struct FilterMenuWrapper: View {
             .cornerRadius(8)
             .foregroundColor(.accentColor)
         }
+        .accessibilityIdentifier("filters_menu_button")
     }
 }
 
@@ -245,6 +251,7 @@ extension SearchView {
                     .focused($isSearchFieldFocused)
                     .onSubmit(executeSearch)
                     .submitLabel(.search)
+                    .accessibilityIdentifier("search_field")
                 
                 Button(action: {
                     isSearchFieldFocused = false
@@ -257,6 +264,7 @@ extension SearchView {
                         .cornerRadius(8)
                 }
                 .disabled(searchText.isEmpty)
+                .accessibilityIdentifier("search_button")
             }
             .padding(.horizontal)
             .padding(.top)

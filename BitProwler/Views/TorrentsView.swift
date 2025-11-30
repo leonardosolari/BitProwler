@@ -70,6 +70,7 @@ fileprivate struct TorrentsContentView: View {
                 }
                 .buttonStyle(.borderedProminent)
             }
+            .accessibilityIdentifier("torrents_error_view")
         } else if viewModel.torrents.isEmpty {
             if !viewModel.searchText.isEmpty {
                 ContentUnavailableView.search(text: viewModel.searchText)
@@ -79,6 +80,7 @@ fileprivate struct TorrentsContentView: View {
                     systemImage: "arrow.down.circle",
                     description: Text("There are no active torrents at the moment")
                 )
+                .accessibilityIdentifier("torrents_empty_state")
             }
         } else {
             List(viewModel.torrents) { torrent in
@@ -88,6 +90,7 @@ fileprivate struct TorrentsContentView: View {
             .refreshable {
                 await viewModel.fetchTorrents()
             }
+            .accessibilityIdentifier("torrents_list")
         }
     }
     
@@ -113,6 +116,7 @@ fileprivate struct TorrentsContentView: View {
                         .shadow(radius: 4, y: 2)
                 }
                 .padding()
+                .accessibilityIdentifier("add_torrent_button")
             }
         }
     }

@@ -18,6 +18,7 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .accessibilityIdentifier("link_prowlarr_servers")
                     
                     NavigationLink(destination: QBittorrentServerListView()) {
                         HStack {
@@ -29,6 +30,7 @@ struct SettingsView: View {
                             }
                         }
                     }
+                    .accessibilityIdentifier("link_qbittorrent_servers")
                 }
                 
                 Section("Management") {
@@ -54,6 +56,7 @@ struct SettingsView: View {
                 .listRowInsets(EdgeInsets())
             }
             .navigationTitle("Settings")
+            .accessibilityIdentifier("settings_list")
         }
     }
 }

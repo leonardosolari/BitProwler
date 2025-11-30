@@ -39,6 +39,7 @@ struct AddProwlarrServerView: View {
             }
         ) {
             SecureField("API Key", text: $apiKey)
+                .accessibilityIdentifier("server_apikey_field")
         }
     }
 }

@@ -7,16 +7,19 @@ struct ContentView: View {
                 .tabItem {
                     Label("Search", systemImage: "magnifyingglass")
                 }
+                .accessibilityIdentifier("tab_search")
             
             TorrentsView()
                 .tabItem {
                     Label("Torrent", systemImage: "arrow.down.circle")
                 }
+                .accessibilityIdentifier("tab_torrents")
             
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
+                .accessibilityIdentifier("tab_settings")
         }
     }
 }
