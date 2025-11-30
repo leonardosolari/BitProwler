@@ -25,6 +25,7 @@ class StubProwlarrService: ProwlarrAPIService {
     var connectionResult = true
     
     func search(query: String, on server: ProwlarrServer) async throws -> [TorrentResult] {
+        try await Task.sleep(nanoseconds: 3_900_000_000)
         return try searchResult.get()
     }
     
@@ -40,6 +41,7 @@ class StubQBittorrentService: QBittorrentAPIService {
     var actionShouldSucceed = true
     
     func getTorrents(on server: QBittorrentServer, filter: String?, sort: String?) async throws -> [QBittorrentTorrent] {
+        try await Task.sleep(nanoseconds: 3_900_000_000)
         return try torrentsResult.get()
     }
     

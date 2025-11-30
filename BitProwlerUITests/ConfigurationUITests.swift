@@ -1,20 +1,10 @@
 import XCTest
 
-final class BitProwlerUITests: XCTestCase {
+@MainActor
+final class ConfigurationUITests: BitProwlerUITestsBase {
 
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-    }
-
-    @MainActor
     func testColdStartAndConfiguration() throws {
-        let app = XCUIApplication()
-        app.launchArguments = [
-            "-UITesting",
-            "-AppleLanguages", "(en)",
-            "-AppleLocale", "en_US"
-        ]
-        app.launch()
+        launch(scenario: .coldStart, servers: .none)
 
         let searchTab = app.tabBars.buttons["Search"]
         XCTAssertTrue(searchTab.waitForExistence(timeout: 10), "La TabBar non è apparsa in tempo")

@@ -1,0 +1,38 @@
+[
+    {
+        "guid": "magnet:?xt=urn:btih:11111",
+        "title": "Ubuntu 24.04.1 Desktop (LTS)",
+        "size": 5000000000,
+        "seeders": 1502,
+        "leechers": 341,
+        "downloadUrl": null,
+        "magnetUrl": "magnet:?xt=urn:btih:11111",
+        "infoUrl": "https://releases.ubuntu.com/24.04/",
+        "indexer": "LinuxTracker",
+        "publishDate": "2025-08-01T10:00:00Z"
+    },
+    {
+        "guid": "magnet:?xt=urn:btih:22222",
+        "title": "Debian 13 'Trixie' Netinstall",
+        "size": 650000000,
+        "seeders": 890,
+        "leechers": 102,
+        "downloadUrl": null,
+        "magnetUrl": "magnet:?xt=urn:btih:22222",
+        "infoUrl": null,
+        "indexer": "DebianCDs",
+        "publishDate": "2025-06-15T12:30:00Z"
+    },
+    {
+        "guid": "magnet:?xt=urn:btih:33333",
+        "title": "Fedora Workstation 42",
+        "size": 2100000000,
+        "seeders": 1120,
+        "leechers": 150,
+        "downloadUrl": null,
+        "magnetUrl": "magnet:?xt=urn:btih:33333",
+        "infoUrl": null,
+        "indexer": "FedoraTorrents",
+        "publishDate": "2025-04-22T14:00:00Z"
+    }
+]

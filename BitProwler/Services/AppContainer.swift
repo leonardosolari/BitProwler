@@ -75,9 +75,34 @@ final class AppContainer: ObservableObject {
         self.searchHistoryManager = SearchHistoryManager(userDefaults: userDefaults)
         
         self.filterViewModel = FilterViewModel(userDefaults: userDefaults)
+        
+        #if UITESTING
+        if isUITesting {
+            setupUITestServers(from: arguments)
+        }
+        #endif
     }
     
     #if UITESTING
+    private func setupUITestServers(from arguments: [String]) {
+        guard let serverConfig = arguments.first(where: { $0.starts(with: "-configureServers") })?
+            .split(separator: "=").last else {
+            return
+        }
+        
+        let servers = serverConfig.split(separator: ",")
+        
+        if servers.contains("prowlarr") {
+            let server = ProwlarrServer(name: "Mock Prowlarr", url: "http://prowlarr.test", apiKey: "123")
+            prowlarrManager.addServer(server)
+        }
+        
+        if servers.contains("qbittorrent") {
+            let server = QBittorrentServer(name: "Mock qBittorrent", url: "http://qb.test", username: "admin", password: "password")
+            qbittorrentManager.addServer(server)
+        }
+    }
+    
     private static func createMockServices(for scenario: UITestScenario) -> (ProwlarrAPIService, QBittorrentAPIService) {
         let prowlarrStub = StubProwlarrService()
         let qbittorrentStub = StubQBittorrentService()
