@@ -44,6 +44,7 @@ struct TorrentActionsView: View {
                 Button("Delete", role: .destructive) {
                     Task { await viewModel.performAction(.delete) { dismiss() } }
                 }
+                .accessibilityIdentifier("alert_button_confirm_delete")
             }, message: {
                 Text("Do you want to delete this torrent? The downloaded data will not be removed.")
             })
@@ -52,6 +53,7 @@ struct TorrentActionsView: View {
                 Button("Delete", role: .destructive) {
                     Task { await viewModel.performAction(.delete, deleteFiles: true) { dismiss() } }
                 }
+                .accessibilityIdentifier("alert_button_confirm_delete_data")
             }, message: {
                 Text("WARNING: This action is irreversible. Do you want to delete this torrent and all its downloaded data?")
             })
@@ -91,6 +93,7 @@ struct TorrentActionsView: View {
             ) {
                 Task { await viewModel.performAction(.togglePauseResume) { dismiss() } }
             }
+            .accessibilityIdentifier("action_button_toggle_pause")
             
             TorrentActionButton(
                 title: forceTitle,
@@ -99,14 +102,17 @@ struct TorrentActionsView: View {
             ) {
                 Task { await viewModel.performAction(.forceStart, forceStart: !viewModel.isForced) { dismiss() } }
             }
+            .accessibilityIdentifier("action_button_toggle_force")
             
             TorrentActionButton(title: "Recheck", icon: "arrow.triangle.2.circlepath", color: .blue) {
                 Task { await viewModel.performAction(.recheck) { dismiss() } }
             }
+            .accessibilityIdentifier("action_button_recheck")
             
             TorrentActionButton(title: "Move", icon: "folder.fill", color: .cyan) {
                 showingLocationPicker = true
             }
+            .accessibilityIdentifier("action_button_move")
         }
     }
     
@@ -116,15 +122,19 @@ struct TorrentActionsView: View {
                 Button(action: { showingFileList = true }) {
                     Label("Show Files", systemImage: "doc.text")
                 }
+                .accessibilityIdentifier("action_button_show_files")
             }
             
             Section(header: Text("Danger Zone")) {
                 Button(role: .destructive, action: { showingDeleteAlert = true }) {
                     Label("Delete Torrent", systemImage: "trash")
                 }
+                .accessibilityIdentifier("action_button_delete")
+                
                 Button(role: .destructive, action: { showingDeleteWithDataAlert = true }) {
                     Label("Delete Torrent and Data", systemImage: "trash.fill")
                 }
+                .accessibilityIdentifier("action_button_delete_data")
             }
         }
         .listStyle(.insetGrouped)

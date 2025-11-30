@@ -52,6 +52,8 @@ struct TorrentResultRow: View {
             )
             TorrentDetailView(result: result, viewModel: viewModel)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("torrent_result_row_\(result.id)")
     }
     
     private func formatSize(_ size: Int64) -> String {

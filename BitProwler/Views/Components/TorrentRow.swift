@@ -1,5 +1,3 @@
-// BitProwler/Views/Components/TorrentRow.swift
-
 import SwiftUI
 
 struct TorrentRow: View {
@@ -58,6 +56,8 @@ struct TorrentRow: View {
                 apiService: container.qbittorrentService
             )
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("torrent_row_\(torrent.hash)")
     }
 }
 

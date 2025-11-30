@@ -21,33 +21,49 @@ final class StubKeychain: KeychainProtocol {
 }
 
 class StubProwlarrService: ProwlarrAPIService {
+    var searchResult: Result<[TorrentResult], AppError> = .success([])
+    var connectionResult = true
+    
     func search(query: String, on server: ProwlarrServer) async throws -> [TorrentResult] {
-        return []
+        return try searchResult.get()
     }
     
     func testConnection(to server: ProwlarrServer) async -> Bool {
-        return true
+        return connectionResult
     }
 }
 
 class StubQBittorrentService: QBittorrentAPIService {
+    var torrentsResult: Result<[QBittorrentTorrent], AppError> = .success([])
+    var filesResult: Result<[TorrentFile], AppError> = .success([])
+    var connectionResult = true
+    var actionShouldSucceed = true
+    
     func getTorrents(on server: QBittorrentServer, filter: String?, sort: String?) async throws -> [QBittorrentTorrent] {
-        return []
+        return try torrentsResult.get()
     }
     
-    func addTorrent(url: String, on server: QBittorrentServer) async throws {}
+    func addTorrent(url: String, on server: QBittorrentServer) async throws {
+        if !actionShouldSucceed { throw AppError.unknownError }
+    }
     
-    func addTorrent(from source: TorrentSource, savePath: String, on server: QBittorrentServer) async throws {}
+    func addTorrent(from source: TorrentSource, savePath: String, on server: QBittorrentServer) async throws {
+        if !actionShouldSucceed { throw AppError.unknownError }
+    }
     
-    func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws {}
+    func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws {
+        if !actionShouldSucceed { throw AppError.unknownError }
+    }
     
-    func setFilePriority(for torrent: QBittorrentTorrent, on server: QBittorrentServer, fileIds: [String], priority: Int) async throws {}
+    func setFilePriority(for torrent: QBittorrentTorrent, on server: QBittorrentServer, fileIds: [String], priority: Int) async throws {
+        if !actionShouldSucceed { throw AppError.unknownError }
+    }
     
     func getFiles(for torrent: QBittorrentTorrent, on server: QBittorrentServer) async throws -> [TorrentFile] {
-        return []
+        return try filesResult.get()
     }
     
     func testConnection(to server: QBittorrentServer) async -> Bool {
-        return true
+        return connectionResult
     }
 }
