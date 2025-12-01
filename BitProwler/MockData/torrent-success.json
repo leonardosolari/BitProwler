@@ -1,0 +1,30 @@
+[
+    {
+        "hash": "abc123hash_ubuntu",
+        "name": "Ubuntu 24.04.1 Desktop (LTS)",
+        "size": 5000000000,
+        "progress": 0.855,
+        "dlspeed": 1234567,
+        "upspeed": 54321,
+        "state": "downloading",
+        "num_seeds": 150,
+        "num_leechs": 34,
+        "ratio": 0.1,
+        "eta": 1800,
+        "save_path": "/data/torrents/linux"
+    },
+    {
+        "hash": "def456hash_debian",
+        "name": "Debian 13 'Trixie' Netinstall",
+        "size": 650000000,
+        "progress": 1.0,
+        "dlspeed": 0,
+        "upspeed": 125000,
+        "state": "uploading",
+        "num_seeds": 89,
+        "num_leechs": 10,
+        "ratio": 5.23,
+        "eta": 8640000,
+        "save_path": "/data/torrents/linux"
+    }
+]

@@ -141,7 +141,7 @@ final class AppContainer: ObservableObject {
             prowlarrStub.searchResult = .failure(.networkError(underlyingError: URLError(.notConnectedToInternet)))
             
         case .torrentsSuccess:
-            let torrents: [QBittorrentTorrent] = MockDataLoader.load("torrents-success")
+            let torrents: [QBittorrentTorrent] = MockDataLoader.load("torrent-success")
             qbittorrentStub.torrentsResult = .success(torrents)
             
         case .torrentsEmpty:
