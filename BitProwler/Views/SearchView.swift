@@ -83,6 +83,7 @@ struct SearchView: View {
             } actions: {
                 Button("Try Again") { executeSearch() }.buttonStyle(.borderedProminent)
             }
+            .accessibilityIdentifier("search_error_view")
         } else if !viewModel.hasSearched && !searchHistoryManager.searches.isEmpty {
             List {
                 Section {

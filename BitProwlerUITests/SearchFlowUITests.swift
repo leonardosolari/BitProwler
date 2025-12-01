@@ -51,6 +51,48 @@ final class SearchFlowUITests: BitProwlerUITestsBase {
         XCTAssertFalse(app.navigationBars["Torrent Details"].exists, "La vista di dettaglio non si è chiusa")
         XCTAssertTrue(resultsList.exists, "La lista dei risultati non è più visibile dopo aver chiuso il dettaglio")
     }
+
+    func testSearchWithNoResults() throws {
+        launch(scenario: .searchWithNoResults, servers: .all)
+        
+        let searchField = app.textFields["search_field"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5))
+        
+        searchField.tap()
+        searchField.typeText("Something obscure")
+        app.buttons["search_button"].tap()
+        
+        let loadingText = app.staticTexts["Searching..."]
+        XCTAssertTrue(loadingText.waitForExistence(timeout: 5), "Il testo di caricamento 'Searching...' non è apparso")
+        XCTAssertTrue(loadingText.waitForNonExistence(timeout: 10), "Il testo di caricamento non è scomparso")
+        
+        let noResultsText = app.staticTexts["No Results"]
+        XCTAssertTrue(noResultsText.waitForExistence(timeout: 5), "Il testo 'No Results' non è apparso")
+        
+        let descriptionText = app.staticTexts["No torrents found for 'Something obscure'"]
+        XCTAssertTrue(descriptionText.exists, "La descrizione per la ricerca senza risultati non è corretta")
+    }
+
+    func testSearchWithNetworkError() throws {
+        launch(scenario: .searchError, servers: .all)
+        
+        let searchField = app.textFields["search_field"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5))
+        
+        searchField.tap()
+        searchField.typeText("Trigger error")
+        app.buttons["search_button"].tap()
+        
+        let loadingText = app.staticTexts["Searching..."]
+        XCTAssertTrue(loadingText.waitForExistence(timeout: 5), "Il testo di caricamento 'Searching...' non è apparso")
+        XCTAssertTrue(loadingText.waitForNonExistence(timeout: 10), "Il testo di caricamento non è scomparso")
+        
+        let searchErrorText = app.staticTexts["Search Error"]
+        XCTAssertTrue(searchErrorText.waitForExistence(timeout: 5), "Il testo 'Search Error' non è apparso")
+        
+        let tryAgainButton = app.buttons["Try Again"]
+        XCTAssertTrue(tryAgainButton.exists, "Il pulsante 'Try Again' non è presente nella vista di errore")
+    }
 }
 
 extension XCUIElement {
