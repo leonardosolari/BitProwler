@@ -36,9 +36,15 @@ class BitProwlerUITestsBase: XCTestCase {
         ]
     }
     
+    override func tearDownWithError() throws {
+        app.terminate()
+        try super.tearDownWithError()
+    }
+    
     func launch(
         scenario: UITestScenario,
-        servers: TestServerConfiguration = .none
+        servers: TestServerConfiguration = .none,
+        mockDataFile: String? = nil
     ) {
         app.launchArguments.append("-testScenario=\(scenario.rawValue)")
         
@@ -52,6 +58,10 @@ class BitProwlerUITestsBase: XCTestCase {
         
         if !serverConfig.isEmpty {
             app.launchArguments.append("-configureServers=\(serverConfig.joined(separator: ","))")
+        }
+        
+        if let mockDataFile = mockDataFile {
+            app.launchArguments.append("-mockDataFile=\(mockDataFile)")
         }
         
         app.launch()

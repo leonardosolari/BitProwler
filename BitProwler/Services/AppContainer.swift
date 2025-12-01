@@ -50,7 +50,7 @@ final class AppContainer: ObservableObject {
             
             #if UITESTING
             let scenario = UITestScenario(from: arguments)
-            (self.prowlarrService, self.qbittorrentService) = AppContainer.createMockServices(for: scenario)
+            (self.prowlarrService, self.qbittorrentService) = AppContainer.createMockServices(for: scenario, from: arguments)
             #else
             fatalError("UITesting flag is set but not in a UITESTING build configuration.")
             #endif
@@ -83,6 +83,17 @@ final class AppContainer: ObservableObject {
         #endif
     }
     
+    func userDefaultsForTest() -> UserDefaults {
+        let arguments = ProcessInfo.processInfo.arguments
+        let isUITesting = arguments.contains("-UITesting")
+        
+        if isUITesting {
+            return self.userDefaults
+        } else {
+            return .standard
+        }
+    }
+    
     #if UITESTING
     private func setupUITestServers(from arguments: [String]) {
         guard let serverConfig = arguments.first(where: { $0.starts(with: "-configureServers") })?
@@ -103,16 +114,24 @@ final class AppContainer: ObservableObject {
         }
     }
     
-    private static func createMockServices(for scenario: UITestScenario) -> (ProwlarrAPIService, QBittorrentAPIService) {
+    private static func createMockServices(for scenario: UITestScenario, from arguments: [String]) -> (ProwlarrAPIService, QBittorrentAPIService) {
         let prowlarrStub = StubProwlarrService()
         let qbittorrentStub = StubQBittorrentService()
+        
+        let mockDataFile = arguments.first { $0.starts(with: "-mockDataFile") }?
+            .split(separator: "=")
+            .last
+            .map(String.init)
         
         switch scenario {
         case .coldStart:
             break
             
         case .searchSuccessWithResults:
-            let results: [TorrentResult] = MockDataLoader.load("search-success")
+            guard let mockDataFile = mockDataFile else {
+                fatalError("-mockDataFile launch argument is required for this scenario.")
+            }
+            let results: [TorrentResult] = MockDataLoader.load(mockDataFile)
             prowlarrStub.searchResult = .success(results)
             
         case .searchWithNoResults:

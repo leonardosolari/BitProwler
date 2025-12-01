@@ -202,9 +202,11 @@ private struct IndexerFilterMenu: View {
             Button("Select All") {
                 viewModel.selectedIndexerIDs = Set(viewModel.allIndexers)
             }
+            .accessibilityIdentifier("indexer_filter_select_all")
             Button("Deselect All") {
                 viewModel.selectedIndexerIDs.removeAll()
             }
+            .accessibilityIdentifier("indexer_filter_deselect_all")
             
             Divider()
             
@@ -223,6 +225,7 @@ private struct IndexerFilterMenu: View {
                         Text(indexer)
                     }
                 }
+                .accessibilityIdentifier("indexer_filter_option_\(indexer)")
             }
         } label: {
             HStack(spacing: 4) {
@@ -240,6 +243,7 @@ private struct IndexerFilterMenu: View {
             .cornerRadius(8)
             .foregroundColor(.accentColor)
         }
+        .accessibilityIdentifier("indexer_filter_menu_button")
     }
 }
 

@@ -4,7 +4,7 @@ import XCTest
 final class SearchFlowUITests: BitProwlerUITestsBase {
 
     func testSearchHappyPath() throws {
-        launch(scenario: .searchSuccessWithResults, servers: .all)
+        launch(scenario: .searchSuccessWithResults, servers: .all, mockDataFile: "search-success")
         
         let searchField = app.textFields["search_field"]
         XCTAssertTrue(searchField.waitForExistence(timeout: 5), "Il campo di ricerca non è apparso")

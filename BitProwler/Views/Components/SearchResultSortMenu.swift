@@ -17,6 +17,7 @@ struct SearchResultSortMenu: View {
                         }
                     }
                 }
+                .accessibilityIdentifier("sort_option_\(option.rawValue)")
             }
         } label: {
             HStack(spacing: 4) {
@@ -31,5 +32,6 @@ struct SearchResultSortMenu: View {
             .background(Color.accentColor.opacity(0.1))
             .cornerRadius(8)
         }
+        .accessibilityIdentifier("sort_menu_button")
     }
 }
