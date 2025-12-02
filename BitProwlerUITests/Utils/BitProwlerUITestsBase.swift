@@ -32,9 +32,6 @@ class BitProwlerUITestsBase: XCTestCase {
         try super.setUpWithError()
         continueAfterFailure = false
         
-        let userDefaults = UserDefaults(suiteName: uiTestUserDefaultsSuiteName)
-        userDefaults?.removePersistentDomain(forName: uiTestUserDefaultsSuiteName)
-        
         app = XCUIApplication()
         
         app.launchArguments = [
@@ -52,8 +49,13 @@ class BitProwlerUITestsBase: XCTestCase {
     func launch(
         scenario: UITestScenario,
         servers: TestServerConfiguration = .none,
-        mockDataFile: String? = nil
+        mockDataFile: String? = nil,
+        clearUserDefaults: Bool = true
     ) {
+        if clearUserDefaults {
+            app.launchArguments.append("-shouldClearUserDefaults")
+        }
+        
         app.launchArguments.append("-testScenario=\(scenario.rawValue)")
         
         var serverConfig: [String] = []

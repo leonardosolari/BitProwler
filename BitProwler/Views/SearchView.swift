@@ -99,6 +99,7 @@ struct SearchView: View {
                             }
                         }
                         .foregroundColor(.primary)
+                        .accessibilityIdentifier("history_item_\(term)")
                     }
                 } header: {
                     HStack {
@@ -108,6 +109,7 @@ struct SearchView: View {
                             searchHistoryManager.clearHistory()
                         }
                         .font(.caption)
+                        .accessibilityIdentifier("clear_history_button")
                     }
                 }
             }

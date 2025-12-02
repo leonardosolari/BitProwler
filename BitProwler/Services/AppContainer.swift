@@ -49,10 +49,13 @@ final class AppContainer: ObservableObject {
     init() {
         let arguments = ProcessInfo.processInfo.arguments
         let isUITesting = arguments.contains("-UITesting")
+        let shouldClearData = arguments.contains("-shouldClearUserDefaults")
         
         if isUITesting {
             self.userDefaults = UserDefaults(suiteName: "UITestParams")!
-            self.userDefaults.removePersistentDomain(forName: "UITestParams")
+            if shouldClearData {
+                self.userDefaults.removePersistentDomain(forName: "UITestParams")
+            }
             self.keychainService = StubKeychain()
             
             #if UITESTING
