@@ -109,6 +109,49 @@ final class TorrentFlowUITests: BitProwlerUITestsBase {
         XCTAssertTrue(addTorrentSheet.waitForNonExistence(timeout: 5), "Add Torrent sheet did not dismiss.")
     }
 
+    func testAddTorrentViaFile() throws {
+        launch(scenario: .addTorrentFromFile, servers: .qbittorrent, mockDataFile: "torrent-file-to-add")
+
+        app.tabBars.buttons["Torrent"].tap()
+
+        let addTorrentButton = app.buttons["add_torrent_button"]
+        XCTAssertTrue(addTorrentButton.waitForExistence(timeout: 5))
+        addTorrentButton.tap()
+
+        let addTorrentSheet = app.navigationBars["Add Torrent"]
+        XCTAssertTrue(addTorrentSheet.waitForExistence(timeout: 5))
+
+        app.buttons["Torrent File"].tap()
+        
+        let mockPickButton = app.buttons["mock_pick_file_button"]
+        XCTAssertTrue(mockPickButton.waitForExistence(timeout: 2))
+        mockPickButton.tap()
+        
+        XCTAssertTrue(app.staticTexts["mock.torrent"].waitForExistence(timeout: 2))
+
+        let pathField = app.textFields["Path"]
+        XCTAssertTrue(pathField.exists)
+        pathField.tap()
+        
+        if let currentValue = pathField.value as? String {
+            let deleteString = String(repeating: XCUIKeyboardKey.delete.rawValue, count: currentValue.count)
+            pathField.typeText(deleteString)
+        }
+        
+        pathField.typeText("/downloads/manual")
+        
+        app.buttons["Add Torrent"].tap()
+        
+        XCTAssertTrue(addTorrentSheet.waitForNonExistence(timeout: 5), "Add Torrent sheet did not dismiss.")
+        
+        let newTorrentIdentifier = "torrent_row_hash_file_added_manually"
+        let newTorrentRow = app.descendants(matching: .any).matching(identifier: newTorrentIdentifier).firstMatch
+        XCTAssertTrue(newTorrentRow.waitForExistence(timeout: 10), "The newly added torrent did not appear in the torrents list.")
+        
+        XCTAssertTrue(newTorrentRow.staticTexts["Manually Added Torrent File.mkv"].exists)
+        XCTAssertTrue(newTorrentRow.staticTexts["Paused (DL)"].exists)
+    }
+
     func testEmptyTorrentList() throws {
         launch(scenario: .torrentsEmpty, servers: .qbittorrent)
 

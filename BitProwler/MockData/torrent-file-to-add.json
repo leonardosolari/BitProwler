@@ -1,0 +1,14 @@
+{
+    "hash": "hash_file_added_manually",
+    "name": "Manually Added Torrent File.mkv",
+    "size": 750000000,
+    "progress": 0.0,
+    "dlspeed": 0,
+    "upspeed": 0,
+    "state": "pausedDL",
+    "num_seeds": 0,
+    "num_leechs": 0,
+    "ratio": 0.0,
+    "eta": 8640000,
+    "save_path": "/downloads/manual"
+}

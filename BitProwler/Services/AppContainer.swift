@@ -15,6 +15,7 @@ enum UITestScenario: String {
     case torrentsEmpty
     case torrentsError
     case searchAndAddSuccess
+    case addTorrentFromFile
     
     init(from arguments: [String]) {
         let scenarioValue = arguments.first { $0.starts(with: "-testScenario") }?
@@ -172,6 +173,14 @@ final class AppContainer: ObservableObject {
             if let torrentUrl = payload.searchResults.first?.primaryDownloadLink {
                 qbittorrentStub.addableTorrents[torrentUrl] = payload.torrentToAdd
             }
+            qbittorrentStub.torrents = []
+            
+        case .addTorrentFromFile:
+            guard let mockDataFile = mockDataFile else {
+                fatalError("-mockDataFile launch argument is required for this scenario.")
+            }
+            let torrentToAdd: QBittorrentTorrent = MockDataLoader.load(mockDataFile)
+            qbittorrentStub.torrentFromFile = torrentToAdd
             qbittorrentStub.torrents = []
         }
         

@@ -45,6 +45,7 @@ class StubQBittorrentService: QBittorrentAPIService {
     var lastPriorityUpdate: (hash: String, ids: [String], priority: Int)?
     
     var addableTorrents: [String: QBittorrentTorrent] = [:]
+    var torrentFromFile: QBittorrentTorrent?
     
     func getTorrents(on server: QBittorrentServer, filter: String?, sort: String?) async throws -> [QBittorrentTorrent] {
         try await Task.sleep(nanoseconds: 1_000_000_000)
@@ -94,6 +95,21 @@ class StubQBittorrentService: QBittorrentAPIService {
     
     func addTorrent(from source: TorrentSource, savePath: String, on server: QBittorrentServer) async throws {
         if !actionShouldSucceed { throw AppError.unknownError }
+        
+        switch source {
+        case .url(let urlString):
+            if let torrentToAdd = addableTorrents[urlString] {
+                if !self.torrents.contains(where: { $0.hash == torrentToAdd.hash }) {
+                    self.torrents.append(torrentToAdd)
+                }
+            }
+        case .file:
+            if let torrentToAdd = torrentFromFile {
+                if !self.torrents.contains(where: { $0.hash == torrentToAdd.hash }) {
+                    self.torrents.append(torrentToAdd)
+                }
+            }
+        }
     }
     
     func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws {

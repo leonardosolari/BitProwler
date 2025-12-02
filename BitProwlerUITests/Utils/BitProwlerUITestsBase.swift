@@ -11,6 +11,7 @@ enum UITestScenario: String {
     case torrentsEmpty
     case torrentsError
     case searchAndAddSuccess
+    case addTorrentFromFile
 }
 
 struct TestServerConfiguration: OptionSet {

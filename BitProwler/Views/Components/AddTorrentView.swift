@@ -75,6 +75,16 @@ struct AddTorrentView: View {
                     } else {
                         Button("Select File") { showFileImporter = true }
                     }
+                    
+                    if AppEnvironment.isUITesting {
+                        Button("Mock Pick File") {
+                            viewModel.mockFileSelection(
+                                fileName: "mock.torrent",
+                                data: "mock_data".data(using: .utf8)!
+                            )
+                        }
+                        .accessibilityIdentifier("mock_pick_file_button")
+                    }
                 }
             }
             

@@ -92,6 +92,13 @@ class AddTorrentViewModel: ObservableObject {
         }
     }
     
+    #if UITESTING
+    func mockFileSelection(fileName: String, data: Data) {
+        self.torrentFile = data
+        self.selectedFileName = fileName
+    }
+    #endif
+    
     // MARK: - Private Helper
     
     private func handleError(_ error: Error) {
