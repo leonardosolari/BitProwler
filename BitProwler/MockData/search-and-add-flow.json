@@ -1,0 +1,30 @@
+{
+    "searchResults": [
+        {
+            "guid": "magnet:?xt=urn:btih:11111",
+            "title": "Ubuntu 24.04.1 Desktop (LTS)",
+            "size": 5000000000,
+            "seeders": 1502,
+            "leechers": 341,
+            "downloadUrl": null,
+            "magnetUrl": "magnet:?xt=urn:btih:11111",
+            "infoUrl": "https://releases.ubuntu.com/24.04/",
+            "indexer": "LinuxTracker",
+            "publishDate": "2025-08-01T10:00:00Z"
+        }
+    ],
+    "torrentToAdd": {
+        "hash": "hash_ubuntu_from_search",
+        "name": "Ubuntu 24.04.1 Desktop (LTS)",
+        "size": 5000000000,
+        "progress": 0.0,
+        "dlspeed": 150000,
+        "upspeed": 0,
+        "state": "downloading",
+        "num_seeds": 1502,
+        "num_leechs": 341,
+        "ratio": 0.0,
+        "eta": 3600,
+        "save_path": "/downloads"
+    }
+}

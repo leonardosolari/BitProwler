@@ -1,6 +1,11 @@
 import Foundation
 
 #if UITESTING
+struct SearchAndAddMockPayload: Decodable {
+    let searchResults: [TorrentResult]
+    let torrentToAdd: QBittorrentTorrent
+}
+
 enum UITestScenario: String {
     case coldStart
     case searchSuccessWithResults
@@ -9,6 +14,7 @@ enum UITestScenario: String {
     case torrentsSuccess
     case torrentsEmpty
     case torrentsError
+    case searchAndAddSuccess
     
     init(from arguments: [String]) {
         let scenarioValue = arguments.first { $0.starts(with: "-testScenario") }?
@@ -155,6 +161,18 @@ final class AppContainer: ObservableObject {
             
         case .torrentsError:
             qbittorrentStub.errorToReturn = .httpError(statusCode: 500)
+            
+        case .searchAndAddSuccess:
+            guard let mockDataFile = mockDataFile else {
+                fatalError("-mockDataFile launch argument is required for this scenario.")
+            }
+            let payload: SearchAndAddMockPayload = MockDataLoader.load(mockDataFile)
+            prowlarrStub.searchResult = .success(payload.searchResults)
+            
+            if let torrentUrl = payload.searchResults.first?.primaryDownloadLink {
+                qbittorrentStub.addableTorrents[torrentUrl] = payload.torrentToAdd
+            }
+            qbittorrentStub.torrents = []
         }
         
         return (prowlarrStub, qbittorrentStub)
