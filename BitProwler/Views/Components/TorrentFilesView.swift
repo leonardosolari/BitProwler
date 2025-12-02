@@ -32,6 +32,7 @@ struct TorrentFilesView: View {
                             viewModel.toggleNodeSelection(node)
                         })
                     }
+                    .accessibilityIdentifier("file_list")
                 }
             }
             .navigationTitle("Torrent Files")
@@ -59,6 +60,7 @@ struct TorrentFilesView: View {
                         }
                     }
                     .disabled(viewModel.isLoading)
+                    .accessibilityIdentifier("save_files_button")
                 }
             }
             .task {
@@ -81,6 +83,14 @@ struct TorrentFileNodeRow: View {
     let onToggle: () -> Void
     
     @State private var isExpanded: Bool = false
+    
+    private var accessibilityIDComponent: String {
+        if let file = node.file {
+            return "file-\(file.index)"
+        } else {
+            return "dir-\(node.name.replacingOccurrences(of: " ", with: "-"))"
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -92,6 +102,8 @@ struct TorrentFileNodeRow: View {
                         .frame(width: 30)
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("file_toggle_\(accessibilityIDComponent)")
+                .accessibilityValue(node.isSelected ? "Selected" : "Not Selected")
                 
                 FileIconView(filename: node.name, isDirectory: node.children != nil)
                 
@@ -118,5 +130,6 @@ struct TorrentFileNodeRow: View {
                 Label("Copy Name", systemImage: "doc.on.doc")
             }
         }
+        .accessibilityIdentifier("file_row_\(accessibilityIDComponent)")
     }
 }

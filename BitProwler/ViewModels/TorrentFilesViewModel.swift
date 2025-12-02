@@ -112,73 +112,40 @@ class TorrentFilesViewModel: ObservableObject {
     }
     
     private func buildTree(from files: [TorrentFile]) -> [TorrentFileNode] {
-        var rootNodes: [String: TorrentFileNode] = [:]
-        var directoryCache: [String: [String: TorrentFileNode]] = ["": rootNodes]
+        let root = TorrentFileNode(name: "root", children: [])
 
         for file in files {
-            let pathComponents = (file.name as NSString).pathComponents
-            var currentPath = ""
+            var currentNode = root
+            let components = (file.name as NSString).pathComponents
 
-            for i in 0..<(pathComponents.count - 1) {
-                let component = pathComponents[i]
-                let parentPath = currentPath
-                currentPath = (currentPath as NSString).appendingPathComponent(component)
-
-                if directoryCache[currentPath] == nil {
-                    let dirNode = TorrentFileNode(name: component, children: [])
-                    directoryCache[currentPath] = [:]
-                    
-                    if parentPath.isEmpty {
-                        rootNodes[component] = dirNode
+            for (index, component) in components.enumerated() {
+                if index == components.count - 1 {
+                    let fileNode = TorrentFileNode(file: file)
+                    currentNode.children?.append(fileNode)
+                } else {
+                    if let existingChild = currentNode.children?.first(where: { $0.name == component && $0.file == nil }) {
+                        currentNode = existingChild
                     } else {
-                        var parentChildren = directoryCache[parentPath] ?? [:]
-                        parentChildren[component] = dirNode
-                        directoryCache[parentPath] = parentChildren
+                        let newDirNode = TorrentFileNode(name: component, children: [])
+                        currentNode.children?.append(newDirNode)
+                        currentNode = newDirNode
                     }
                 }
             }
+        }
+
+        func sortChildrenRecursively(of node: TorrentFileNode) {
+            guard node.children != nil else { return }
             
-            let fileName = pathComponents.last!
-            let fileNode = TorrentFileNode(file: file)
+            node.children?.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             
-            if pathComponents.count == 1 {
-                rootNodes[fileName] = fileNode
-            } else {
-                let parentPath = (file.name as NSString).deletingLastPathComponent
-                var parentChildren = directoryCache[parentPath] ?? [:]
-                parentChildren[fileName] = fileNode
-                directoryCache[parentPath] = parentChildren
+            for child in node.children! {
+                sortChildrenRecursively(of: child)
             }
         }
 
-        func generateFinalTree(from dict: [String: TorrentFileNode]) -> [TorrentFileNode] {
-            return dict.values.map { node in
-                if node.children != nil {
-                    let fullPath = findPath(for: node, in: rootNodes) ?? ""
-                    let childrenDict = directoryCache[fullPath] ?? [:]
-                    let sortedChildren = generateFinalTree(from: childrenDict)
-                    return TorrentFileNode(name: node.name, children: sortedChildren)
-                }
-                return node
-            }.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-        }
-        
-        func findPath(for targetNode: TorrentFileNode, in nodes: [String: TorrentFileNode], currentPath: String = "") -> String? {
-            for (name, node) in nodes {
-                let newPath = currentPath.isEmpty ? name : (currentPath as NSString).appendingPathComponent(name)
-                if node.id == targetNode.id {
-                    return newPath
-                }
-                if node.children != nil {
-                    let fullPath = findPath(for: node, in: rootNodes) ?? ""
-                    if let foundPath = findPath(for: targetNode, in: directoryCache[fullPath] ?? [:], currentPath: newPath) {
-                        return foundPath
-                    }
-                }
-            }
-            return nil
-        }
+        sortChildrenRecursively(of: root)
 
-        return generateFinalTree(from: rootNodes)
+        return root.children ?? []
     }
 }

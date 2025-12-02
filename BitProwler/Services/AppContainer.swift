@@ -147,6 +147,9 @@ final class AppContainer: ObservableObject {
             let torrents: [QBittorrentTorrent] = MockDataLoader.load(mockDataFile)
             qbittorrentStub.torrents = torrents
             
+            let files: [TorrentFile] = MockDataLoader.load("torrent-files")
+            qbittorrentStub.files = files
+            
         case .torrentsEmpty:
             qbittorrentStub.torrents = []
             

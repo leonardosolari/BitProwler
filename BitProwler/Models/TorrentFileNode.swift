@@ -1,9 +1,9 @@
 import Foundation
 
-struct TorrentFileNode: Identifiable, Hashable {
+final class TorrentFileNode: Identifiable, Hashable {
     let id: UUID
     let name: String
-    let children: [TorrentFileNode]?
+    var children: [TorrentFileNode]?
     let file: TorrentFile?
 
     var totalSize: Int64 {
