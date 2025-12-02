@@ -1,5 +1,7 @@
 import XCTest
 
+let uiTestUserDefaultsSuiteName = "UITestParams"
+
 enum UITestScenario: String {
     case coldStart
     case searchSuccessWithResults
@@ -27,6 +29,10 @@ class BitProwlerUITestsBase: XCTestCase {
     override func setUpWithError() throws {
         try super.setUpWithError()
         continueAfterFailure = false
+        
+        let userDefaults = UserDefaults(suiteName: uiTestUserDefaultsSuiteName)
+        userDefaults?.removePersistentDomain(forName: uiTestUserDefaultsSuiteName)
+        
         app = XCUIApplication()
         
         app.launchArguments = [

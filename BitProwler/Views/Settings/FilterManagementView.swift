@@ -11,6 +11,7 @@ struct FilterManagementView: View {
                 Button(action: { showingAddFilter = true }) {
                     Label("Add Filter", systemImage: "plus.circle")
                 }
+                .accessibilityIdentifier("add_filter_button")
             }
             
             Section {
@@ -20,6 +21,7 @@ struct FilterManagementView: View {
                     Text("Match any filter")
                         .tag(FilterViewModel.FilterLogic.or)
                 }
+                .accessibilityIdentifier("filter_logic_picker")
             } header: {
                 Text("Filter Settings")
             } footer: {
@@ -66,7 +68,10 @@ struct FilterRow: View {
                 get: { filter.isEnabled },
                 set: { _ in viewModel.toggleFilter(filter) }
             ))
+            .accessibilityIdentifier("toggle_filter_\(filter.name.replacingOccurrences(of: " ", with: "-"))")
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("filter_row_\(filter.name.replacingOccurrences(of: " ", with: "-"))")
     }
 }
 

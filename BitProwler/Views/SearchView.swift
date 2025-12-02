@@ -120,7 +120,7 @@ struct SearchView: View {
                                "No torrents found for '\(searchText)'" :
                                "No results match the active filters")
             )
-            .accessibilityIdentifier("search_empty_state_no_results")
+            .accessibilityIdentifier(viewModel.searchResults.isEmpty ? "search_empty_state_no_results" : "search_empty_state_filtered_out")
         } else if !viewModel.hasSearched {
             ContentUnavailableView(
                 "Search Torrents",

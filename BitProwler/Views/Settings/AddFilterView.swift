@@ -12,7 +12,9 @@ struct AddFilterView: View {
             Form {
                 Section(header: Text("Filter Details")) {
                     TextField("Name", text: $name)
+                        .accessibilityIdentifier("filter_name_field")
                     TextField("Keyword", text: $keyword)
+                        .accessibilityIdentifier("filter_keyword_field")
                 }
                 
                 Section {
@@ -25,6 +27,7 @@ struct AddFilterView: View {
                         dismiss()
                     }
                     .disabled(name.isEmpty || keyword.isEmpty)
+                    .accessibilityIdentifier("save_filter_button")
                 }
             }
             .navigationTitle("New Filter")
@@ -38,4 +41,4 @@ struct AddFilterView: View {
             }
         }
     }
-} 
+}
