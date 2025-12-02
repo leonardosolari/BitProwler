@@ -1,0 +1,30 @@
+[
+    {
+        "index": 0,
+        "name": "Big Buck Bunny.mkv",
+        "size": 950000000,
+        "progress": 1.0,
+        "priority": 1
+    },
+    {
+        "index": 1,
+        "name": "Extras/trailer.mp4",
+        "size": 50000000,
+        "progress": 1.0,
+        "priority": 1
+    },
+    {
+        "index": 2,
+        "name": "Extras/Subtitles/subs.srt",
+        "size": 12000,
+        "progress": 0.0,
+        "priority": 0
+    },
+    {
+        "index": 3,
+        "name": "poster.jpg",
+        "size": 850000,
+        "progress": 0.0,
+        "priority": 0
+    }
+]

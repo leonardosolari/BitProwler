@@ -1,18 +1,18 @@
 import Foundation
 
 struct QBittorrentTorrent: Identifiable, Codable {
-    let name: String
-    let size: Int64
-    let progress: Double
-    let downloadSpeed: Int64
-    let uploadSpeed: Int64
-    let state: String
-    let hash: String
-    let numSeeds: Int
-    let numLeechs: Int
-    let ratio: Double
-    let eta: Int
-    let savePath: String
+    var name: String
+    var size: Int64
+    var progress: Double
+    var downloadSpeed: Int64
+    var uploadSpeed: Int64
+    var state: String
+    var hash: String
+    var numSeeds: Int
+    var numLeechs: Int
+    var ratio: Double
+    var eta: Int
+    var savePath: String
     
     var id: String { hash }
     

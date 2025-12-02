@@ -141,14 +141,17 @@ final class AppContainer: ObservableObject {
             prowlarrStub.searchResult = .failure(.networkError(underlyingError: URLError(.notConnectedToInternet)))
             
         case .torrentsSuccess:
-            let torrents: [QBittorrentTorrent] = MockDataLoader.load("torrent-success")
-            qbittorrentStub.torrentsResult = .success(torrents)
+            guard let mockDataFile = mockDataFile else {
+                fatalError("-mockDataFile launch argument is required for this scenario.")
+            }
+            let torrents: [QBittorrentTorrent] = MockDataLoader.load(mockDataFile)
+            qbittorrentStub.torrents = torrents
             
         case .torrentsEmpty:
-            qbittorrentStub.torrentsResult = .success([])
+            qbittorrentStub.torrents = []
             
         case .torrentsError:
-            qbittorrentStub.torrentsResult = .failure(.httpError(statusCode: 500))
+            qbittorrentStub.errorToReturn = .httpError(statusCode: 500)
         }
         
         return (prowlarrStub, qbittorrentStub)

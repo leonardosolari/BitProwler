@@ -26,5 +26,33 @@
         "ratio": 5.23,
         "eta": 8640000,
         "save_path": "/data/torrents/linux"
+    },
+    {
+        "hash": "ghi789hash_arch",
+        "name": "Arch Linux ISO",
+        "size": 900000000,
+        "progress": 0.25,
+        "dlspeed": 0,
+        "upspeed": 0,
+        "state": "pausedDL",
+        "num_seeds": 250,
+        "num_leechs": 40,
+        "ratio": 0.0,
+        "eta": 8640000,
+        "save_path": "/data/torrents/bleeding-edge"
+    },
+    {
+        "hash": "jkl012hash_fedora",
+        "name": "Fedora Workstation",
+        "size": 2100000000,
+        "progress": 0.50,
+        "dlspeed": 2000000,
+        "upspeed": 0,
+        "state": "forcedDL",
+        "num_seeds": 112,
+        "num_leechs": 15,
+        "ratio": 0.05,
+        "eta": 900,
+        "save_path": "/data/torrents/rpm"
     }
 ]

@@ -25,7 +25,7 @@ class StubProwlarrService: ProwlarrAPIService {
     var connectionResult = true
     
     func search(query: String, on server: ProwlarrServer) async throws -> [TorrentResult] {
-        try await Task.sleep(nanoseconds: 3_900_000_000)
+        try await Task.sleep(nanoseconds: 500_000_000)
         return try searchResult.get()
     }
     
@@ -35,14 +35,19 @@ class StubProwlarrService: ProwlarrAPIService {
 }
 
 class StubQBittorrentService: QBittorrentAPIService {
-    var torrentsResult: Result<[QBittorrentTorrent], AppError> = .success([])
+    var torrents: [QBittorrentTorrent] = []
     var filesResult: Result<[TorrentFile], AppError> = .success([])
+    var errorToReturn: AppError?
+    
     var connectionResult = true
     var actionShouldSucceed = true
     
     func getTorrents(on server: QBittorrentServer, filter: String?, sort: String?) async throws -> [QBittorrentTorrent] {
-        try await Task.sleep(nanoseconds: 3_900_000_000)
-        return try torrentsResult.get()
+        try await Task.sleep(nanoseconds: 500_000_000)
+        if let error = errorToReturn {
+            throw error
+        }
+        return torrents
     }
     
     func addTorrent(url: String, on server: QBittorrentServer) async throws {
@@ -54,7 +59,27 @@ class StubQBittorrentService: QBittorrentAPIService {
     }
     
     func performAction(_ action: TorrentActionsViewModel.TorrentAction, for torrent: QBittorrentTorrent, on server: QBittorrentServer, location: String?, deleteFiles: Bool, forceStart: Bool?) async throws {
-        if !actionShouldSucceed { throw AppError.unknownError }
+        guard actionShouldSucceed, let index = torrents.firstIndex(where: { $0.hash == torrent.hash }) else {
+            if !actionShouldSucceed { throw AppError.unknownError }
+            return
+        }
+        
+        switch action {
+        case .togglePauseResume:
+            let currentState = TorrentState(from: torrents[index].state)
+            torrents[index].state = currentState.isPaused ? "downloading" : "pausedDL"
+        case .delete:
+            torrents.remove(at: index)
+        case .move:
+            if let location = location {
+                torrents[index].savePath = location
+            }
+        case .forceStart:
+            let enable = forceStart ?? false
+            torrents[index].state = enable ? "forcedDL" : "downloading"
+        case .recheck:
+            torrents[index].state = "checkingDL"
+        }
     }
     
     func setFilePriority(for torrent: QBittorrentTorrent, on server: QBittorrentServer, fileIds: [String], priority: Int) async throws {

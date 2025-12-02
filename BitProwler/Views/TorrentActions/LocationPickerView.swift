@@ -8,6 +8,8 @@ struct LocationPickerView: View {
     @State private var newLocation = ""
     @State private var showingPathManager = false
     
+    let onMoveComplete: () -> Void
+    
     var body: some View {
         NavigationView {
             Form {
@@ -41,11 +43,12 @@ struct LocationPickerView: View {
                         Task {
                             await viewModel.performAction(.move, location: newLocation) {
                                 recentPathsManager.addPath(newLocation)
-                                dismiss()
+                                onMoveComplete()
                             }
                         }
                     }
                     .disabled(newLocation.isEmpty)
+                    .accessibilityIdentifier("picker_move_button")
                 }
             }
             .navigationTitle("Move Torrent")

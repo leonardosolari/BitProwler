@@ -44,7 +44,6 @@ struct TorrentActionsView: View {
                 Button("Delete", role: .destructive) {
                     Task { await viewModel.performAction(.delete) { dismiss() } }
                 }
-                .accessibilityIdentifier("alert_button_confirm_delete")
             }, message: {
                 Text("Do you want to delete this torrent? The downloaded data will not be removed.")
             })
@@ -53,7 +52,6 @@ struct TorrentActionsView: View {
                 Button("Delete", role: .destructive) {
                     Task { await viewModel.performAction(.delete, deleteFiles: true) { dismiss() } }
                 }
-                .accessibilityIdentifier("alert_button_confirm_delete_data")
             }, message: {
                 Text("WARNING: This action is irreversible. Do you want to delete this torrent and all its downloaded data?")
             })
@@ -63,7 +61,7 @@ struct TorrentActionsView: View {
                 Text(viewModel.errorMessage ?? "An unknown error occurred.")
             })
             .sheet(isPresented: $showingLocationPicker) {
-                LocationPickerView(viewModel: viewModel)
+                LocationPickerView(viewModel: viewModel, onMoveComplete: { dismiss() })
             }
             .sheet(isPresented: $showingFileList) {
                 TorrentFilesView(torrent: torrent, container: container)
