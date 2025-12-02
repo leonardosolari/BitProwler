@@ -8,7 +8,8 @@ struct ServerListView<T: Server, AddView: View, EditView: View>: View {
     @ViewBuilder var editServerView: (T) -> EditView
     
     @State private var showingAddServer = false
-    
+    @State private var serverToEdit: T?
+
     var body: some View {
         List {
             Section {
@@ -20,12 +21,13 @@ struct ServerListView<T: Server, AddView: View, EditView: View>: View {
             if !manager.servers.isEmpty {
                 Section("Configured Servers") {
                     ForEach(manager.servers) { server in
-                        NavigationLink(destination: editServerView(server)) {
-                            ServerRow(
-                                name: server.name,
-                                isActive: manager.activeServerId == server.id,
-                                onSelect: { manager.activeServerId = server.id }
-                            )
+                        ServerRow(
+                            name: server.name,
+                            isActive: manager.activeServerId == server.id
+                        )
+                        .onTapGesture {
+                            manager.activeServerId = server.id
+                            serverToEdit = server
                         }
                     }
                     .onDelete(perform: manager.deleteServer)
@@ -35,6 +37,9 @@ struct ServerListView<T: Server, AddView: View, EditView: View>: View {
         .navigationTitle(title)
         .sheet(isPresented: $showingAddServer) {
             addServerView()
+        }
+        .navigationDestination(item: $serverToEdit) { server in
+            editServerView(server)
         }
     }
 }

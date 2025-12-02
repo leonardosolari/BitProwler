@@ -3,7 +3,6 @@ import SwiftUI
 struct ServerRow: View {
     let name: String
     let isActive: Bool
-    let onSelect: () -> Void
     
     var body: some View {
         HStack {
@@ -15,6 +14,5 @@ struct ServerRow: View {
             }
         }
         .contentShape(Rectangle())
-        .onTapGesture(perform: onSelect)
     }
-} 
+}

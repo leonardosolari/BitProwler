@@ -5,7 +5,7 @@ struct SettingsView: View {
     @EnvironmentObject var qbittorrentManager: GenericServerManager<QBittorrentServer>
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 Section("Server") {
                     NavigationLink(destination: ProwlarrServerListView()) {
@@ -59,11 +59,4 @@ struct SettingsView: View {
             .accessibilityIdentifier("settings_list")
         }
     }
-}
-
-#Preview {
-    let container = AppContainer()
-    return SettingsView()
-        .environmentObject(container.prowlarrManager)
-        .environmentObject(container.qbittorrentManager)
 }

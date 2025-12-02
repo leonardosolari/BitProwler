@@ -20,7 +20,7 @@ fileprivate struct TorrentsContentView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 content
                 floatingAddButton
