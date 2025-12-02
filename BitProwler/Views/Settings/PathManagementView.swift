@@ -11,6 +11,7 @@ struct PathManagementView: View {
                     systemImage: "folder.badge.questionmark",
                     description: Text("The paths you use for downloads will appear here")
                 )
+                .accessibilityIdentifier("paths_empty_state")
             } else {
                 List {
                     ForEach(recentPathsManager.paths) { path in
@@ -21,9 +22,11 @@ struct PathManagementView: View {
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
+                        .accessibilityIdentifier("path_row_\(path.path)")
                     }
                     .onDelete(perform: recentPathsManager.deletePath)
                 }
+                .accessibilityIdentifier("paths_list")
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         EditButton()

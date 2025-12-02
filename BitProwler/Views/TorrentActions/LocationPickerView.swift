@@ -19,6 +19,7 @@ struct LocationPickerView: View {
                             .autocapitalization(.none)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
+                            .accessibilityIdentifier("location_picker_path_field")
                         
                         if !recentPathsManager.paths.isEmpty {
                             Menu {
