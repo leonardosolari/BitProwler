@@ -19,6 +19,7 @@ struct SortMenu<T: SortOptionable>: View {
                         Image(systemName: option.systemImage)
                     }
                     .tag(option)
+                    .accessibilityIdentifier("sort_option_\(option.rawValue)")
                 }
             }
         } label: {

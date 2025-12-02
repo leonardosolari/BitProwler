@@ -101,10 +101,3 @@ final class SearchSortAndFilterUITests: BitProwlerUITestsBase {
         wait(for: [expectation], timeout: 5)
     }
 }
-
-extension XCUIElementQuery {
-    func matching(identifier: String) -> XCUIElementQuery {
-        let predicate = NSPredicate(format: "identifier == %@", identifier)
-        return self.matching(predicate)
-    }
-}

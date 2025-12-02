@@ -30,6 +30,7 @@ fileprivate struct TorrentsContentView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     SortMenu(activeSortOption: $viewModel.activeSortOption, title: "Sort by...")
+                        .accessibilityIdentifier("torrents_sort_menu")
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {

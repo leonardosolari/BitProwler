@@ -45,11 +45,39 @@ class StubQBittorrentService: QBittorrentAPIService {
     var lastPriorityUpdate: (hash: String, ids: [String], priority: Int)?
     
     func getTorrents(on server: QBittorrentServer, filter: String?, sort: String?) async throws -> [QBittorrentTorrent] {
-        try await Task.sleep(nanoseconds: 3_500_000_000)
+        try await Task.sleep(nanoseconds: 1_000_000_000)
         if let error = errorToReturn {
             throw error
         }
-        return torrents
+        
+        var processedTorrents = self.torrents
+        
+        if let filter = filter, !filter.isEmpty {
+            processedTorrents = processedTorrents.filter {
+                $0.name.localizedCaseInsensitiveContains(filter)
+            }
+        }
+        
+        if let sortKey = sort {
+            switch sortKey {
+            case "name":
+                processedTorrents.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+            case "progress":
+                processedTorrents.sort { $0.progress < $1.progress }
+            case "dlspeed":
+                processedTorrents.sort { $0.downloadSpeed < $1.downloadSpeed }
+            case "upspeed":
+                processedTorrents.sort { $0.uploadSpeed < $1.uploadSpeed }
+            case "size":
+                processedTorrents.sort { $0.size < $1.size }
+            case "state":
+                processedTorrents.sort { $0.state.localizedCaseInsensitiveCompare($1.state) == .orderedAscending }
+            default:
+                break
+            }
+        }
+        
+        return processedTorrents
     }
     
     func addTorrent(url: String, on server: QBittorrentServer) async throws {

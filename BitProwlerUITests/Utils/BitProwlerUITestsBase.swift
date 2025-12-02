@@ -67,3 +67,10 @@ class BitProwlerUITestsBase: XCTestCase {
         app.launch()
     }
 }
+
+extension XCUIElementQuery {
+    func matching(identifier: String) -> XCUIElementQuery {
+        let predicate = NSPredicate(format: "identifier == %@", identifier)
+        return self.matching(predicate)
+    }
+}
