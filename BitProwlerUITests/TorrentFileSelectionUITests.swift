@@ -22,17 +22,11 @@ final class TorrentFileSelectionUITests: BitProwlerUITestsBase {
         let filesSheet = app.navigationBars["Torrent Files"]
         XCTAssertTrue(filesSheet.waitForExistence(timeout: 5), "The file list sheet did not appear.")
         
-        let mkvFileRow = app.descendants(matching: .any).matchingByIdentifier("file_row_file-0").firstMatch
-        XCTAssertTrue(mkvFileRow.waitForExistence(timeout: 5), "The row for the MKV file (index 0) did not appear.")
+        let mkvToggleButton = app.descendants(matching: .any).matchingByIdentifier("file_toggle_file-0").firstMatch
+        let posterToggleButton = app.descendants(matching: .any).matchingByIdentifier("file_toggle_file-3").firstMatch
         
-        let posterFileRow = app.descendants(matching: .any).matchingByIdentifier("file_row_file-3").firstMatch
-        XCTAssertTrue(posterFileRow.waitForExistence(timeout: 5), "The row for the Poster file (index 3) did not appear.")
-
-        let mkvToggleButton = mkvFileRow.descendants(matching: .any).matchingByIdentifier("file_toggle_file-0").firstMatch
-        let posterToggleButton = posterFileRow.descendants(matching: .any).matchingByIdentifier("file_toggle_file-3").firstMatch
-        
-        XCTAssertTrue(mkvToggleButton.exists, "Toggle button for MKV file not found.")
-        XCTAssertTrue(posterToggleButton.exists, "Toggle button for Poster file not found.")
+        XCTAssertTrue(mkvToggleButton.waitForExistence(timeout: 5), "Toggle button for MKV file not found.")
+        XCTAssertTrue(posterToggleButton.waitForExistence(timeout: 5), "Toggle button for Poster file not found.")
         
         XCTAssertEqual(mkvToggleButton.value as? String, "Selected", "MKV file should be selected by default.")
         XCTAssertEqual(posterToggleButton.value as? String, "Not Selected", "Poster file should be unselected by default.")

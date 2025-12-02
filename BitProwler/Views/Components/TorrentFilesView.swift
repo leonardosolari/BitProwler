@@ -104,6 +104,8 @@ struct TorrentFileNodeRow: View {
                 .buttonStyle(.plain)
                 .accessibilityIdentifier("file_toggle_\(accessibilityIDComponent)")
                 .accessibilityValue(node.isSelected ? "Selected" : "Not Selected")
+                .accessibilityLabel(node.isSelected ? "Deselect \(node.name)" : "Select \(node.name)")
+                .accessibilityElement(children: .ignore)
                 
                 FileIconView(filename: node.name, isDirectory: node.children != nil)
                 
